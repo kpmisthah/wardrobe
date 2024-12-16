@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create an Account</title>
+<link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h2>Create an account</h2>
+
+      <form method="post" action="/signup" id="loadSignup">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="name" placeholder="Enter username">
+          <div id="error1" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Enter email">
+          <div id="error2" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="mobile">Mobile</label>
+          <input type="tel" id="mobile" name="mobile" placeholder="Enter mobile number">
+          <div id="error3" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter password">
+          <div class="password-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div id="error4" class="error-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Confirm password</label>
+          <input type="password" id="cPassword" name="cPassword" placeholder="Enter password">
+          <div class="password-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div id="error5" class="error-message"></div>
+        </div>
+        <button type="submit" class="btn">Create an account</button>
+      </form>
+      <div class="or-continue">or continue with</div>
+      <a href="/auth/google" class="google-btn">
+        Google
+      </a>
+    </div>
+    <div class="image-container">
+      <img src="./images/person-image.png" alt="Person Image">
+    </div>
+  </div>
+
+  <script>
+
+//form validation
+const name = document.getElementById('username')
+const email = document.getElementById('email')
+const mobile = document.getElementById('mobile')
+const password = document.getElementById('password')
+const confirmPassword = document.getElementById('cPassword')
+const error1 = document.getElementById('error1')
+const error2 = document.getElementById('error2')
+const error3 = document.getElementById('error3')
+const error4 = document.getElementById('error4')
+const error5 = document.getElementById('error5')
+const loadSignup = document.getElementById('loadSignup')
+
+
+
+function nameValidateChecking(e){
+  const nameVal = name.value
+  const namePattern = /^[a-zA-Z\s'-]+$/;
+  if(nameVal.trim() == ""){
+    error1.style.display = "block"
+    error1.innerHTML = "please enter a valid name"
+    //test method is used to weather a string matches a given  regular experssion
+  }else if(!namePattern.test(nameVal)){
+    error1.style.display = "block"
+    error1.innerHTML = "Name can only contain alpahbets and spaces"
+  }else{
+    error1.style.display = "none"
+    error1.innerHTML = ''
+  }
+}
+
+function emailValidateChecking(e){
+  const emailval = email.value
+  const emailPattern =  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  if(emailval == ""){
+    error2.style.display = "block"
+    error2.innerHTML = "please enter a valid email"
+  }else if(!emailPattern.test(emailval)){
+    error2.style.display = "block"
+    error2.innerHTML = "Invalid Email"
+  }else if(!emailval.includes(".com")){
+    error2.style.display = "block"
+    error2.style.display = 'Enter valid Email'
+    }else{
+    error2.style.display = "none"
+    error2.innerHTML = ''
+  }
+}
+
+function phoneValidateChecking(e){
+  const phoneVal = mobile.value
+  if(phoneVal == ""){
+    error3.style.display = "block"
+    error3.innerHTML = "Enter a valid phone number"
+  }else if (phoneVal.length<10 || phoneVal.length>10){
+      error3.style.display = "block"
+    error3.innerHTML = "Enter 10 digits"
+  }else{
+    error3.style.display = "none"
+    error3.innerHTML = ""
+  }
+ 
+}
+
+function passwordValidateChecking(e){
+  const passVal = password.value
+  const cPassVal = confirmPassword.value
+   const alpha = /^[a-zA-Z]+$/
+   const digit = /^\d+$/;
+
+   if(passVal.length<8){
+    error4.style.display = "block";
+    error4.innerHTML = "should contain atleast 8 characters"
+   }else if(!alpha.test(passVal) && !digit.test(passVal)){
+    error4.style.display = "block"
+    error4.innerHTML = "password only contain alphabets and digits"
+   }else{
+    error4.style.display = "none",
+    error4.innerHTML = ""
+   }
+   if(passVal != cPassVal){
+    error5.style.display = "block"
+    error5.innerHTML = "password do not match"
+   }else{
+    error5.style.display = "none"
+    error5.innerHTML= ''
+   }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  loadSignup.addEventListener('submit',(e)=>{
+    nameValidateChecking();
+    emailValidateChecking();
+    phoneValidateChecking();
+    passwordValidateChecking();
+
+    if(error1.innerHTML || error2.innerHTML || error3.innerHTML || error4.innerHTML|| error5.innerHTML){
+      e.preventDefault()
+    }
+  })
+})
+  </script>
+</body>
+</html>
