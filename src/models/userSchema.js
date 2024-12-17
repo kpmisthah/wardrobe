@@ -28,9 +28,14 @@ const userSchema = new Schema({
         sparse:true,
         default:null
     },
+    isAdmin:{
+        type:Boolean,
+        default:false
+    },
     googleId:{
         type:String,
-         unique:true
+         unique:true,
+         sparse:true
     },
     isBlocked:{
         type:Boolean,

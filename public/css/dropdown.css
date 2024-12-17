@@ -1,0 +1,13 @@
+.dropdown-toggle::after {
+		display: none !important; /* Hides the arrow */
+	}
+	/* Remove link styles for dropdown button */
+.dropdown-toggle {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit text color */
+    background: none; /* Remove background */
+    border: none; /* Remove any borders */
+    padding: 0; /* Adjust padding if needed */
+    cursor: pointer; /* Optional: show a pointer cursor */
+}
+

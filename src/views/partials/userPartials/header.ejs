@@ -34,6 +34,7 @@
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 <!--===============================================================================================-->
+<link rel="stylesheet" href="css/dropdown.css">
 </head>
 <body class="animsition">
 	<header>
@@ -63,15 +64,26 @@
 							<li>
 								<a href="product.html">Shop</a>
 							</li>
-
+							<%if(locals.user){%>
+		
+								<div class="dropdown show">
+									<a class="btn dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									  <%=locals.user.name%>
+									</a>
+									<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+									  <a class="dropdown-item" href="#">Profile</a>
+									  <a class="dropdown-item" href="#">Logout</a>
+									</div>
+								  </div>						
+								  <%}else{%>
 							<li>
 								<a href="/signup">Sign up</a>
 							</li>
 							
 							<li>
-								<a href="">Login</a>
+								<a href="/login">Login</a>
 							</li>
-
+							<%}%>
 							<!-- <li>
 								<a href="about.html">About</a>
 							</li> -->

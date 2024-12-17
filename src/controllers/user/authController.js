@@ -4,9 +4,10 @@ import bcrypt from "bcrypt"
 import randomString from "randomstring"
 
 
+
 const signupPage = async(req,res)=>{
     try {
-        res.render('signup')
+        res.render('user/signup')
     } catch (error) {
         res.status(500).send("Server error")
     } 
@@ -14,7 +15,7 @@ const signupPage = async(req,res)=>{
 
 const signup = async(req,res)=>{
   try {
-    const{name,email,password,cPassword} = req.body
+    const{name,email,password,phone,cPassword} = req.body
     if(!name || !email || !password){
       return res.status(403).json({
         success:"false",
@@ -33,20 +34,22 @@ const signup = async(req,res)=>{
 
     //new user
 
-    const newUser = new User({name,email,password:hashedPassword})
-    const val = await newUser.save()
-    console.log(val);
+    const newUser = new User({name,email,password:hashedPassword,phone})
+    await newUser.save()
+
+     req.session.user = newUser._id
     
     // Generate and save OTP
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     const result = await Otp.create({ email, otp });
     console.log(result);
-
+    
     //store the data in session
+    
     req.session.userOtp = otp
     req.session.userData = {email,password}
     
-    res.render('otpVerification')
+    res.render('user/otpVerification')
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({success:false,error:error.message})
@@ -70,5 +73,60 @@ const verifyOtp = async (req,res)=>{
 
 
 }
-export {signup,signupPage,verifyOtp}
+
+//error page
+
+const loadError = async(req,res)=>{
+  try {
+      res.render('user/pageNotFound')
+  } catch (error) {
+      console.log(error)
+      res.status(500).send("Server error")
+  }
+}
+
+
+//login page
+const loginpage = async(req,res)=>{
+  try {
+    if(req.session.user){
+      res.redirect('/')
+    }else{
+      res.render('user/login')
+    }
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+  
+}
+
+const login = async(req,res)=>{
+  const{email,password} = req.body
+  console.log(password);
+  
+  try {
+    let savedUser = await User.findOne({isAdmin:0,email})
+    //already exist user
+    if(!savedUser){
+      return res.render("user/login",{message:"User not found"})
+    }
+    //if user is blocked by admin
+
+    if(savedUser.isBlocked){
+      return res.render('user/login',{message:"The user is blocked by admin"})
+    }
+   
+    const matchPassword = await bcrypt.compare(password,savedUser.password)
+    
+     if(!matchPassword){
+      return res.render('user/login',{message:"Incorrect password"})
+     }
+     req.session.user = savedUser._id
+     res.redirect('/')
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+export {signup,signupPage,verifyOtp,loginpage,login,loadError}
 

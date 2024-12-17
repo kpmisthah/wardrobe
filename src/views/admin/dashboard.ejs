@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul>
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="#">User Management</a></li>
+        <li><a href="#">Product Management</a></li>
+        <li><a href="#">Category Management</a></li>
+        <li><a href="#">Coupon Management</a></li>
+        <li><a href="#">Order Management</a></li>
+      </ul>
+    </div>
+    
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="metrics-container">
+        <div class="metric">
+          <h3>3002</h3>
+          <p>Total Users</p>
+        </div>
+        <div class="metric">
+          <h3>266</h3>
+          <p>Total Products</p>
+        </div>
+        <div class="metric">
+          <h3>66</h3>
+          <p>Total Orders</p>
+        </div>
+        <div class="metric">
+          <h3>277</h3>
+          <p>Weekly Sales</p>
+        </div>
+      </div>
+    
+      <div class="maintenance-container">
+        <h3>Add Maintenance</h3>
+        <div class="form-group">
+          <label for="start-time">Start time</label>
+          <input type="text" id="start-time" placeholder="dd-mm-yyyy" />
+        </div>
+        <div class="form-group">
+          <label for="end-time">End time</label>
+          <input type="text" id="end-time" placeholder="dd-mm-yyyy" />
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" placeholder="Enter a message"></textarea>
+        </div>
+        <button class="add-btn">Add</button>
+      </div>
+    
+      <div class="stats-container">
+        <div class="stat-card">
+          <h3>Revenue</h3>
+          <p>$32,123</p>
+          <p class="percent-change">+3.5%</p>
+          <p class="subtext">11.38% Since last month</p>
+        </div>
+        <div class="stat-card">
+          <h3>Sales</h3>
+          <p>$45,850</p>
+          <p class="percent-change">+8.3%</p>
+          <p class="subtext">9.61% Since last month</p>
+        </div>
+        <div class="stat-card">
+          <h3>Purchase</h3>
+          <p>$2,039</p>
+          <p class="percent-change">-2.1%</p>
+          <p class="subtext">2.27% Since last month</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

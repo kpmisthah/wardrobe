@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import session from "express-session"
 import userRouter from './routes/userRouter.js'
 import authRouter from './routes/authRoutes.js'
+import adminRouter from './routes/adminRouter.js'
 import{passport} from './db/passport.js'
 
 dotenv.config()
@@ -65,10 +66,13 @@ const __filename = fileURLToPath(import.meta.url); // get the resolved path to t
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 app.set('view engine', 'ejs')
-app.set('views',[path.join(__dirname,'views/admin'),path.join(__dirname,'views/user')])
+// app.set('views',[path.join(__dirname,'views/admin'),path.join(__dirname,'views/user')])
+app.set('views', path.join(__dirname, 'views'));
+
 
 app.use('/',userRouter)
 app.use('/',authRouter)
+app.use('/admin',adminRouter)
 
 
 
