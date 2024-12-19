@@ -27,6 +27,10 @@ const productSchema = new Schema({
         type:Number,
         required:true
     },
+    salePrice:{
+        type:Number,
+        required:true
+    },
     stock:{
         type:Number,
         required:true
@@ -70,4 +74,4 @@ const productSchema = new Schema({
 
 },{timestamps:true})
 
-export const Product = mongoose.model(Product,productSchema)
+export const Product = mongoose.model('Product',productSchema)

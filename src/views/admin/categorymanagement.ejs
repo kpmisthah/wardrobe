@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    body {
+      background-color: #1e1f20;
+      color: #ffffff;
+    }
+    .container {
+      margin-top: 10rem;
+      margin-right: 0.01rem;
+    }
+    .form-container, .table-container {
+      background-color: #131212;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .form-container h4, .form-label {
+      color: #ffffff;
+    }
+    .form-control {
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 1px solid #444;
+    }
+    .form-control::placeholder {
+      color: #cccccc;
+    }
+    .form-control:focus {
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border-color: #555;
+      box-shadow: none;
+    }
+    .btn-primary {
+      background-color: #3a3b3c;
+      border-color: #565758;
+    }
+    .btn-primary:hover {
+      background-color: #505152;
+    }
+    .btn-primary:focus {
+      box-shadow: 0 0 0 0.2rem rgba(87, 88, 89, 0.5);
+    }
+    .table-container {
+      color: #ffffff;
+    }
+    .table-bordered {
+      border-color: #444;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #2a2a2a;
+    }
+    .table-striped tbody tr:nth-of-type(even) {
+      background-color: #1e1f20;
+    }
+    .table-dark {
+      background-color: #333;
+    }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('../../views/partials/adminPartials/header') %>  
+    <%- include('../../views/partials/adminPartials/sidebar') %>    
+  <div class="container">
+    <div class="row">
+      <!-- Form Section -->
+      <div class="col-lg-4 col-md-12 form-container">
+        <h4 class="mb-3">Add Category</h4>
+        <form  id="loadCategory">
+          <div class="mb-3">
+            <label for="categoryName" class="form-label"></label>
+            <input type="text" class="form-control" id="categoryName" placeholder="Enter category name" name="name">
+            <div id="error1" class="error-message"></div>
+          </div>
+          <div class="mb-3">
+            <label for="categoryDescription" class="form-label"></label>
+            <textarea class="form-control" id="categoryDescription" rows="3" placeholder="Enter description" name="description"></textarea>
+            <div id="error2" class="error-message"></div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Category</button>
+        </form>
+
+      </div>
+<!-- Table Section -->
+<div class="col-lg-8 col-md-12 table-container">
+  <h4 class="mb-3">Category List</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Offer Price</th>
+          <th>Offer</th>
+          <th>Status</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% categoryData.forEach((category) => { %>
+        <tr>
+          <!-- Name -->
+          <td><%= category.name %></td>
+
+          <!-- Description -->
+          <td><%= category.description %></td>
+
+          <!-- Offer Price -->
+          <td>
+            <% if (category.categoryOffer) { %>
+              <%= category.categoryOffer %>
+            <% } else { %>
+              0%
+            <% } %>
+          </td>
+
+          <!-- Offer Buttons -->
+          <td>
+            <% if (category.categoryOffer==0) { %>
+            <button type="button" class="btn btn-success btn-sm" onclick="addOffer('<%= category._id %>')">Add Offer</button>
+            <%}else{%>
+              <button type="button" class="btn btn-danger btn-sm" onclick="removeOffer('<%= category._id %>')">Remove Offer</button>
+            <%}%>
+          </td>
+
+          <!-- Status Buttons -->
+          <td>
+            <% if (category.isListed) { %>
+              <button type="button" class="btn btn-success btn-sm">Listed</button>
+            <% } else { %>
+              <button type="button" class="btn btn-danger btn-sm">Unlisted</button>
+            <% } %>
+          </td>
+
+          <!-- Edit Button -->
+          <td>
+            <button type="button" class="btn btn-info btn-sm" onclick="editCategory('<%= category._id %>')">Edit</button>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+        <nav aria-label="Page navigation" class="pagination-container">
+            <ul class="pagination">
+              <% for (let i = 1; i <= totalpages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+
+//form validation
+const name = document.getElementById('categoryName')
+const description = document.getElementById('categoryDescription')
+const error1 = document.getElementById('error1')
+const error2 = document.getElementById('error2')
+const loadCategory = document.getElementById('loadCategory')
+
+function nameChecking(){
+    const nameVal = name.value
+    const namePattern = /^[a-zA-Z\s'-]+$/;
+    if(nameVal.trim() == ""){
+        error1.style.display = "block"
+        error1.innerHTML = "please enter a valid name"
+    }else if(!namePattern.test(nameVal)){
+        error1.style.display = "block"
+        error1.innerHTML="name can only contain alphabets"
+    
+    }else{
+        error1.style.display = 'none'
+        error1.innerHTML = ''
+    }
+}
+
+function descriptionChecking(){
+    const descriptionVal = description.value
+    if(descriptionVal.trim()==""){
+        error2.style.display = "block"
+        error2.innerHTML = "please enter a description"
+    }else{
+        error2.style.display ="none"
+        error2.innerHTML = ''
+    }
+}
+document.addEventListener("DOMContentLoaded", () => {
+    loadCategory.addEventListener('submit', async (e) => {
+        e.preventDefault();  // Prevent default form submission
+        
+        nameChecking();  // Run validation for name
+        descriptionChecking();  // Run validation for description
+        
+        // Check if there are any validation errors before submitting
+        if (error1.innerHTML || error2.innerHTML) {
+            return;  // Don't submit if there are validation errors
+        }
+        
+        // Get form values
+        const name = document.getElementById('categoryName').value;
+        const description = document.getElementById('categoryDescription').value;  // Get the value of description
+        
+        try {
+            // Make the fetch request using async/await
+            const response = await fetch('/admin/addCategory', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, description })  // Send both name and description as JSON
+            });
+            
+
+            console.log(response)
+            // Check if response is not OK and throw an error
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error);  // Handle the error if the response is not OK
+            }
+            
+            // If successful, parse the response data
+            const data = await response.json();
+            
+            // Handle the successful response, e.g., show a success message
+            console.log('Category added:', data);
+            window.location.reload();
+        } catch (err) {
+            // Handle errors in the fetch request
+            if(err.message == 'Category is already exist'){
+                console.error(err.message)
+                console.log(err)
+                // Swal.fire("Error", "OOPS", "Category already exist");
+                console.error("error")
+            }else{
+                console.error(err.message)
+                console.log(err)
+                // Swal.fire("Error", "OOPS","An error occur while adding category");
+            }
+            
+        }
+    });
+});
+
+//addoffer
+async function addOffer(categoryId) {
+  const{value:amount} = await Swal.fire({
+    title:'offer in percentage',
+    input:"number",
+    inputLabel:"percentage",
+    inputPlaceholder:"%"
+  })
+
+if(amount){
+  try {
+    const response = await fetch('/admin/addOffer',{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({percentage:amount,categoryId:categoryId})
+  })
+  //backend nn varunna data json lekkk convert cheyth
+  const data = await response.json()
+  console.log("The response is"+data)
+  if(response.ok && data.status === true){
+    Swal.fire('offer added', 'The offer has been added',"success")
+    .then(()=>{
+      window.location.reload()
+    })
+  }else{
+    Swal.fire('Failed',data.message||"Adding offer failed",'error')
+  }
+
+  } catch (error) {
+    Swal.fire("Error","An error occured while adding the offer","error")
+    console.log(error+" This is ")
+  }
+
+
+}
+}
+
+//remove offer
+async function removeOffer(categoryId){
+  try {
+    const response = await fetch('/admin/removeOffer',{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({categoryId:categoryId})
+  })
+  const data = await response.json()
+  if(response.ok && data.status === true){
+    Swal.fire("offer removed","The offer has been removed","success")
+    .then(()=>{
+      window.location.reload()
+    })
+    
+  }else{
+    Swal.fire("Failed",data.message||"Remove offer failed","error")
+  }
+  } catch (error) {
+    Swal.fire("Error","An error occured while removing the offer","error")
+    console.error("Error removing offer",error)
+  }
+
+}
+  </script>
+</body>
+</html>
