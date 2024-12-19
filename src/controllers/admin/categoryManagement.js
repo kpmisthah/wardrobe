@@ -135,4 +135,46 @@ const unListed = async(req,res)=>{
         
     }
 }
-export{categoryManagement,category,addCategoryOffer,removeCategoryOffer,isListed,unListed}
+
+const edit = async(req,res)=>{
+    try {
+        if(req.session.admin){
+            const{id} = req.query
+           const category =  await Category.findOne({_id:id})
+          res.render('admin/edit-category',{category})
+
+        }else{
+            res.redirect('admin/login')
+        }
+    } catch (error) {
+        
+    }
+}
+const editCategory = async(req,res)=>{
+    try {
+        if(req.session.admin){
+            const{id} = req.params
+            const{categoryName,description} = req.body
+            const existingCategory = await Category.findOne({name:categoryName})
+            if(existingCategory){
+                return res.status(400).json({error:"category exist pls choose another name"})
+            }
+            const updateCategory = await Category.findByIdAndUpdate(id,{
+                name:categoryName,
+                description
+            },{new:true})
+            //new true kodutha retrun docs immediate aayitt return allenki ithinte thott update okke ayyirikkun=m varunne
+            if(updateCategory){
+                res.redirect('/admin/category')
+            }else{
+                res.status(404).json({error:"Category not found"})
+            }
+            
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        res.status(500).json({error:"Internal Server error"})
+    }
+}
+export{categoryManagement,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory}

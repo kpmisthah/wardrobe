@@ -64,6 +64,38 @@
     .table-dark {
       background-color: #333;
     }
+    .pagination-container {
+  display: flex;
+  justify-content: center; 
+  align-items: center;     
+  padding: 20px 0;       
+}
+
+.pagination {
+  display: flex;
+  list-style: none;       
+  padding: 0;
+  margin: 0;
+}
+
+.page-item {
+  margin: 0 5px;           
+}
+
+.page-link {
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #007bff;         
+}
+
+.page-item.active .page-link {
+  background-color: #007bff; 
+  color: white;
+}
+
   </style>
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
@@ -101,6 +133,7 @@
           <th>Description</th>
           <th>Offer Price</th>
           <th>Offer</th>
+          <th>List/Unlist</th>
           <th>Status</th>
           <th>Edit</th>
         </tr>
@@ -132,7 +165,7 @@
             <%}%>
           </td>
 
-          <!-- Status Buttons -->
+          <!-- List and unlist -->
           <td>
             <% if (!category.isListed) { %>
               <a href="/admin/listed?id=<%=category._id%>" class="btn btn-danger btn-sm">Listed</a>
@@ -140,10 +173,17 @@
               <a href="/admin/unlisted?id=<%=category._id%>" class="btn btn-danger btn-sm">Unlisted</a>
             <% } %>
           </td>
-
-          <!-- Edit Button -->
           <td>
-            <button type="button" class="btn btn-info btn-sm" onclick="editCategory('<%= category._id %>')">Edit</button>
+            <% if (!category.isListed) { %>
+              <a href="/admin/unlisted?id=<%= category._id %>" class="btn btn-success btn-sm rounded-pill">Active</a>
+              <% } else { %>
+                <a href="/admin/listed?id=<%= category._id %>" class="btn btn-danger btn-sm rounded-pill">Inactive</a>
+                <% } %>
+              </td>
+
+          <td>
+              <!-- Edit Button -->
+              <a href="/admin/edit?id=<%=category._id%>" class="btn btn-danger btn-sm">Edit</a>
           </td>
         </tr>
         <% }) %>
