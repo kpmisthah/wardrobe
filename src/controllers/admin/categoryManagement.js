@@ -111,4 +111,28 @@ const removeCategoryOffer = async(req,res)=>{
         console.log("The error is "+error)
     }
 }
-export{categoryManagement,category,addCategoryOffer,removeCategoryOffer}
+
+const isListed = async(req,res)=>{
+    try {
+        const {id} = req.query
+        console.log("the id is "+id)
+       let value= await Category.updateOne({_id:id},{$set:{isListed:true}})
+       console.log('the value is'+value)
+        res.redirect('/admin/category')
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+const unListed = async(req,res)=>{
+    try {
+        const{id} = req.query
+        await Category.updateOne({_id:id},{$set:{isListed:false}})
+        res.redirect('/admin/category')
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+export{categoryManagement,category,addCategoryOffer,removeCategoryOffer,isListed,unListed}

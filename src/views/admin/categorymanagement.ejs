@@ -134,10 +134,10 @@
 
           <!-- Status Buttons -->
           <td>
-            <% if (category.isListed) { %>
-              <button type="button" class="btn btn-success btn-sm">Listed</button>
+            <% if (!category.isListed) { %>
+              <a href="/admin/listed?id=<%=category._id%>" class="btn btn-danger btn-sm">Listed</a>
             <% } else { %>
-              <button type="button" class="btn btn-danger btn-sm">Unlisted</button>
+              <a href="/admin/unlisted?id=<%=category._id%>" class="btn btn-danger btn-sm">Unlisted</a>
             <% } %>
           </td>
 
