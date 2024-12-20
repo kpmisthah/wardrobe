@@ -3,7 +3,7 @@ const router = express.Router()
 import { loginPage,login,dashboard } from "../controllers/admin/adminController.js"
 import { customer,blockUser,unblockUser } from "../controllers/admin/customerController.js"
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
-import{brandController,addBrand} from "../controllers/admin/brandController.js"
+import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
 import multer from 'multer'
 import { storage } from "../utils/multer.js"
 const uploads = multer({ storage: storage });//intialise multer with a custo storage engine
@@ -28,4 +28,7 @@ router.post('/edit-page/:id',editCategory)
 //brand management
 router.get('/brand',brandController)
 router.post('/addBrand',uploads.single('image'),addBrand)
+router.get('/blockBrand',blockBrand)
+router.get('/unblockBrand',unblockBrand)
+router.get('/deleteBrand',deleteBrand)
 export default router

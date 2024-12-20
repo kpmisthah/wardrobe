@@ -1,3 +1,4 @@
+import { update } from "tar"
 import { Brand } from "../../models/brandSchema.js"
 import { Product } from "../../models/productSchema.js"
 
@@ -39,4 +40,50 @@ const addBrand = async(req,res)=>{
     }
 }
 
-export{brandController,addBrand}
+const blockBrand = async (req,res)=>{
+    try {
+        if(req.session.admin){
+            const{id} = req.query
+            console.log("The id is"+id)
+            const result1 = await Brand.updateOne({_id:id},{$set:{isBlocked:true}})
+            console.log("the result1 is "+result1)
+            res.redirect('/admin/brand')
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        res.render('admin/pageNotFound')
+    }
+}
+
+const unblockBrand = async (req,res)=>{
+    try {
+        if(req.session.admin){
+            const{id} = req.query
+            console.log("The id is ",id)
+            const result = await Brand.updateOne({_id:id},{$set:{isBlocked:false}})
+            console.log("The result is "+result);
+            
+            res.redirect('/admin/brand')
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        res.render('admin/pageNotFound')
+    }
+}
+
+const deleteBrand = async(req,res)=>{
+    try {
+        if(req.session.admin){
+            const{id} = req.query
+            await Brand.deleteOne({_id:id})
+            res.redirect('/admin/brand')
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        res.redirect('/admin/pageNotfound')
+    }
+}
+export{brandController,addBrand,blockBrand,unblockBrand,deleteBrand}
