@@ -114,4 +114,16 @@ const getProductPage = async(req,res)=>{
         
     }
 }
-export{getProductAddPage,addProducts,getProductPage}
+
+const addProductOffer = async(req,res)=>{
+    const{percentage,productId} = req.body
+    const product = await Product.findById(productId)
+    if(!product){
+        res.status(500).json({message:""})
+    }
+}
+
+const removeProductOffer = async(req,res)=>{
+
+}
+export{getProductAddPage,addProducts,getProductPage,addProductOffer,removeProductOffer}
