@@ -249,6 +249,23 @@
             thumbnail.classList.add('thumbnail')
 
             const img = document.createElement('img')
+            img.src = URL.createObjectURL(file)
+            img.alt = "thumbnail"
+            img.style.width = "50px"
+            img.style.height = "auto"
+            const removeIcon = document.createElement('span')
+            removeIcon.classList.add('remove-icon')
+            removeIcon.innerHTML = "&times;"
+            removeIcon.addEventListener('click',function(){
+                const index = selectedImages.indexOf(file)
+                if(index!==-1){
+                    selectedImages.splice(index,1);
+                }
+                thumbnail.remove()
+            })
+            thumbnail.appendChild(img)
+            thumbnail.appendChild(removeIcon)
+            addedImagesContainer.appendChild(thumbnail);
         }
     }
 
@@ -266,62 +283,52 @@
               const quantity=document.getElementsByName('quantity')
               let isValid = true
               if (name.trim() === "") {
-      displayErrorMessage('productName-error', 'Please enter a product name.');
-      isValid = false;
-   } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
-      displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
-      isValid = false;
-   }
-            
-   if (description.trim() === "") {
-      displayErrorMessage('description-error', 'Please enter a product description.');
-      isValid = false;
-   } else if (!/^[a-zA-Z\s]+$/.test(description.trim())) {
-      displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
-      isValid = false;
-   }
-    if ( parseInt(quantity) < 0) {
-        displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-         isValid = false;
-        }
-        if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-            displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-            isValid = false;
-        }
-        if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                  displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-                  isValid = false;
-              }
-              if (parseFloat(price) <= parseFloat(saleprice)) {
+                displayErrorMessage('productName-error', 'Please enter a product name.');
+                isValid = false;
+            } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
+                displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
+                isValid = false;
+            }
+            if (description.trim() === "") {
+                displayErrorMessage('description-error', 'Please enter a product description.');
+                isValid = false;
+            } else if (!/^[a-zA-Z\s]+$/.test(description.trim())) {
+                displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');isValid = false;
+            }
+            if ( parseInt(quantity) < 0) {
+                displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+                isValid = false
+            }
+            if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+                displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+                isValid = false;
+            }
+            if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+                displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+                isValid = false;
+            }
+            if (parseFloat(price) <= parseFloat(saleprice)) {
                  displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
                  isValid = false;
-                }
-  
-  
-              if (color.trim() === "") {
+            }
+            if (color.trim() === "") {
                   displayErrorMessage('color-error', 'Please enter a color.');
                   isValid = false;
-              }
-  
-  
-              if (images.files.length === 0) {
+            }
+            if (images.files.length === 0) {
                   displayErrorMessage("images-error",'Please select an image.');
                   isValid = false;
-              }
-              return isValid;
+            }
+            return isValid;
           }
-
-
           function displayErrorMessage(elementId, message) {
               var errorElement = document.getElementById(elementId);
               errorElement.innerText = message;
               errorElement.style.display = "block";
           }
-  
-  
           function clearErrorMessages() {
-              const errorElements = document.getElementsByClassName('error-message');
-              Array.from(errorElements).forEach(element => {
+            errorElements = document.getElementsByClassName('error-message');
+            Array.from(errorElements).forEach(element => {
                   element.innerText = '';
               });
               const errorMessage = document.getElementById('errorMessage');

@@ -33,7 +33,7 @@ const productSchema = new Schema({
     },
     stock:{
         type:Number,
-        required:true
+        // required:true
     },
     productImage:{
         type:[String],
@@ -46,6 +46,10 @@ const productSchema = new Schema({
     },
     sizeOption:{
         type:[Number],
+        required:true
+    },
+    quantity:{
+        type:Number,
         required:true
     },
     colorOption:{

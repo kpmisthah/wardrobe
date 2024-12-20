@@ -4,7 +4,7 @@ import { loginPage,login,dashboard } from "../controllers/admin/adminController.
 import { customer,blockUser,unblockUser } from "../controllers/admin/customerController.js"
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
-import { getProductAddPage } from "../controllers/admin/addProducts.js"
+import { getProductAddPage,addProducts } from "../controllers/admin/addProducts.js"
 
 import multer from 'multer'
 import { storage } from "../utils/multer.js"
@@ -35,4 +35,5 @@ router.get('/unblockBrand',unblockBrand)
 router.get('/deleteBrand',deleteBrand)
 //product management
 router.get('/addProducts',getProductAddPage)
+router.post('/addProducts',uploads.array('images',4),addProducts)
 export default router
