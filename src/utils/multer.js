@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Define the upload path
-const uploadPath = path.join(__dirname, "../public/uploads/re-image");
+const uploadPath = path.join(__dirname, "../uploads/re-image");
 console.log("Upload path",uploadPath)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
