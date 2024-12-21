@@ -315,8 +315,10 @@ if(amount){
     body:JSON.stringify({percentage:amount,categoryId:categoryId})
   })
   //backend nn varunna data json lekkk convert cheyth
+  console.log("The response is"+response)
   const data = await response.json()
-  console.log("The response is"+data)
+  console.log("The data is "+JSON.stringify(data))
+  console.log("The data is "+data)
   if(response.ok && data.status === true){
     Swal.fire('offer added', 'The offer has been added',"success")
     .then(()=>{

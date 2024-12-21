@@ -10,7 +10,7 @@
 <header class="card-header text-center mb-20">
     <form action="" method="get" class="d-inline">
         <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search" id="search">
             <button class="btn  border-0" type="submit">Search</button>
         </div>
     </form>
@@ -37,17 +37,17 @@
                 <td><%=data.brand%></td>
                 <!-- //category reference aan so collection aayittaan vera -->
                 <td><%=data.category.name%></td>
-                <td>data.salePrice</td>
+                <td><%=data.salePrice%></td>
                 <td>
                 <!-- //backend nn varunna varibales value access cheyyan vendeettann use cheyyunne -->
-                <%if(locals.data.productOffer){%>
-                    <%data.productOffer%>
+                <%if(data.productOffer){%>
+                    <%=data.productOffer%>
                 <%}else{%>
                     0%
                     <%}%>
                 </td>
                 <td>
-                    <%if(locals.data.productOffer === 0){%>
+                    <%if(data.productOffer == 0){%>
                     <button class="btn btn-info" onclick="addOffer('<%=data._id%>')" style="width: 100px;">
                         <a href="#" class="text-white">Add Offer</a>
                     </button>
@@ -58,18 +58,19 @@
                   <%}%>
                 </td>
                 <td><%=data.quantity%></td>
+                <%if(data.isBlocked === false){%>
                 <td>
-                
                     <button class="btn btn-danger" style="width: 80px;">
-                        <a href="" class="text-white" style="text-decoration: none;">Block</a>
+                        <a href="/admin/blockProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Block</a>
                     </button>
-                    
+                    <%}else{%>
+                    <td>
                     <button class="btn btn-success" style="width: 80px;">
-                        <a href="" class="text-white" style="text-decoration: none;">Unblock</a>
+                        <a href="/admin/unblockProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
                     </button>
-            
+                    <%}%>
                 </td>
-                <td>
+                
                     <button class="btn btn-info" style="width: 80px;">
                         <a href="" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
@@ -108,11 +109,7 @@
             input: "number",
             inputLabel: "percentage",
             inputPlaceholder:"%",
-            inputValidator: (value) => {
-                if (!value) {
-                    return "You need to write something!";
-                }
-            }
+
         })
         if(amount){
             try {
@@ -122,13 +119,15 @@
                     body:JSON.stringify({percentage:amount,productId})
                 })
                 const data = await response.json()
-                if(response.ok && data.status == true){
+                console.log("The response is"+JSON.stringify(data))
+                if( data.status == true){
                     Swal.fire("offer added","The odder has been added","success")
                     .then(()=>{
                         window.location.reload()
                     })
                 }else{
                     Swal.fire('Failed',data.message||"Adding offer failed",'error')
+                    console.log("")
                 }
             } catch (error) {
                 Swal.fire("Error","An error occured while adding the offer","error")
@@ -153,12 +152,24 @@ async function removeOffer(productId) {
             const response = await fetch('/admin/removeProduct',{
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
-                body:JSON.stringify()
+                body:JSON.stringify({productId})
             })
+            const data = await response.json()
+            if( data.status === true){
+                Swal.fire("Removed","The offer has been removed","success")
+                .then(()=>{
+                    window.location.reload()
+                })
+            }else{
+                Swal.fire("Failed",data.message||"Removing offer failed","error")
+                
+                
+            }
         }
        })
     } catch (error) {
         Swal.fire("Error","An error occured while removing the offer",'error')
+        console.log("error removing offer",error)
     }
 }
 </script>

@@ -5,6 +5,7 @@ import fs from "fs"
 import path from "path"
 import sharp from "sharp"
 
+
 const getProductAddPage = async(req,res)=>{
 
     try {
@@ -116,14 +117,83 @@ const getProductPage = async(req,res)=>{
 }
 
 const addProductOffer = async(req,res)=>{
-    const{percentage,productId} = req.body
-    const product = await Product.findById(productId)
-    if(!product){
-        res.status(500).json({message:""})
+    try {
+        if(req.session.admin){
+            const{percentage,productId} = req.body
+            const product = await Product.findOne({_id:productId})
+            console.log("The product is"+product)
+            const category = await Category.findOne({_id:product.category})
+            console.log("the category is "+category)
+            if(category.categoryOffer>percentage){
+                return res.json({status:false,message:"This products category already exist"})
+            }
+            if (product.productOffer > 0) {
+                return res.json({ status: false, message: "An offer is already applied to this product" });
+            }
+            const discountAmount = Math.floor(product.regularPrice*(percentage/100))
+            product.salePrice = product.regularPrice - discountAmount
+            console.log("The sale pric"+product.salePrice)
+            product.productOffer = parseInt(percentage)
+            console.log("The product offer is "+product.productOffer)
+            const save1 = await product.save()
+            console.log("The product is saved"+save1)
+            category.categoryOffer = 0;
+           const save2 = await category.save()
+           console.log("The cateogry is saved"+save2)
+            res.json({status:true,message:"Offer added successsfully"})
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        res.redirect('/pageNotFound')
+        res.status(500).json({status:false,message:"Internal Sever error"})
     }
 }
 
+
+
 const removeProductOffer = async(req,res)=>{
+    try {
+        if(req.session.admin){
+            const{productId} = req.body
+            const product = await Product.findOne({_id:productId})
+            product.salePrice = product.regularPrice
+            product.productOffer = 0
+            await product.save()
+            res.json({status:true})
+
+        }else{
+            res.redirect('/admin/login')
+        }
+    } catch (error) {
+        res.redirect("pageNotFound")
+    }
+}
+
+const blockProduct = async(req,res)=>{
+    try {
+        const{id} = req.query
+        console.log("The id is "+id)
+        const updateProduct = await Product.updateOne({_id:id},{$set:{isBlocked:true}})
+        console.log("The updated product is "+updateProduct)
+        res.redirect('/admin/products')
+    } catch (error) {
+        res.redirect("onsd")
+    }
 
 }
-export{getProductAddPage,addProducts,getProductPage,addProductOffer,removeProductOffer}
+
+const unblockProduct = async(req,res)=>{
+    try {
+        const{id} = req.query
+        console.log("The id is"+id)
+        const updateProduct =await Product.updateOne({_id:id},{$set:{isBlocked:false}})
+        console.log("The updated product is "+updateProduct)
+        res.redirect('/admin/products')
+    } catch (error) {
+        console.log(error);
+        
+    }
+
+}
+export{getProductAddPage,addProducts,getProductPage,addProductOffer,removeProductOffer,blockProduct,unblockProduct}
