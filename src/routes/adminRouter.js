@@ -4,7 +4,7 @@ import { loginPage,login,dashboard } from "../controllers/admin/adminController.
 import { customer,blockUser,unblockUser } from "../controllers/admin/customerController.js"
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
-import {getProductAddPage,addProducts, getProductPage ,addProductOffer,removeProductOffer,blockProduct,unblockProduct,getEditProduct} from "../controllers/admin/productController.js"
+import {getProductAddPage,addProducts, getProductPage ,addProductOffer,removeProductOffer,blockProduct,unblockProduct,getEditProduct,editProduct,deleteSingleImage} from "../controllers/admin/productController.js"
 import multer from 'multer'
 import { storage } from "../utils/multer.js"
 const uploads = multer({ storage: storage });//intialise multer with a custo storage engine
@@ -41,4 +41,6 @@ router.post('/removeProduct',removeProductOffer)
 router.get('/blockProduct',blockProduct)
 router.get('/unblockProduct',unblockProduct)
 router.get('/editProduct',getEditProduct)
+router.post('/editProducts/:id',uploads.array('images',4),editProduct)
+router.post('/deleteImage',deleteSingleImage)
 export default router

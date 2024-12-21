@@ -4,6 +4,8 @@ import { Brand } from "../../models/brandSchema.js"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
+import { error } from "console"
+import { category } from "./categoryManagement.js"
 
 
 const getProductAddPage = async(req,res)=>{
@@ -207,11 +209,67 @@ const getEditProduct = async(req,res)=>{
         res.redirect('/pageNotFound')
     }
 }
+
+const editProduct = async(req,res)=>{
+    try {
+        const{id} = req.params
+        const data = req.body
+        const existingProduct = await Product.find({
+            productName:data.productName,
+            _id:{$ne:id}
+        })
+       if(existingProduct){
+        res.status(400).json({error:"Product with name already exists.please try with another name"})
+       }
+       const images = []
+       if(req.files && req.files.length>0){
+        for(let i = 0; i<req.files.length;i++){
+            images.push(req.files[i].filename)
+        }
+       } 
+       const updateFields = {
+        productName:data.productName,
+        description:data.description,
+        brand:data.brand,
+        category:product.category,
+        regularPrice:data.regularPrice,
+        salePrice:data.salePrice,
+        quantity:data.quantity,
+        size:data.size,
+        color:data.color
+       }
+       if(req.files.length>0){
+        //push use cheyth image add cheyyu,
+        updateFields.$push = {productImage:{$each:images}}
+        }
+        await Product.findByIdAndUpdate(id,updateFields,{new:true})
+        res.redirect('/admin/products')
+    } catch (error) {
+        console.error(error)
+        res.redirect('/pageNotFound')
+    }
+}
+
+const deleteSingleImage = async(req,res)=>{
+    const{imageNameToServer,productIdToServer} = req.body
+    const product = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
+    const imagePath = path.join('public','uploads','re-image',imageNameToServer)
+    if(fs.existsSync(imagePath)){
+        await fs.unlinkSync(imagePath)
+        console.log(`image ${imageNameToServer} deleted successfully`)
+    }else{
+        console.log(`image ${imageNameToServer} not found`);
+        
+    }
+    res.send({status:true})
+}
 export{
     getProductAddPage,
     addProducts,getProductPage,
     addProductOffer,removeProductOffer,
     blockProduct,
     unblockProduct,
-    getEditProduct
+    getEditProduct,
+    editProduct ,
+    deleteSingleImage
 }
