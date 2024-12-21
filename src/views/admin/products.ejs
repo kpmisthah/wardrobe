@@ -58,21 +58,21 @@
                   <%}%>
                 </td>
                 <td><%=data.quantity%></td>
-                <%if(data.isBlocked === false){%>
                 <td>
+                <%if(data.isBlocked === false){%>
+                
                     <button class="btn btn-danger" style="width: 80px;">
                         <a href="/admin/blockProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Block</a>
                     </button>
-                    <%}else{%>
-                    <td>
+                <%}else{%>
                     <button class="btn btn-success" style="width: 80px;">
                         <a href="/admin/unblockProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
                     </button>
                     <%}%>
-                </td>
-                
+                </td>  
+                <td>
                     <button class="btn btn-info" style="width: 80px;">
-                        <a href="" class="text-white" style="text-decoration: none;">Edit</a>
+                        <a href="/admin/editProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
                 </td>
             </tr>

@@ -132,14 +132,10 @@ const addProductOffer = async(req,res)=>{
             }
             const discountAmount = Math.floor(product.regularPrice*(percentage/100))
             product.salePrice = product.regularPrice - discountAmount
-            console.log("The sale pric"+product.salePrice)
             product.productOffer = parseInt(percentage)
-            console.log("The product offer is "+product.productOffer)
-            const save1 = await product.save()
-            console.log("The product is saved"+save1)
+             await product.save()
             category.categoryOffer = 0;
-           const save2 = await category.save()
-           console.log("The cateogry is saved"+save2)
+            await category.save()
             res.json({status:true,message:"Offer added successsfully"})
         }else{
             res.redirect('/admin/login')
@@ -173,9 +169,7 @@ const removeProductOffer = async(req,res)=>{
 const blockProduct = async(req,res)=>{
     try {
         const{id} = req.query
-        console.log("The id is "+id)
-        const updateProduct = await Product.updateOne({_id:id},{$set:{isBlocked:true}})
-        console.log("The updated product is "+updateProduct)
+        await Product.updateOne({_id:id},{$set:{isBlocked:true}})
         res.redirect('/admin/products')
     } catch (error) {
         res.redirect("onsd")
@@ -186,9 +180,7 @@ const blockProduct = async(req,res)=>{
 const unblockProduct = async(req,res)=>{
     try {
         const{id} = req.query
-        console.log("The id is"+id)
-        const updateProduct =await Product.updateOne({_id:id},{$set:{isBlocked:false}})
-        console.log("The updated product is "+updateProduct)
+        await Product.updateOne({_id:id},{$set:{isBlocked:false}})
         res.redirect('/admin/products')
     } catch (error) {
         console.log(error);
@@ -196,4 +188,30 @@ const unblockProduct = async(req,res)=>{
     }
 
 }
-export{getProductAddPage,addProducts,getProductPage,addProductOffer,removeProductOffer,blockProduct,unblockProduct}
+
+const getEditProduct = async(req,res)=>{
+    try {
+        if(req.session.admin){
+            const{id} = req.query
+            const product = await Product.findOne({_id:id})
+            //category and brand need to be drop down and user can select to edit them 
+            const category = await Category.find({})
+            const brand = await Brand.find({})
+            res.render('admin/edit-product',{
+                product,category,brand
+            })
+        }else{
+            res.render('/admin/login')
+        }
+    } catch (error) {
+        res.redirect('/pageNotFound')
+    }
+}
+export{
+    getProductAddPage,
+    addProducts,getProductPage,
+    addProductOffer,removeProductOffer,
+    blockProduct,
+    unblockProduct,
+    getEditProduct
+}
