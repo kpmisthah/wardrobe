@@ -1,6 +1,7 @@
 import {User} from "../../models/userSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
+import { categoryManagement } from "../admin/categoryManagement.js"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 const loadHome = async(req,res)=>{
@@ -11,6 +12,7 @@ const loadHome = async(req,res)=>{
         const product = await Product.find(
             {isBlocked:false,category:{$in:category.map(category=>category._id)},quantity:{$gt:0}}
         ).sort({createdAt:-1}).limit(4)
+        console.log("The product is "+product)
         
        let user = req.session.user
         if(user){
@@ -35,4 +37,24 @@ const loadError = async(req,res)=>{
     }
 }
 
-export {loadHome,loadError}
+const loadShoppingPage =  async(req,res)=>{
+    try {
+        if(req.session.user){
+            let user = req.session.user
+            let page = req.query||1
+            let limit = 4
+            const category = new Category.find({isListed:true})
+            const products = new Product.find(
+                {isBlocked:false,category:{$in:category.map(category=>category._id)},quantity:{$gt:0}}
+            ).sort({createdAt:-1}).limit(limit).skip(page-1*limit)
+            const count = Product.countDocuments({isBlocked:false,category:{$in:category.map(category=>category._id)}})
+            const totalpage = Math.ceil(count/page)
+            
+        }else{
+
+        }
+    } catch (error) {
+        
+    }
+}
+export {loadHome,loadError,loadShoppingPage}

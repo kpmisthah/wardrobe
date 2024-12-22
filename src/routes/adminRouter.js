@@ -41,4 +41,5 @@ router.get('/unblockProduct',unblockProduct)
 router.get('/editProduct',getEditProduct)
 router.post('/editProducts/:id',uploads.array('images',4),editProduct)
 router.post('/deleteImage',deleteSingleImage)
+
 export default router
