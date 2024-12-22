@@ -17,7 +17,7 @@ const loadHome = async(req,res)=>{
             let userData = await User.findOne({_id:user})
             res.render('user/home',{user:userData,product})
         }else{
-            return res.render('user/home',product)
+            return res.render('user/home',{product})
         }
          
     } catch (error) {

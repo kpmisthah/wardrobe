@@ -5,10 +5,8 @@ import { customer,blockUser,unblockUser } from "../controllers/admin/customerCon
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
 import {getProductAddPage,addProducts, getProductPage ,addProductOffer,removeProductOffer,blockProduct,unblockProduct,getEditProduct,editProduct,deleteSingleImage} from "../controllers/admin/productController.js"
-import multer from 'multer'
-import { storage } from "../utils/multer.js"
-const uploads = multer({ storage: storage });//intialise multer with a custo storage engine
-
+import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
+const uploads = uploadMulter(storage)
 
 router.get('/login',loginPage)
 router.get('/dashboard',dashboard)
