@@ -6,13 +6,13 @@ const categoryManagement = async(req,res)=>{
         if(req.session.admin){
             let page = parseInt(req.query.page||1)
             let limit = 3
-            let category = await Category.find({}).sort({createdAt:-1}).limit(limit).skip((page-1)*limit)
+            let category = await Category.find({isListed:false}).sort({createdAt:-1}).limit(limit).skip((page-1)*limit)
             console.log("The find it saved is"+category)
             let categoryCount = await Category.find({}).countDocuments()
             console.log("The cateogry count"+categoryCount)
             let totalpages = Math.ceil(categoryCount/limit)
 
-            res.render('admin/categorymanagement',{categoryData:category,totalpages,currentPage:page})
+            res.render('admin/categorymanagement',{categoryData,totalpages,currentPage:page})
         }else{
             res.redirect('/admin/login')
         }

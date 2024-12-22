@@ -44,6 +44,7 @@ const addProducts = async(req,res)=>{
                     images.push(req.files[i].filename);
                 }
             }
+            console.log("The ads products"+req.files)
             const categoryId = await Category.findOne({name:products.category})
             if(!categoryId){
                 return res.status(400).join("Invalid category name")
@@ -203,7 +204,7 @@ const getEditProduct = async(req,res)=>{
                 product,category,brand
             })
         }else{
-            res.render('/admin/login')
+            res.render('admin/login')
         }
     } catch (error) {
         res.redirect('/pageNotFound')
@@ -227,11 +228,12 @@ const editProduct = async(req,res)=>{
             images.push(req.files[i].filename)
         }
        } 
+       console.log("the file is"+req.files)
        const updateFields = {
         productName:data.productName,
         description:data.description,
         brand:data.brand,
-        category:product.category,
+        category:data.category,
         regularPrice:data.regularPrice,
         salePrice:data.salePrice,
         quantity:data.quantity,
@@ -240,7 +242,8 @@ const editProduct = async(req,res)=>{
        }
        if(req.files.length>0){
         //push use cheyth image add cheyyu,
-        updateFields.$push = {productImage:{$each:images}}
+        const value = updateFields.$push = {productImage:{$each:images}}
+        console.log(value)
         }
         await Product.findByIdAndUpdate(id,updateFields,{new:true})
         res.redirect('/admin/products')
@@ -253,7 +256,7 @@ const editProduct = async(req,res)=>{
 const deleteSingleImage = async(req,res)=>{
     const{imageNameToServer,productIdToServer} = req.body
     const product = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
-    const imagePath = path.join('public','uploads','re-image',imageNameToServer)
+    const imagePath = path.join('uploads','re-image',imageNameToServer)
     if(fs.existsSync(imagePath)){
         await fs.unlinkSync(imagePath)
         console.log(`image ${imageNameToServer} deleted successfully`)
