@@ -1,7 +1,8 @@
 import {User} from "../../models/userSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
-import { categoryManagement } from "../admin/categoryManagement.js"
+import { Brand } from "../../models/brandSchema.js"
+import { category } from "../admin/categoryManagement.js"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 const loadHome = async(req,res)=>{
@@ -41,7 +42,8 @@ const loadShoppingPage =  async(req,res)=>{
     try {
         if(req.session.user){
             let user = req.session.user
-            let page = req.query||1
+            let userData = await User.find({_id:user})
+            let page = parseInt(req.query||1)
             let limit = 4
             const category = new Category.find({isListed:true})
             const products = new Product.find(
@@ -49,7 +51,10 @@ const loadShoppingPage =  async(req,res)=>{
             ).sort({createdAt:-1}).limit(limit).skip(page-1*limit)
             const count = Product.countDocuments({isBlocked:false,category:{$in:category.map(category=>category._id)}})
             const totalpage = Math.ceil(count/page)
-            
+
+            const brand = new Brand({isBlocked:false})
+            const categoriesId = new Category.find(category.map(category=>({name:category.name,_id:category._id})))
+            res.render('user/shop',{products,totalpage,userData,brand,categoriesId})
         }else{
 
         }
