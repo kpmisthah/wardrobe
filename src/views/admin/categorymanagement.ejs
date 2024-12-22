@@ -16,7 +16,7 @@
       margin-right: 0.01rem;
     }
     .form-container, .table-container {
-      background-color: #131212;
+      background-color: #dacfcf;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -167,19 +167,19 @@
 
           <!-- List and unlist -->
           <td>
-            <% if (!category.isListed) { %>
+            <% if (category.isListed == false) { %>
               <a href="/admin/listed?id=<%=category._id%>" class="btn btn-danger btn-sm">Listed</a>
             <% } else { %>
               <a href="/admin/unlisted?id=<%=category._id%>" class="btn btn-danger btn-sm">Unlisted</a>
             <% } %>
           </td>
-          <td>
-            <% if (!category.isListed) { %>
+          <!-- <td>
+            <% if (category.isListed ==false) { %>
               <a href="/admin/unlisted?id=<%= category._id %>" class="btn btn-success btn-sm rounded-pill">Active</a>
               <% } else { %>
                 <a href="/admin/listed?id=<%= category._id %>" class="btn btn-danger btn-sm rounded-pill">Inactive</a>
                 <% } %>
-              </td>
+              </td> -->
 
           <td>
               <!-- Edit Button -->

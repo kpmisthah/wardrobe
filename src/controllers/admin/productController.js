@@ -4,8 +4,6 @@ import { Brand } from "../../models/brandSchema.js"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
-import { error } from "console"
-import { category } from "./categoryManagement.js"
 
 
 const getProductAddPage = async(req,res)=>{
@@ -75,28 +73,24 @@ const addProducts = async(req,res)=>{
     }
 }
 
+
 const getProductPage = async(req,res)=>{
+
     try {
         if(req.session.admin){
             const search = req.query.search||''
             const page = req.query.page || 1
             const limit = 3
+            
+            const searchQuery = {
+                $or: [
+                    { productName: { $regex: new RegExp(search, "i") } },
+                    { brand: { $regex: new RegExp(search, "i") } }
+                ]
+            };
             //search nokkanm
-            const productData = await Product.find({
-                $or:[
-                    {productName:{$regex:new RegExp('.*'+search+'.*',"i")}},
-                    {brand:{$regex:new RegExp(".*"+search+".*","i")}}
-                ],
-            }).limit(limit).skip((page-1)*limit).populate("category").exec()
-
-            const count = await Product.find({
-                $or:[
-                    {productName:{$regex:new RegExp('.*'+search+".*","i")}},
-                    {brand:{$regex:new RegExp(".*"+search+".*","i")}},
-
-                ],
-
-            }).countDocuments()
+            const productData = await Product.find(searchQuery).limit(limit).skip((page-1)*limit).populate({path:'category',select:'name'}).exec()
+            const count = await Product.countDocuments(searchQuery)
             const totalPages = Math.ceil(count/limit)
             const category = await Category.find({isListed:true})
             const brand = await Brand.find({isBlocked:false})
@@ -115,7 +109,7 @@ const getProductPage = async(req,res)=>{
         }
 
     } catch (error) {
-        
+        console.error(error+"oke")
     }
 }
 
@@ -124,9 +118,7 @@ const addProductOffer = async(req,res)=>{
         if(req.session.admin){
             const{percentage,productId} = req.body
             const product = await Product.findOne({_id:productId})
-            console.log("The product is"+product)
             const category = await Category.findOne({_id:product.category})
-            console.log("the category is "+category)
             if(category.categoryOffer>percentage){
                 return res.json({status:false,message:"This products category already exist"})
             }

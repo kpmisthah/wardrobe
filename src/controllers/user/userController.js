@@ -15,9 +15,6 @@ const loadHome = async(req,res)=>{
        let user = req.session.user
         if(user){
             let userData = await User.findOne({_id:user})
-            console.log("type of user._id "+typeof user._id)
-            console.log("The user data is "+userData);
-            
             res.render('user/home',{user:userData,product})
         }else{
             return res.render('user/home',product)

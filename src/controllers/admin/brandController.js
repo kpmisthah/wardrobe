@@ -44,9 +44,7 @@ const blockBrand = async (req,res)=>{
     try {
         if(req.session.admin){
             const{id} = req.query
-            console.log("The id is"+id)
             const result1 = await Brand.updateOne({_id:id},{$set:{isBlocked:true}})
-            console.log("the result1 is "+result1)
             res.redirect('/admin/brand')
         }else{
             res.redirect('/admin/login')

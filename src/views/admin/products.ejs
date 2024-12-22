@@ -31,23 +31,23 @@
             </tr>
         </thead>
         <tbody>
-            <%data.forEach((data)=>{%>
+            <%data.forEach((product)=>{%>
             <tr>
-                <td><%=data.name%></td>
-                <td><%=data.brand%></td>
+                <td><%=product.name%></td>
+                <td><%=product.brand%></td>
                 <!-- //category reference aan so collection aayittaan vera -->
-                <td><%=data.category.name%></td>
-                <td><%=data.salePrice%></td>
+                <td><%=(product.category && product.category.name) ? product.category.name : 'No Category'%></td>
+                <td><%=product.salePrice%></td>
                 <td>
                 <!-- //backend nn varunna varibales value access cheyyan vendeettann use cheyyunne -->
-                <%if(data.productOffer){%>
-                    <%=data.productOffer%>
+                <%if(product.productOffer){%>
+                    <%=product.productOffer%>
                 <%}else{%>
                     0%
                     <%}%>
                 </td>
                 <td>
-                    <%if(data.productOffer == 0){%>
+                    <%if(product.productOffer == 0){%>
                     <button class="btn btn-info" onclick="addOffer('<%=data._id%>')" style="width: 100px;">
                         <a href="#" class="text-white">Add Offer</a>
                     </button>
@@ -57,22 +57,22 @@
                     </button>
                   <%}%>
                 </td>
-                <td><%=data.quantity%></td>
+                <td><%=product.quantity%></td>
                 <td>
-                <%if(data.isBlocked === false){%>
+                <%if(product.isBlocked === false){%>
                 
                     <button class="btn btn-danger" style="width: 80px;">
-                        <a href="/admin/blockProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Block</a>
+                        <a href="/admin/blockProduct?id=<%=product._id%>" class="text-white" style="text-decoration: none;">Block</a>
                     </button>
                 <%}else{%>
                     <button class="btn btn-success" style="width: 80px;">
-                        <a href="/admin/unblockProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
+                        <a href="/admin/unblockProduct?id=<%=product._id%>" class="text-white" style="text-decoration: none;">Unblock</a>
                     </button>
                     <%}%>
                 </td>  
                 <td>
                     <button class="btn btn-info" style="width: 80px;">
-                        <a href="/admin/editProduct?id=<%=data._id%>" class="text-white" style="text-decoration: none;">Edit</a>
+                        <a href="/admin/editProduct?id=<%=product._id%>" class="text-white" style="text-decoration: none;">Edit</a>
                     </button>
                 </td>
             </tr>

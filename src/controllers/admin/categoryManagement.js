@@ -6,13 +6,11 @@ const categoryManagement = async(req,res)=>{
         if(req.session.admin){
             let page = parseInt(req.query.page||1)
             let limit = 3
-            let category = await Category.find({isListed:false}).sort({createdAt:-1}).limit(limit).skip((page-1)*limit)
-            console.log("The find it saved is"+category)
+            let category = await Category.find().sort({createdAt:-1}).limit(limit).skip((page-1)*limit)
             let categoryCount = await Category.find({}).countDocuments()
-            console.log("The cateogry count"+categoryCount)
             let totalpages = Math.ceil(categoryCount/limit)
 
-            res.render('admin/categorymanagement',{categoryData,totalpages,currentPage:page})
+            res.render('admin/categorymanagement',{categoryData:category,totalpages,currentPage:page})
         }else{
             res.redirect('/admin/login')
         }
@@ -25,24 +23,16 @@ const categoryManagement = async(req,res)=>{
 const category = async(req,res)=>{
     try {
         const{name,description} = req.body
-        console.log("working 1")
         const existingCategory = await Category.findOne({name})
         if(existingCategory){
-            console.log("th")
+
             return res.status(400).json({error:"Category is already exist"})
         }
-        console.log("working 2")
         const newCategory = new Category({name,description})
-        console.log("The new cateogry is"+newCategory)
-        console.log("working 3")
         const response =  await newCategory.save()
-        console.log("The data is saved"+ response)
-        console.log("working 4")
         return res.json({message:"Successfully category added"})
         
     } catch (error) {
-        console.error(error.message)
-        console.log(error)
         return res.status(500).json({error:"uday error"})
     }
 
@@ -52,16 +42,12 @@ const addCategoryOffer = async(req,res)=>{
     try {
         if(req.session.admin){
             const percentage = req.body.percentage
-            console.log("The percentage is "+percentage)
             const categoryId = req.body.categoryId
-            console.log("the category id is "+categoryId)
             const category = await Category.findById(categoryId)
-            console.log("The category is "+category)
             if(!category){
                 return res.status(500).json({message:"product within the category already have product offer"})
             }
             const products = await Product.find({category:category._id})
-            console.log("The product is find"+products)
             const hasOffer = products.some((product)=>product.productOffer>percentage)
             if(hasOffer){
                return res.json({status:false,message:"product already have offer"})
@@ -80,7 +66,6 @@ const addCategoryOffer = async(req,res)=>{
         }
     } catch (error) {
         res.status(500).json({status:false,message:"internal server error"})
-        console.log("The server error is "+error)
     }
 }
 
@@ -108,17 +93,18 @@ const removeCategoryOffer = async(req,res)=>{
         }
     } catch (error) {
         res.status(500).json({status:false,message:"Internal server error"})
-        console.log("The error is "+error)
     }
 }
 
 const isListed = async(req,res)=>{
     try {
-        const {id} = req.query
-        console.log("the id is "+id)
-       let value= await Category.updateOne({_id:id},{$set:{isListed:true}})
-       console.log('the value is'+value)
-        res.redirect('/admin/category')
+        if(req.session.admin){
+            const {id} = req.query
+           let value= await Category.findByIdAndUpdate(id,{isListed:true},{new:true})
+            res.redirect('/admin/category')
+        }else{
+            res.redirect('/admin/login')
+        }
     } catch (error) {
         console.log(error);
         
@@ -127,11 +113,16 @@ const isListed = async(req,res)=>{
 
 const unListed = async(req,res)=>{
     try {
-        const{id} = req.query
-        await Category.updateOne({_id:id},{$set:{isListed:false}})
-        res.redirect('/admin/category')
+        if(req.session.admin){
+            const{id} = req.query
+           const result =  await Category.findByIdAndUpdate(id,{isListed:false},{new:true})
+            res.redirect('/admin/category')
+        }else{
+            res.redirect('/admin/login')
+        }
     } catch (error) {
         console.log(error);
+        res.status(500).redirect('/admin/category');
         
     }
 }
