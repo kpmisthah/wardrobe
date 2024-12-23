@@ -42,20 +42,16 @@ const loadShoppingPage =  async(req,res)=>{
 
             let user = req.session.user
             let userData = await User.find({_id:user})
-            console.log("The data is "+userData)
             let page = parseInt(req.query.page || "1");
-            console.log("The page is");
-            
             let limit = 4
             const category = await Category.find({isListed:true})
             let categoryIds = category.map((cat) => cat._id);
-            console.log("hyy")
+
             let products =await Product.find(
                 {
                     isBlocked:false,category:{$in:categoryIds},quantity:{$gt:0}
                 },
             ).sort({createdAt:-1}).skip((page-1)*limit).limit(limit)
-            // console.log("The product is "+products)
             const count =await Product.countDocuments({isBlocked:false,category:{$in:category.map(category=>category._id)}})
             const totalpage = Math.ceil(count/limit)
 
@@ -67,4 +63,6 @@ const loadShoppingPage =  async(req,res)=>{
         console.log(error)
     }
 }
+
+
 export {loadHome,loadError,loadShoppingPage}

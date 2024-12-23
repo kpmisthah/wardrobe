@@ -137,7 +137,7 @@ const addProductOffer = async(req,res)=>{
         }
     } catch (error) {
         res.redirect('/pageNotFound')
-        res.status(500).json({status:false,message:"Internal Sever error"})
+        
     }
 }
 
