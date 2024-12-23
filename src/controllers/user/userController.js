@@ -2,7 +2,6 @@ import {User} from "../../models/userSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Brand } from "../../models/brandSchema.js"
-import { category } from "../admin/categoryManagement.js"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 const loadHome = async(req,res)=>{
@@ -40,26 +39,32 @@ const loadError = async(req,res)=>{
 
 const loadShoppingPage =  async(req,res)=>{
     try {
-        if(req.session.user){
+
             let user = req.session.user
             let userData = await User.find({_id:user})
-            let page = parseInt(req.query||1)
+            console.log("The data is "+userData)
+            let page = parseInt(req.query.page || "1");
+            console.log("The page is");
+            
             let limit = 4
-            const category = new Category.find({isListed:true})
-            const products = new Product.find(
-                {isBlocked:false,category:{$in:category.map(category=>category._id)},quantity:{$gt:0}}
-            ).sort({createdAt:-1}).limit(limit).skip(page-1*limit)
-            const count = Product.countDocuments({isBlocked:false,category:{$in:category.map(category=>category._id)}})
-            const totalpage = Math.ceil(count/page)
+            const category = await Category.find({isListed:true})
+            let categoryIds = category.map((cat) => cat._id);
+            console.log("hyy")
+            let products =await Product.find(
+                {
+                    isBlocked:false,category:{$in:categoryIds},quantity:{$gt:0}
+                },
+            ).sort({createdAt:-1}).skip((page-1)*limit).limit(limit)
+            // console.log("The product is "+products)
+            const count =await Product.countDocuments({isBlocked:false,category:{$in:category.map(category=>category._id)}})
+            const totalpage = Math.ceil(count/limit)
 
-            const brand = new Brand({isBlocked:false})
-            const categoriesId = new Category.find(category.map(category=>({name:category.name,_id:category._id})))
-            res.render('user/shop',{products,totalpage,userData,brand,categoriesId})
-        }else{
-
-        }
+            const brand = await Brand.find({isBlocked:false})
+            const categoriesId = category.map((cat) => ({ name: cat.name, _id: cat._id }));
+            res.render('user/shop',{userData,categoriesId,products,totalpage,brand})
+            
     } catch (error) {
-        
+        console.log(error)
     }
 }
 export {loadHome,loadError,loadShoppingPage}
