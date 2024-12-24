@@ -16,7 +16,6 @@ const sendEmail = async (email,title,otp) => {
           rejectUnauthorized: false, // Ignore certificate issues for development
       },
       });
-      console.log('hello')
       // info is an object that provide the information about email delivery
       let info = await transporter.sendMail({
         from: process.env.MAIL_USER,
@@ -27,24 +26,6 @@ const sendEmail = async (email,title,otp) => {
       });
       console.log("Email info: ", info);
 
-
-      // const mailoptions ={
-      //   from: "kpmisthah6@gmail.com",
-      //   to: email,
-      //   subject: 'title',
-      //   text:`otp `,
-      // }
-      // transporter.sendMail(mailoptions,(err,info)=>{
-      //   if(err){
-      //     console.log(err)
-      //     return 
-      //   }else{
-      //     console.log('sended successfully')
-      //     return
-      //   }
-      // })
-
-      // return info;
     } catch (error) {
       console.log(error.message);
     }

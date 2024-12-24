@@ -30,9 +30,6 @@ async (accessToken,refreshToken,profile,done)=>{
 
 }
 ))
-console.log('hyy')
-//the serialization .serialization done for assign user details into session
-
 passport.serializeUser((user,done)=>{
     done(null,user.id)
 })

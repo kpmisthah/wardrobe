@@ -1,5 +1,5 @@
 import express from "express"
-import  { signup,signupPage,verifyOtp,loginpage,login,loadError } from '../controllers/user/authController.js'
+import  { signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError } from '../controllers/user/authController.js'
 import {passport} from "../db/passport.js"
 const router = express.Router()
 //signup
@@ -7,6 +7,7 @@ const router = express.Router()
 router.get('/signup',signupPage)
 router.post('/signup',signup)
 router.post('/verify-otp',verifyOtp)
+router.post('/resend-otp',resendOtp)
 //google auth
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))

@@ -39,9 +39,6 @@ const loadError = async(req,res)=>{
 
 const loadShoppingPage =  async(req,res)=>{
     try {
-
-            let user = req.session.user
-            let userData = await User.find({_id:user})
             let page = parseInt(req.query.page || "1");
             let limit = 4
             const category = await Category.find({isListed:true})
@@ -57,7 +54,14 @@ const loadShoppingPage =  async(req,res)=>{
 
             const brand = await Brand.find({isBlocked:false})
             const categoriesId = category.map((cat) => ({ name: cat.name, _id: cat._id }));
-            res.render('user/shop',{userData,categoriesId,products,totalpage,brand})
+            let user = req.session.user
+            if(user){
+                let userData = await User.findOne({_id:user})
+                res.render('user/shop',{user:userData,categoriesId,products,totalpage,brand})
+            }else{
+                return res.render('user/shop',{categoriesId,products,totalpage,brand})
+            }
+            
             
     } catch (error) {
         console.log(error)

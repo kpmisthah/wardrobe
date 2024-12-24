@@ -30,26 +30,21 @@ const signup = async(req,res)=>{
     if(existUser){
      return res.redirect('signup')
     }
-    let hashedPassword = await bcrypt.hash(password,10)
 
-    //new user
-
-    const newUser = new User({name,email,password:hashedPassword,phone})
-    await newUser.save()
-
-     req.session.user = newUser._id
     
     // Generate and save OTP
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     const result = await Otp.create({ email, otp });
     console.log(result);
     
-    //store the data in session
+    let hashedPassword = await bcrypt.hash(password,10)
+
+    //new user
+
+     
+     req.session.userDetails = {name,email,password:hashedPassword,phone}
     
-    req.session.userOtp = otp
-    req.session.userData = {email,password}
-    
-    res.render('user/otpVerification')
+    res.render('user/otpVerification',{email})
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({success:false,error:error.message})
@@ -60,18 +55,45 @@ const signup = async(req,res)=>{
 
 const verifyOtp = async (req,res)=>{
   try {    
-    const{otps} = req.body
-    if(otps == req.session.userOtp){
-       res.json({success:true,redirectUrl:'/'})  
-    }else{
-      res.status(400).json({success:false,message:"something went wrong"})
+    const{otps,email} = req.body
+    const otpRecord = await Otp.findOne({email}) 
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
     }
+    if(otpRecord.otp!=otps){
+      return res.status(400).json({ success: false, message: "Invalid OTP." });
+    }
+    const users = req.session.userDetails
+    const newUser = new User(users);
+    await newUser.save()
+    req.session.user = newUser._id
+    console.log(typeof users,"otp side")
+    return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/" });  // Example redirect URL
   } catch (error) {
     console.log(error);
     res.status(500).json({success:false,message:"An error occured"})
   }
+ 
 
+}
 
+const resendOtp = async(req,res)=>{
+  try {
+    const{email} = req.body
+    const otp =  randomString.generate({ length: 6, charset: "numeric" });
+    const existingOtp = await Otp.findOneAndUpdate({email},{otp},{upsert:true,new:true})
+    if(existingOtp){
+      await Otp.updateOne({email},{otp})
+    }else{
+      await Otp.create({email,otp})
+    }
+    
+    res.json({ success: true, message: 'OTP sent successfully!' });
+
+  } catch (error) {
+    console.error('Error while resending OTP:', error);
+    res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' });
+  }
 }
 
 //error page
@@ -128,5 +150,5 @@ const login = async(req,res)=>{
     
   }
 }
-export {signup,signupPage,verifyOtp,loginpage,login,loadError}
+export {signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError}
 
