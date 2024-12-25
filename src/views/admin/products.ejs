@@ -8,9 +8,9 @@
     </div>
 </div>
 <header class="card-header text-center mb-20">
-    <form action="" method="get" class="d-inline">
+    <form action="/admin/products" method="get" class="d-inline">
         <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search" id="search">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search" id="search" value="<%=search%>">
             <button class="btn  border-0" type="submit">Search</button>
         </div>
     </form>
@@ -48,11 +48,11 @@
                 </td>
                 <td>
                     <%if(product.productOffer == 0){%>
-                    <button class="btn btn-info" onclick="addOffer('<%=data._id%>')" style="width: 100px;">
+                    <button class="btn btn-info" onclick="addOffer('<%=product._id%>')" style="width: 100px;">
                         <a href="#" class="text-white">Add Offer</a>
                     </button>
                     <%}else{%>
-                    <button class="btn btn-info" onclick="removeOffer('<%=data._id%>')" style="width: 100px;">
+                    <button class="btn btn-info" onclick="removeOffer('<%=product._id%>')" style="width: 100px;">
                         <a href="#" class="text-white">Remove</a>
                     </button>
                   <%}%>
@@ -119,6 +119,7 @@
                     body:JSON.stringify({percentage:amount,productId})
                 })
                 const data = await response.json()
+                console.log("The data is "+data)
                 console.log("The response is"+JSON.stringify(data))
                 if( data.status == true){
                     Swal.fire("offer added","The odder has been added","success")

@@ -115,7 +115,7 @@
                                <div class="card-header">
                                    <h4>Choose images</h4>
                                </div>
-                               <div class="border row">
+                            <div class="border row">
                                    <div id="addedImagesContainer" class="thumbnails-container"></div>
                                </div>
                                <div class="row">
@@ -181,7 +181,7 @@
     function viewImage1(event){
         document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])
     }
-    function viewImage2(event){
+        function viewImage2(event){
         document.getElementById('imgView2').src = URL.createObjectURL(event.target.files[0])
     }
     function viewImage3(event){
@@ -202,14 +202,14 @@
             image.src = dataURL
             let cropper = new Cropper(image,{
                 aspectRatio:1,
-                viewMode:1,
+                viewMode:2,
                 guides:true,
                 background:false,
-                autoCropArea:1,
+                autoCropArea:0.8,
                 zoomble:true
             })
             let cropperContainer = document.querySelector('#croppedImg'+index).parentNode
-            cropperContainer.style.display = "block"
+            cropperContainer.style.display = "block"   // // Make the cropper container visible.
             let saveButton = document.querySelector("#saveButton"+index)
             saveButton.addEventListener('click',async function() {
                 let croppedCanvas = cropper.getCroppedCanvas();
@@ -221,7 +221,7 @@
                 //blob means binary large object
                 await croppedCanvas.toBlob(blob=>{
                     let input = document.getElementById('input'+index)
-                    let imgFile = new File([blob],fileName,blob)
+                    const imgFile = new File([blob], fileName, { type: 'image/png' });
                     const fileList = new DateTransfer()
                     fileList.items.add(imgFile)
                     input.files = fileList.files
@@ -235,7 +235,7 @@
     }
     //to set thumbnails
     const selectedImages = []
-    document.getElementById('input1').addEventListener("change".handleFileSelect);
+    document.getElementById('input1').addEventListener("change",handleFileSelect);
 
     function handleFileSelect(event){
         const addedImagesContainer = document.getElementById('addedImagesContainer')

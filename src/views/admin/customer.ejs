@@ -1,89 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Management</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/customer.css">
-</head>
-<body>
-
-  <div class="layout">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <h3 class="text-center">Admin Panel</h3>
-      <ul>
-        <li><a href="#">Dashboard</a></li>
-        <li><a href="#">Users</a></li>
-        <li><a href="#">Settings</a></li>
-      </ul>
+<%- include("../../views/partials/adminPartials/headers") %>
+<div class="content-header row">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="content-title card-title">Customers</h2>
+       
     </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <%- include('../../views/partials/adminPartials/header') %>  
-      <%- include('../../views/partials/adminPartials/sidebar') %>  
-      
-      <div class="container">
-        <h1 class="text-center my-4">User Management</h1>
-        <div class="row justify-content-center">
-          <div class="col-md-8">
-            <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Search users..." aria-label="Search users">
-              <button><a href="/admin/customers?search">Search</a></button>
-            </div>
-            <!-- <form class="d-flex mb-3" method="GET" action="/admin/customers">
-                <input type="text" class="form-control" name="search" placeholder="Search users..." value="<%= search %>">
-                <button class="btn btn-primary" type="submit">Search</button>
-              </form> -->
-              
-            <div class="table-responsive table-container">
-              <table class="table table-dark table-striped table-bordered">
-                <thead>
-                  <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% userData.forEach((user) => { %>
-                    <tr>
-                      <td><%= user.name %></td>
-                      <td><%= user.email %></td>
-                      <td><%= user.role %></td>
-                      <td><%= user.phone %></td>
-                      <td>
-                        <% if (!user.isBlocked) { %>
-                          <a href="/admin/blockUser?id=<%= user._id %>" class="btn btn-danger btn-sm">Block</a>
-                        <% } else { %>
-                          <a href="/admin/unblockUser?id=<%= user._id %>" class="btn btn-success btn-sm">Unblock</a>
-                        <% } %>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-            <nav aria-label="Page navigation" class="pagination-container">
-              <ul class="pagination">
-                <% for (let i = 1; i <= totalpages; i++) { %>
-                  <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                  </li>
-                <% } %>
-              </ul>
-            </nav>
-          </div>
+</div>         
         </div>
-      </div>
-    </div>
-  </div>
+        
+            <header class="card-header text-center mb-20">
+                <form action="/admin/customer" method="get" class="d-inline">
+                    <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
+                        <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search" value="<%=search%>">
+                        <button class="btn  border-0" type="submit">Search</button>
+                    </div>
+                </form>
+            </header>
+            <div class="right mt-5">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col"><b>Name</b></th>
+                        <th scope="col"><b>Email</b></th>
+                        <th scope="col"><b>Phone No</b></th>
+                        <th scope="col"><b>Action</b></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% userData.forEach((user) => { %>
+                        <tr>
+                          <td><%= user.name %></td>
+                          <td><%= user.email %></td>
+                          <td><%= user.phone %></td>
+                         
+                          <td>
+                            <% if (!user.isBlocked) { %>
+                              <a href="/admin/blockUser?id=<%= user._id %>" class="btn btn-danger btn-sm">Block</a>
+                            <% } else { %>
+                              <a href="/admin/unblockUser?id=<%= user._id %>" class="btn btn-success btn-sm">Unblock</a>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+        </div>
+        <div class="container mt-3">
+          <nav aria-label="Page navigation" class="pagination-container">
+            <ul class="pagination  justify-content-center">
+              <% for (let i = 1; i <= totalpages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+        </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>

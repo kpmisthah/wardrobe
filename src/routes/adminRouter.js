@@ -12,7 +12,7 @@ router.get('/login',loginPage)
 router.get('/dashboard',dashboard)
 router.post('/login',login)
 //customer management
-router.get('/customers',customer)
+router.get('/customer',customer)
 router.get('/blockUser',blockUser)
 router.get('/unblockUser',unblockUser)
 //category management

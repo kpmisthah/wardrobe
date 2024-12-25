@@ -1,6 +1,6 @@
-/* Apply a black background to the entire page */
+Apply a black background to the entire page
 body {
-  background-color: black;
+  background-color: rgb(255, 255, 255);
   color: white; /* Set text color to white for contrast */
   margin: 0;
   font-family: Arial, sans-serif;
@@ -50,8 +50,6 @@ body {
 
 /* Style the main content */
 .main-content {
-  margin-left: 200px; /* Width of the sidebar */
-  margin-top: 60px; /* Height of the header */
   padding: 20px;
   background-color: black;
   color: white;

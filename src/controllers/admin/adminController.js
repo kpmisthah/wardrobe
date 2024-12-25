@@ -1,8 +1,7 @@
 import {User} from '../../models/userSchema.js'
 import bcrypt from "bcrypt"
 
-const loginPage = async(req,res)=>{
-    const ad = req.session.admin    
+const loginPage = async(req,res)=>{   
     if(req.session.admin){
        
         res.redirect('/admin/dashboard')

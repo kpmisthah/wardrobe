@@ -29,7 +29,7 @@ const addProducts = async(req,res)=>{
     try {
         const products = req.body
         const productExist = await Product.findOne({
-            productName:products.productName //ivide error adikkan chance ind
+            name:products.productName //ivide error adikkan chance ind
         })
         if(!productExist){
             //images handle cheyyan empty array initialise cheyya
@@ -42,22 +42,21 @@ const addProducts = async(req,res)=>{
                     images.push(req.files[i].filename);
                 }
             }
-            console.log("The ads products"+req.files)
-            const categoryId = await Category.findOne({name:products.category})
-            if(!categoryId){
+            const category = await Category.findOne({name:products.category})
+            if(!category){
                 return res.status(400).join("Invalid category name")
             }
             const newProduct = new Product({
                 name:products.productName,
                 description:products.description,
                 brand:products.brand,
-                category:categoryId._id,
+                category:category._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
                 createOn:new Date(),
                 quantity:products.quantity,
-                size:products.sizeOption,
-                color:products.colorOption,
+                sizeOption:products.size,
+                colorOption:products.color,
                 productImage:images,
                 status:"Available"
 
@@ -83,27 +82,26 @@ const getProductPage = async(req,res)=>{
             const limit = 3
             
             const searchQuery = {
-                $or: [
-                    { productName: { $regex: new RegExp(search, "i") } },
-                    { brand: { $regex: new RegExp(search, "i") } }
-                ]
+                     
+                     name: { $regex: search,$options:"i"}
             };
             //search nokkanm
             const productData = await Product.find(searchQuery).limit(limit).skip((page-1)*limit).populate({path:'category',select:'name'}).exec()
             const count = await Product.countDocuments(searchQuery)
             const totalPages = Math.ceil(count/limit)
-            const category = await Category.find({isListed:true})
-            const brand = await Brand.find({isBlocked:false})
+            // const category = await Category.find({isListed:true})
+            // const brand = await Brand.find({isBlocked:false})
             //product page kk ella datasum render cheyya
-            if(category && brand){
+            // if(category && brand){
                 res.render('admin/products',{
                     data:productData,
                     currentPage:page,
                     totalPages,
-                    category,
-                    brand
+                    search
+                    // category,
+                    // brand
                 })
-            }
+            // }
         }else{
             res.redirect('/admin/login')
         }
@@ -119,12 +117,9 @@ const addProductOffer = async(req,res)=>{
             const{percentage,productId} = req.body
             const product = await Product.findOne({_id:productId})
             const category = await Category.findOne({_id:product.category})
-            if(category.categoryOffer>percentage){
-                return res.json({status:false,message:"This products category already exist"})
-            }
-            if (product.productOffer > 0) {
-                return res.json({ status: false, message: "An offer is already applied to this product" });
-            }
+            if (category.categoryOffer < percentage) {
+                // If the product offer is more than the category offer, do not allow the product offer
+                return res.json({status: false,message: "Product offer cannot be more than category offer"})}
             const discountAmount = Math.floor(product.regularPrice*(percentage/100))
             product.salePrice = product.regularPrice - discountAmount
             product.productOffer = parseInt(percentage)
@@ -137,7 +132,7 @@ const addProductOffer = async(req,res)=>{
         }
     } catch (error) {
         res.redirect('/pageNotFound')
-        
+        console.log("Teh error is"+error)
     }
 }
 

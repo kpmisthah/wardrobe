@@ -5,15 +5,7 @@ const customer = async(req,res) =>{
         if(req.session.admin){
             //search box implementation
             let search = req.query.search||''
-            console.log("The search is"+search)
-            let filter = {isAdmin:false}
-            if(search){
-                filter.$or[
-                    {name:{$regex:search,$options:'i'}},
-                    {email:{$regex:search,$options:"i"}}
-                ]
-            }
-
+            let filter = {isAdmin:false,name:{$regex:search,$options:"i"}}
             //pagination
             let page = parseInt(req.query.page)||1
            let limit = 3
