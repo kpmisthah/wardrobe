@@ -1,10 +1,11 @@
 import express from "express"
 import  { signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError } from '../controllers/user/authController.js'
 import {passport} from "../db/passport.js"
+import { userAuth, userLogin } from "../middlewares/userAuth.js"
 const router = express.Router()
 //signup
 
-router.get('/signup',signupPage)
+router.get('/signup',userLogin,signupPage)
 router.post('/signup',signup)
 router.post('/verify-otp',verifyOtp)
 router.post('/resend-otp',resendOtp)
@@ -19,6 +20,6 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 router.get('/pageNotFound',loadError)
 
 //login
-router.get('/login',loginpage)
+router.get('/login',userLogin,loginpage)
 router.post('/login',login)
 export default router

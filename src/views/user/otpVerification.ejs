@@ -132,18 +132,24 @@
               if (otps.length === 6) {
                   if (timeLeft > 0) {
                     try {
-                        const response = await fetch('/verify-otp',{
+                      const response =  await fetch('/verify-otp',{
                         method:"POST",
-                        headers:{"content-Type":"application/json"},
+                        headers:{"Content-Type":"application/json"},
                         body:JSON.stringify({otps,email})
+                        
                     })
+
                     const result = await response.json()
                     if(result.success){
                         Swal.fire("Success", "OTP Verified Successfully!", "success");
+                        console.log(result.redirectUrl)
+                        console.log(window.location.href)
                         window.location.href = result.redirectUrl;
+                        return
                     }else{
                         Swal.fire("Error", "Invalid OTP. Please try again.", "error");
                     }
+                    
                     } catch (error) {
                         console.log(error+"error details")
                         Swal.fire("Error", "Something went wrong. Please try again later.", "error");

@@ -1,5 +1,11 @@
 
-<%-include('../../views/partials/userPartials/header')%>	 
+<%-include('../../views/partials/userPartials/header')%>
+<nav aria-label="breadcrumb">
+	<ol class="breadcrumb">
+	  <li class="breadcrumb-item"><a href="/">Home</a></li>
+	  <li class="breadcrumb-item active" aria-current="page">Shop</li>
+	</ol>
+  </nav>	
 	<!-- Cart -->
 	<div class="wrap-header-cart js-panel-cart">
 		<div class="s-full js-hide-cart"></div>
@@ -88,7 +94,7 @@
 	
 	<!-- Product -->
 	<div class="bg0 m-t-23 p-b-140">
-		<div class="container">
+		<div class="container" style="margin-top: 6rem;">
 			<div class="flex-w flex-sb-m p-b-52">
 				<div class="flex-w flex-l-m filter-tope-group m-tb-10">
 					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
@@ -355,14 +361,17 @@
 				</div>
               <%})%>
 				
-			<!-- Load more -->
-			<div class="flex-c-m flex-w w-full p-t-45">
-				<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-					Load More
-				</a>
 			</div>
 		</div>
 	</div>
-		
+	<nav aria-label="Page navigation" class="pagination-container">
+		<ul class="pagination justify-content-center">
+		  <% for (let i = 1; i <= totalpage; i++) { %>
+			<li class="page-item <%= page === i ? 'active' : '' %>">
+			  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+			</li>
+		  <% } %>
+		</ul>
+	  </nav>
 
  <%-include('../../views/partials/userPartials/footer')%>	 

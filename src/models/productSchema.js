@@ -33,7 +33,7 @@ const productSchema = new Schema({
     },
     stock:{
         type:Number,
-        // required:true
+        required:true
     },
     productImage:{
         type:[String],
@@ -44,10 +44,6 @@ const productSchema = new Schema({
         ref:"Category",
         required:true
     },
-    sizeOption:{
-        type:[Number],
-        required:true
-    },
     quantity:{
         type:Number,
         required:true
@@ -56,11 +52,6 @@ const productSchema = new Schema({
         type:[String],
         required:true
     },
-    // offer:{
-    //     type:Schema.Types.ObjectId,
-    //     ref:"Offer",
-    //     required:false
-    // }
     productOffer:{
         type:Number,
         default:0

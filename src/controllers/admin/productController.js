@@ -54,9 +54,9 @@ const addProducts = async(req,res)=>{
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
                 createOn:new Date(),
-                quantity:products.quantity,
+                stock:products.quantity,
                 sizeOption:products.size,
-                colorOption:products.color,
+                colorOption:[products.color],
                 productImage:images,
                 status:"Available"
 
@@ -86,7 +86,7 @@ const getProductPage = async(req,res)=>{
                      name: { $regex: search,$options:"i"}
             };
             //search nokkanm
-            const productData = await Product.find(searchQuery).limit(limit).skip((page-1)*limit).populate({path:'category',select:'name'}).exec()
+            const productData = await Product.find(searchQuery).limit(limit).skip((page-1)*limit).populate({path:'category',select:'name'})
             const count = await Product.countDocuments(searchQuery)
             const totalPages = Math.ceil(count/limit)
             // const category = await Category.find({isListed:true})
@@ -160,7 +160,7 @@ const blockProduct = async(req,res)=>{
     try {
         const{id} = req.query
         await Product.updateOne({_id:id},{$set:{isBlocked:true}})
-        res.redirect('/admin/products')
+        res.redirect("/admin/products")
     } catch (error) {
         res.redirect("onsd")
     }
@@ -186,9 +186,8 @@ const getEditProduct = async(req,res)=>{
             const product = await Product.findOne({_id:id})
             //category and brand need to be drop down and user can select to edit them 
             const category = await Category.find({})
-            const brand = await Brand.find({})
             res.render('admin/edit-product',{
-                product,category,brand
+                product,category
             })
         }else{
             res.render('admin/login')
@@ -201,10 +200,11 @@ const getEditProduct = async(req,res)=>{
 const editProduct = async(req,res)=>{
     try {
         const{id} = req.params
+        console.log("The id is"+id)
         const data = req.body
-        const existingProduct = await Product.find({
-            productName:data.productName,
-            _id:{$ne:id}
+        console.log("The data is "+data)
+        const existingProduct = await Product.findOne({
+            name:data.productName
         })
        if(existingProduct){
         res.status(400).json({error:"Product with name already exists.please try with another name"})
@@ -217,9 +217,8 @@ const editProduct = async(req,res)=>{
        } 
        console.log("the file is"+req.files)
        const updateFields = {
-        productName:data.productName,
+        name:data.productName,
         description:data.description,
-        brand:data.brand,
         category:data.category,
         regularPrice:data.regularPrice,
         salePrice:data.salePrice,
@@ -228,31 +227,19 @@ const editProduct = async(req,res)=>{
         color:data.color
        }
        if(req.files.length>0){
-        //push use cheyth image add cheyyu,
-        const value = updateFields.$push = {productImage:{$each:images}}
-        console.log(value)
+        // const value = updateFields.$push = {productImage:{$each:images}}
+        // console.log(value)
+        updateFields.productImage = images
         }
         await Product.findByIdAndUpdate(id,updateFields,{new:true})
         res.redirect('/admin/products')
     } catch (error) {
-        console.error(error)
+        console.error("The error is"+error)
         res.redirect('/pageNotFound')
     }
 }
 
-const deleteSingleImage = async(req,res)=>{
-    const{imageNameToServer,productIdToServer} = req.body
-    const product = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
-    const imagePath = path.join('uploads','re-image',imageNameToServer)
-    if(fs.existsSync(imagePath)){
-        await fs.unlinkSync(imagePath)
-        console.log(`image ${imageNameToServer} deleted successfully`)
-    }else{
-        console.log(`image ${imageNameToServer} not found`);
-        
-    }
-    res.send({status:true})
-}
+
 export{
     getProductAddPage,
     addProducts,getProductPage,
@@ -261,5 +248,5 @@ export{
     unblockProduct,
     getEditProduct,
     editProduct ,
-    deleteSingleImage
+
 }

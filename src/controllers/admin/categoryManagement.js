@@ -30,7 +30,7 @@ const categoryManagement = async (req, res) => {
 const category = async (req, res) => {
   try {
     const { name, description } = req.body;
-    const existingCategory = await Category.findOne({ name });
+    const existingCategory = await Category.findOne({ name});
     if (existingCategory) {
       return res.status(400).json({ error: "Category is already exist" });
     }
@@ -126,7 +126,7 @@ const edit = async(req,res)=>{
     try {
         if(req.session.admin){
             const{id} = req.query
-           const category =  await Category.findOne({_id:id})
+           const category =  await Category.findById(id)
           res.render('admin/edit-category',{category})
 
         }else{

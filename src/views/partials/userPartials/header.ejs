@@ -4,6 +4,7 @@
 	<title>Home</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
 <!--===============================================================================================-->	
 	<link rel="icon" type="image/png" href="images/icons/favicon.png"/>
 <!--===============================================================================================-->
@@ -35,6 +36,15 @@
 	<link rel="stylesheet" type="text/css" href="css/main.css">
 <!--===============================================================================================-->
 <link rel="stylesheet" href="css/dropdown.css">
+<style>
+.breadcrumb {
+	background-color: transparent; /* Removes background color */
+	padding: 0; /* Optional: Adjust padding if needed */
+	margin: 0; /* Optional: Adjust margin if needed */
+	border-radius: 0; /* Optional: Removes any rounded corners */
+  }
+</style>
+  
 </head>
 <body class="animsition">
 	<header>
@@ -45,20 +55,15 @@
 				<nav class="limiter-menu-desktop container">
 					
 					<!-- Logo desktop -->		
-					<a href="#" class="logo">
-						<img src="images/icons/logo-01.png" alt="IMG-LOGO">
+					<a href="/" class="logo">
+						<h1>Wardrobe</h1>
 					</a>
 
 					<!-- Menu desktop -->
 					<div class="menu-desktop">
 						<ul class="main-menu">
 							<li class="active-menu">
-								<a href="/home">Home</a>
-								<ul class="sub-menu">
-									<li><a href="index.html">Homepage 1</a></li>
-									<li><a href="home-02.html">Homepage 2</a></li>
-									<li><a href="home-03.html">Homepage 3</a></li>
-								</ul>
+								<a href="/">Home</a>
 							</li>
 
 							<li>
@@ -84,17 +89,6 @@
 								<a href="/login">Login</a>
 							</li>
 							<%}%>
-							<!-- <li>
-								<a href="about.html">About</a>
-							</li> -->
-<!-- 
-							<li>
-								<a href="contact.html">Contact</a>
-							</li>
-							<li>
-								<a href="contact.html">Account</a>
-							</li> -->
-
 						</ul>
 					</div>	
 
@@ -182,35 +176,14 @@
 
 			<ul class="main-menu-m">
 				<li>
-					<a href="index.html">Home</a>
-					<ul class="sub-menu-m">
-						<li><a href="index.html">Homepage 1</a></li>
-						<li><a href="home-02.html">Homepage 2</a></li>
-						<li><a href="home-03.html">Homepage 3</a></li>
-					</ul>
+					<a href="/">Home</a>
 					<span class="arrow-main-menu-m">
 						<i class="fa fa-angle-right" aria-hidden="true"></i>
 					</span>
 				</li>
 
 				<li>
-					<a href="product.html">Shop</a>
-				</li>
-
-				<li>
-					<a href="shoping-cart.html" class="label1 rs1" data-label1="hot">Features</a>
-				</li>
-
-				<li>
-					<a href="blog.html">Blog</a>
-				</li>
-
-				<li>
-					<a href="about.html">About</a>
-				</li>
-
-				<li>
-					<a href="contact.html">Contact</a>
+					<a href="/shop">Shop</a>
 				</li>
 			</ul>
 		</div>

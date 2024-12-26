@@ -2,13 +2,7 @@ import {User} from '../../models/userSchema.js'
 import bcrypt from "bcrypt"
 
 const loginPage = async(req,res)=>{   
-    if(req.session.admin){
-       
-        res.redirect('/admin/dashboard')
-    }else{
-        res.render('admin/login')
-    }
-    
+  res.render('admin/login') 
 }
 
 const login = async(req,res)=>{
@@ -33,11 +27,8 @@ const login = async(req,res)=>{
 }
 
 const dashboard = async(req,res)=>{
-    if(req.session.admin){
-        res.render('admin/dashboard')
-    }else{
-        res.redirect('/admin/login')
-    }
+    
+    res.render('admin/dashboard')
 }
 
 

@@ -18,11 +18,6 @@ const categorySchema = new Schema({
         type:String,
         // required:true
     },
-    product:[{
-        type:Schema.Types.ObjectId,
-        ref:"Product",
-        // required:true
-    }],
     categoryOffer:{
         type:Number,
         default:0
