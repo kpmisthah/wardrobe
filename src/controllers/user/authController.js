@@ -151,5 +151,20 @@ const login = async(req,res)=>{
     return res.render('user/login',{message:"An error occur during login"})
   }
 }
-export {signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError}
+
+
+const logout = (req,res)=>{
+  try {
+    req.session.destroy((err)=>{
+      if(err){
+        console.log("Session destroyed")
+      }
+    })
+    return res.redirect('/login')
+  } catch (error) {
+    
+  }
+}
+
+export {signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout}
 

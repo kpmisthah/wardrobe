@@ -46,6 +46,7 @@ const loadError = async(req,res)=>{
 const loadShoppingPage =  async(req,res)=>{
   
     try {
+        
             let page = parseInt(req.query.page ||1);
             let limit = 4
             let products =await Product.find(
@@ -55,9 +56,10 @@ const loadShoppingPage =  async(req,res)=>{
             ).sort({createdAt:-1}).skip((page-1)*limit).limit(limit)
             const count =await Product.countDocuments({isBlocked:false})
             const totalpage = Math.ceil(count/limit)
-  
+            let user = req.session.user
+            console.log("The user is "+user)
                 let userData = await User.findOne({_id:user})
-               return res.render('user/shop',{user:userData,categoriesId,products,totalpage})
+               return res.render('user/shop',{user:userData,products,totalpage,page})
             }
             
             

@@ -49,20 +49,22 @@ const addProducts = async(req,res)=>{
             const newProduct = new Product({
                 name:products.productName,
                 description:products.description,
-                brand:products.brand,
                 category:category._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
                 createOn:new Date(),
-                stock:products.quantity,
+                quantity:products.quantity,
+                brand:products.brand,
                 sizeOption:products.size,
                 colorOption:[products.color],
                 productImage:images,
                 status:"Available"
 
             })
-            await newProduct.save()
+            const val = await newProduct.save()
+            console.log(val)
             return res.redirect('/admin/addProducts')
+            
         }else{
             return res.status(400).json("product already exist ,please try with another name")
         }
