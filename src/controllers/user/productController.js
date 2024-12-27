@@ -10,7 +10,7 @@ let productDetails = async(req,res)=>{
             const productId = req.query.id
             const products = await Product.find({_id:productId})
             res.render('user/productDetails',{
-                products,
+                products
             })
          
     

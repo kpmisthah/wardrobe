@@ -21,8 +21,9 @@ const loadHome = async(req,res)=>{
 
          const product = await Product.find({isBlocked:false}).sort({createdAt:-1}).limit(4)
          let user = req.session.user
+         console.log("The session is "+user)
          if(user){
-            let userData = await User.find({_id:user})
+            let userData = await User.findOne({_id:user})
             return res.render('user/home',{user:userData,menProducts,womenProducts,kidsProducts,product})
          }
         return res.render('user/home',{menProducts,womenProducts,kidsProducts,product})

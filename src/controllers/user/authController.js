@@ -139,7 +139,7 @@ const login = async(req,res)=>{
       return res.render('user/login',{message:"The user is blocked by admin"})
     }
    
-    const matchPassword =  bcrypt.compare(password,savedUser.password)
+    const matchPassword =  await bcrypt.compare(password,savedUser.password)
     
      if(!matchPassword){
       return res.render('user/login',{message:"Incorrect password"})
