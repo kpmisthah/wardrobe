@@ -146,6 +146,9 @@ const login = async(req,res)=>{
      }
      req.session.user = savedUser._id
      return res.redirect('/')
+     setTimeout(() => {
+      res.send("Form submitted successfully");
+    }, 2000);
   } catch (error) {
     console.log(error);
     return res.render('user/login',{message:"An error occur during login"})

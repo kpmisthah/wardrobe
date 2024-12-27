@@ -5,26 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create an Account</title>
 <link rel="stylesheet" href="css/signup.css">
+<style>
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
 </head>
 <body>
   <div class="container">
     <div class="form-container">
       <h2>Welcome Back</h2>
 
-      <form method="post" action="/login" id="loadlogin">
+      <form id="loginform" onsubmit="userLogin(event)">
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="Enter email">
+          <input type="email" id="email" name="email" placeholder="Enter email" required>
           <div id="error1" class="error-message"></div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Enter password">
+          <input type="password" id="password" name="password" placeholder="Enter password" required>
           <div id="error2" class="error-message"></div>
-          <%if(locals.message && message.length>0){%>
-            <div class="alert alert-danger text-center"><%=message%></div>
-          <%}%>
           <div class="password-icon">
             <i class="fas fa-eye"></i>
           </div>
@@ -41,60 +54,7 @@
     </div>
   </div>
 
-  <script>
-
-//form validation
-const email = document.getElementById('email')
-const password = document.getElementById('password')
-const error1 = document.getElementById('error1')
-const error2 = document.getElementById('error2')
-const loadlogin = document.getElementById('loadlogin')
-
-function emailValidateChecking(e){
-  const emailval = email.value
-  const emailPattern =  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  if(emailval == ""){
-    error1.style.display = "block"
-    error1.innerHTML = "please enter a valid email"
-  }else if(!emailPattern.test(emailval)){
-    error1.style.display = "block"
-    error1.innerHTML = "Invalid Email"
-  }else if(!emailval.includes(".com")){
-    error1.style.display = "block"
-    error1.style.display = 'Enter valid Email'
-    }else{
-    error2.style.display = "none"
-    error2.innerHTML = ''
-  }
-}
-
-
-function passwordValidateChecking(e){
-  const passVal = password.value
-   const alpha = /^[a-zA-Z]+$/
-   const digit = /^\d+$/;
-
-   if(passVal.length<8){
-    error2.style.display = "block";
-    error2.innerHTML = "should contain atleast 8 characters"
-   }else if(!alpha.test(passVal) && !digit.test(passVal)){
-    error2.style.display = "block"
-    error2.innerHTML = "password only contain alphabets and digits"
-   }else{
-    error2.style.display = "none",
-    error2.innerHTML = ""
-   }
-}
-
-document.addEventListener("DOMContentLoaded",()=>{
-  loadlogin.addEventListener('submit',(e)=>{
-    emailValidateChecking();
-    passwordValidateChecking();
-    if(error1.innerHTML || error2.innerHTML ){
-      e.preventDefault()
-    }
-  })
-})
-  </script>
+  <script src="/javascript/userLogin.js"></script>
+  
 </body>
 </html>

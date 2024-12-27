@@ -42,6 +42,7 @@ const addProducts = async(req,res)=>{
                     images.push(req.files[i].filename);
                 }
             }
+            //ividathe products form nn varunne aan req.body nn.
             const category = await Category.findOne({name:products.category})
             if(!category){
                 return res.status(400).join("Invalid category name")
