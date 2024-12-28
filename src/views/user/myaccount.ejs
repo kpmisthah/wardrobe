@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Welcome</title>
+  <link rel="stylesheet" href="css/myaccount.css">
+</head>
+<%-include('../../views/partials/userPartials/usernavbar')%>
+
+        <main class="main-content">
+            <section class="welcome-section">
+                <h1>Hi <%=userProfile.name%></h1>
+                <p>From your account dashboard, you can easily check & view your recent order, manage your shipping and billing addresses and edit your password and account details</p>
+            </section>
+        </main>
+
+        <section class="newsletter">
+            <div class="newsletter-container">
+                <h3>Sign in to Newsletter</h3>
+                <p>For updates and offers</p>
+                <input type="email" placeholder="Enter Your Email">
+                <button>Subscribe</button>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CATEGORIES</h3>
+                    <a href="#">Women</a>
+                    <a href="#">Men</a>
+                    <a href="#">Shoes</a>
+                    <a href="#">Watches</a>
+                </div>
+                <div class="footer-section">
+                    <h3>HELP</h3>
+                    <a href="#">Track Order</a>
+                    <a href="#">Returns</a>
+                    <a href="#">Shipping</a>
+                    <a href="#">FAQs</a>
+                </div>
+                <div class="footer-section">
+                    <h3>GET IN TOUCH</h3>
+                    <p>Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879</p>
+                </div>
+                <div class="footer-section">
+                    <h3>NEWSLETTER</h3>
+                    <p>email@example.com</p>
+                    <button class="subscribe-btn">SUBSCRIBE</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

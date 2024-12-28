@@ -69,5 +69,37 @@ const loadShoppingPage =  async(req,res)=>{
 
 }
 
+const loadProfile = async(req,res)=>{
+    try {
+        const users =req.session.user
+        const userProfile = await User.findOne({_id:users})
+        console.log("The users is "+userProfile)
+        return res.render('user/myaccount',{userProfile})
+    } catch (error) {
+        
+    }
+}
+const orders = async(req,res)=>{
+    try {
+        return res.render('user/orders')
+    } catch (error) {
+        console.log("The error is"+error)
+    }
+}
+const updateProfile = async(req,res)=>{
+    try {
+        return res.render('user/updateProfile')
+    } catch (error) {
+        console.log("The error is"+error)
+    }
+}
+const updateAddress = async(req,res)=>{
+    try {
+        return res.render('user/updateAddress')
+    } catch (error) {
+        console.log("The error is"+error)
+    }
+}
 
-export {loadHome,loadError,loadShoppingPage}
+
+export {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,updateAddress}

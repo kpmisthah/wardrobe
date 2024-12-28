@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Dashboard</title>
+    <link rel="stylesheet" href="css/orders.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <a href="/myaccount" class="sidebar-item">Dashboard</a>
+            <a href="/order" class="sidebar-item active">Orders</a>
+            <a href="/updateProfile" class="sidebar-item">Update Profile</a>
+            <a href="#" class="sidebar-item">Wallet</a>
+            <a href="#" class="sidebar-item">My Address</a>
+            <a href="#" class="sidebar-item">Change Password</a>
+            <a href="#" class="sidebar-item">Logout</a>
+        </nav>
+
+        <main class="main-content">
+            <h2>Your Orders</h2>
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Orders</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Totals</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#1357</td>
+                        <td>March 19, 2022</td>
+                        <td>Processing</td>
+                        <td>$125.00</td>
+                        <td><a href="#" class="view-link">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>#2468</td>
+                        <td>June 29, 2022</td>
+                        <td>Completed</td>
+                        <td>$364.00</td>
+                        <td><a href="#" class="view-link">View</a></td>
+                    </tr>
+                    <tr>
+                        <td>#2366</td>
+                        <td>August 02, 2022</td>
+                        <td>Completed</td>
+                        <td>$280.00</td>
+                        <td><a href="#" class="view-link">View</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+
+        <section class="newsletter">
+            <div class="newsletter-container">
+                <h3>Sign in to Newsletter</h3>
+                <p>For updates and offers</p>
+                <input type="email" placeholder="Enter Your Email">
+                <button>Subscribe</button>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CATEGORIES</h3>
+                    <a href="#">Women</a>
+                    <a href="#">Men</a>
+                    <a href="#">Shoes</a>
+                    <a href="#">Watches</a>
+                </div>
+                <div class="footer-section">
+                    <h3>HELP</h3>
+                    <a href="#">Track Order</a>
+                    <a href="#">Returns</a>
+                    <a href="#">Shipping</a>
+                    <a href="#">FAQs</a>
+                </div>
+                <div class="footer-section">
+                    <h3>GET IN TOUCH</h3>
+                    <p>Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879</p>
+                </div>
+                <div class="footer-section">
+                    <h3>NEWSLETTER</h3>
+                    <p>email@example.com</p>
+                    <button class="subscribe-btn">SUBSCRIBE</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import express from "express"
-import  {loadHome,loadError,loadShoppingPage} from "../controllers/user/userController.js"
+import  {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,updateAddress} from "../controllers/user/userController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import { userAuth } from "../middlewares/userAuth.js"
 const router = express.Router()
@@ -12,4 +12,9 @@ router.get('/shop',userAuth,loadShoppingPage)
 
 //product detail page
 router.get('/productDetails',productDetails)
+//profile page
+router.get('/myaccount',userAuth,loadProfile)
+router.get('/orders',orders)
+router.get('/updateProfile',updateProfile)
+router.get('/updateAddress',updateAddress)
 export default router
