@@ -1,5 +1,5 @@
 import express from "express"
-import  {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address,getEditPage} from "../controllers/user/userController.js"
+import  {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address,getEditPage,edit} from "../controllers/user/userController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import { userAuth } from "../middlewares/userAuth.js"
 const router = express.Router()
@@ -20,4 +20,5 @@ router.get('/getAddress',getAddress)
 router.get('/add-address',addAddress)
 router.post('/address',address)
 router.get('/edit/:id',getEditPage)
+router.put('/edit/:id',edit)
 export default router

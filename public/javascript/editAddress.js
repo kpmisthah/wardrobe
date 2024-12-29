@@ -113,6 +113,7 @@ async function address(event){
     const state = form["state"].value;
     const district = form["district"].value.trim();
     const zipCode = form["zipCode"].value.trim();
+    const addressId = form['addressId'].value
     nameValidateChecking(name)
     emailValidateChecking(email)
     phoneValidateChecking(phone)
@@ -132,15 +133,15 @@ async function address(event){
         zipCode,
     }
     try {
-        const response = await fetch('/address',{
-            method:'POST',
+        const response = await fetch(`/edit/${addressId}`,{
+            method:'PUT',
             headers:{'Content-Type':"application/json"},
             body:JSON.stringify(formData)
     
         })
         if(response.ok){
             await response.json()
-            window.location.href = '/add-address'
+            window.location.href = '/getAddress'
         }
     } catch (error) {
         console.log("The error"+error)

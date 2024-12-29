@@ -203,9 +203,7 @@ const getEditProduct = async(req,res)=>{
 const editProduct = async(req,res)=>{
     try {
         const{id} = req.params
-        console.log("The id is"+id)
         const data = req.body
-        console.log("The data is "+data)
         const existingProduct = await Product.findOne({
             name:data.productName
         })

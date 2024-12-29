@@ -15,6 +15,7 @@
 <body class="d-flex justify-content-center align-items-center bg-light">
     <form class="row g-3 shadow p-4 bg-white rounded mt-5" style="width: 70%" id="address-form" onsubmit="address(event)">
       <h1>Edit-address</h1>
+      <input type="hidden" name="addressId" value="<%=address._id%>">
         <div class="col-md-6">
           <label for="inputEmail4" class="form-label">Name</label>
           <input type="text" class="form-control" id="inputEmail4" name="name" value="<%=address.name%>">

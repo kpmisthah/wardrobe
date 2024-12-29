@@ -3,6 +3,7 @@ import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Brand } from "../../models/brandSchema.js"
 import { Address } from "../../models/addressSchema.js"
+import { update } from "tar"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 //load Home page
@@ -143,9 +144,7 @@ const address = async(req,res)=>{
 const getAddress = async(req,res)=>{
     try {
         const userId = req.session.user
-        console.log("The user id is"+userId)
         const existingAddress = await Address.findOne({userId})
-        console.log("The address is "+address)
         if(!existingAddress){
             res.render('user/getAddress',{address:[]})
         }
@@ -160,22 +159,43 @@ const getEditPage = async(req,res)=>{
     try {
         const{id} = req.params
         const userId = req.session.user
-        console.log("The user id is "+userId)
         const addressId = id
-        console.log("The address id is"+addressId)
         const userAddress= await Address.findOne({userId})
-        console.log("The user address is "+userAddress)
         if(!userAddress){
             return res.redirect('/getAddress')
         }
         const address = userAddress.address.find(addr=>addr._id.toString()===addressId)
-        console.log("The nested address is "+address)
         if(!address){
             return res.redirect('/getAddress')
         }
         return res.render('user/edit-address',{address})
     } catch (error) {
         console.log("Error in get eidt page",error)
+    }
+}
+
+const edit = async(req,res)=>{
+    try {
+        const user = req.session.user
+        console.log("The update user"+user)
+        const {id} = req.params
+        console.log("teh params"+id)
+        const data = req.body
+      await Address.updateOne({userId:user,'address._id':id},{
+        $set:{
+            'address.$.name':data.name,
+            'address.$.email':data.email,
+            'address.$.phone':data.phone,
+            'address.$.city':data.city,
+            'address.$.zipCode':data.zipCode,
+            'address.$.houseNumber':data.houseNumber,
+            'address.$.district':data.district,
+            'address.$.state':data.state,
+        }
+     })
+        res.status(200).json({message:"data updated successfully"})
+    } catch (error) {
+        console.log("somethig went wrong",error)
     }
 }
 
@@ -208,5 +228,6 @@ export {
     getAddress,
     addAddress,
     address,
-    getEditPage
+    getEditPage,
+    edit
 }
