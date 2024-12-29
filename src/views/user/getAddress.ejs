@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shipping Address</title>
     <link rel="stylesheet" href="css/userAddress.css">
+    
 
 </head>
 <%-include('../../views/partials/userPartials/usernavbar')%>
@@ -14,18 +15,21 @@
                 <h1>Shipping Address</h1>
                 <div class="address-card">
                     <div class="address-text">
-                        <p>3522 Interstate</p>
-                        <p>75 Business Spur,</p>
-                        <p>Sault Ste.</p>
-                        <p>Marie, MI 49783</p>
-                        <p>New York</p>
+                        <%address.forEach((addr)=>{%>
+                        <p><%=addr.name%></p>
+                        <p><%=addr.state%>,</p>
+                        <p><%=addr.district%></p>
+                        <p><%=addr.city%>,<%=addr.houseNumber%></p>
+                        <p><%=addr.email%></p>
+                        <p><%=addr.phone%></p>
+                        <%})%>
                     </div>
                     <div class="address-actions">
                         <a href="#" class="action-link edit-link">Edit</a>
                         <a href="#" class="action-link remove-link">Remove</a>
                     </div>
                 </div>
-                <a href="" class="add-new-link">Add new</a>
+                <a href="/add-address" class="add-new-link">Add new</a>
             </section>
         </main>
 
@@ -57,5 +61,7 @@
             </div>
         </footer>
     </div>
+
+
 </body>
 </html>

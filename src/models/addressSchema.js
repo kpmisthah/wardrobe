@@ -1,17 +1,13 @@
 import mongoose,{Schema} from "mongoose"
 
-const addressSchema = mongoose.Schema({
+const addressSchema = new Schema({
     userId:{
         type:Schema.Types.ObjectId,
         ref:"User",
         required:true
     },
     address:[{
-        firstname:{
-            type:String,
-            required:true
-          },
-          lastname:{
+          name:{
             type:String,
             required:true
           },
@@ -31,10 +27,10 @@ const addressSchema = mongoose.Schema({
             type:Number,
             required:true
           },
-          country:{
-            type:String,
-            required:true
-          },
+          // country:{
+          //   type:String,
+          //   required:true
+          // },
           houseNumber:{
             type:String,
             required:true

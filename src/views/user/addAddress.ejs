@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+  .error-message{
+    color:red
+  }
+
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center bg-light">
+    <form class="row g-3 shadow p-4 bg-white rounded mt-5" style="width: 70%" id="address-form" onsubmit="address(event)">
+      <h1>Add-address</h1>
+        <div class="col-md-6">
+          <label for="inputEmail4" class="form-label">Name</label>
+          <input type="text" class="form-control" id="inputEmail4" name="name">
+          <div id="error1" class="error-message"></div>
+        </div>
+        <div class="col-md-6">
+          <label for="inputEmail4" class="form-label">Email</label>
+          <input type="email" class="form-control" id="inputEmail4" name="email">
+          <div id="error2" class="error-message"></div>
+        </div>
+        <div class="col-md-6">
+          <label for="inputPassword4" class="form-label">Phone</label>
+          <input type="number" class="form-control" id="inputPassword4" name="phone">
+          <div id="error3" class="error-message"></div>
+        </div>
+        <div class="col-md-2">
+          <label for="inputZip" class="form-label">House number</label>
+          <input type="text" class="form-control" id="inputZip" name="houseNumber">
+          <div id="error4" class="error-message"></div>
+        </div>
+        <div class="col-md-6">
+          <label for="inputCity" class="form-label">City</label>
+          <input type="text" class="form-control" id="inputCity" name="city">
+          <div id="error6" class="error-message"></div>
+        </div>
+        <div class="col-md-4">
+          <label for="inputState" class="form-label">State</label>
+          <select id="inputState" class="form-select" name="state">
+            <option selected>Choose...</option>
+            <option>Kerala</option>
+            <option>Tamil Nadu</option>
+          </select>
+          <div id="error7" class="error-message"></div>
+        </div>
+        <div class="col-md-6">
+          <label for="inputCity" class="form-label">district</label>
+          <input type="text" class="form-control" id="inputCity" name="district">
+          <div id="error8" class="error-message"></div>
+        </div>
+        <div class="col-md-2">
+          <label for="inputZip" class="form-label">Zip</label>
+          <input type="text" class="form-control" id="inputZip" name="zipCode">
+          <div id="error9" class="error-message"></div>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Add</button>
+        </div>
+      </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+<script src="/javascript/addAddress.js"></script>
+</html>

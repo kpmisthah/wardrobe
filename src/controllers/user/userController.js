@@ -2,8 +2,10 @@ import {User} from "../../models/userSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Brand } from "../../models/brandSchema.js"
+import { Address } from "../../models/addressSchema.js"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
+//load Home page
 const loadHome = async(req,res)=>{
     try {
     //separate category
@@ -34,6 +36,7 @@ const loadHome = async(req,res)=>{
     }
 }
 
+//load Error page
 const loadError = async(req,res)=>{
     try {
        return res.render('pageNotFound')
@@ -69,6 +72,7 @@ const loadShoppingPage =  async(req,res)=>{
 
 }
 
+//load user Profile page
 const loadProfile = async(req,res)=>{
     try {
         const users =req.session.user
@@ -79,6 +83,51 @@ const loadProfile = async(req,res)=>{
         
     }
 }
+
+//load users addAdress page
+
+const addAddress = async(req,res)=>{
+    try {
+        return res.render('user/addAddress')
+    } catch (error) {
+        
+    }
+}
+
+//post the address into address page
+//user id session eduth store cheyth
+const address = async(req,res)=>{
+    try {
+        const formData = req.body
+        const existingAddress = await Address.findOne({name:formData.name})
+        if(existingAddress){
+            return res.redirect('/add-address')
+        }
+        const user = req.session.user
+        const findUser = await User.findOne({_id:user})
+        const newAddress =new Address({
+            userId:findUser,
+            address:[{
+            name:formData.name,
+            email:formData.email,
+            phone:formData.phone,
+            city:formData.city,
+            zipCode:formData.zipCode,
+            state:formData.state,
+            houseNumber:formData.houseNumber,
+            district:formData.district,
+           
+        }]
+        })
+        await newAddress.save()
+        return res.status(200).json({message:"Address added successfully"})
+    } catch (error) {
+        console.error('Error saving address:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+
+    }
+}
+//load Orders page
 const orders = async(req,res)=>{
     try {
         return res.render('user/orders')
@@ -86,20 +135,30 @@ const orders = async(req,res)=>{
         console.log("The error is"+error)
     }
 }
+
 const updateProfile = async(req,res)=>{
     try {
+
         return res.render('user/updateProfile')
     } catch (error) {
         console.log("The error is"+error)
     }
 }
-const updateAddress = async(req,res)=>{
+const getAddress = async(req,res)=>{
     try {
-        return res.render('user/updateAddress')
+        const userId = req.session.user
+        console.log("The user id is"+userId)
+        const existingAddress = await Address.findOne({userId})
+        console.log("The address is "+address)
+        if(!existingAddress){
+            res.render('user/getAddress',{address:[]})
+        }
+        console.log("The address is "+existingAddress)
+        return res.render('user/getAddress',{address:existingAddress.address})
     } catch (error) {
         console.log("The error is"+error)
     }
 }
 
 
-export {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,updateAddress}
+export {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address}
