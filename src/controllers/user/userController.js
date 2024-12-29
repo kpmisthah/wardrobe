@@ -199,6 +199,20 @@ const edit = async(req,res)=>{
     }
 }
 
+const deleteAddress = async(req,res)=>{
+    try {
+        const user = req.session.user
+        const{id} = req.params
+        const address = await Address.findOneAndUpdate({userId:user},{$pull:{address:{_id:id}}},{new:true})
+        if(!address){
+            return res.status(404).json({message:"Address not found"})
+        }
+        return res.status(200).json({message:"address deleted successfully"})
+    } catch (error) {
+        console.log("The error is"+error)
+        res.status(500).json({'message':'Internal server error'})
+    }
+}
 //load Orders page
 const orders = async(req,res)=>{
     try {
@@ -229,5 +243,6 @@ export {
     addAddress,
     address,
     getEditPage,
-    edit
+    edit,
+    deleteAddress
 }
