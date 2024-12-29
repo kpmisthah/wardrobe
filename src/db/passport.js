@@ -1,8 +1,10 @@
+import dotenv from "dotenv"
+dotenv.config()
 import passport from "passport"
 import {Strategy}from "passport-google-oauth20"
 import { User } from "../models/userSchema.js"
-import dotenv from "dotenv"
-dotenv.config()
+
+console.log(process.env.GOOGLE_CLIENT_ID)
 passport.use(new Strategy({
     clientID:process.env.GOOGLE_CLIENT_ID,
     clientSecret:process.env.GOOGLE_CLIENT_SECRET,
@@ -17,7 +19,7 @@ async (accessToken,refreshToken,profile,done)=>{
         }else{
             user = new User({
                 name:profile.displayName,
-                email:profile.emails[0].value,
+                email:profile.emails[0].value, 
                 googleId:profile.id
             })
             await user.save()

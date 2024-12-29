@@ -98,35 +98,87 @@ const addAddress = async(req,res)=>{
 //user id session eduth store cheyth
 const address = async(req,res)=>{
     try {
-        const formData = req.body
-        const existingAddress = await Address.findOne({name:formData.name})
-        if(existingAddress){
-            return res.redirect('/add-address')
-        }
         const user = req.session.user
-        const findUser = await User.findOne({_id:user})
-        const newAddress =new Address({
-            userId:findUser,
-            address:[{
-            name:formData.name,
-            email:formData.email,
-            phone:formData.phone,
-            city:formData.city,
-            zipCode:formData.zipCode,
-            state:formData.state,
-            houseNumber:formData.houseNumber,
-            district:formData.district,
-           
-        }]
-        })
-        await newAddress.save()
-        return res.status(200).json({message:"Address added successfully"})
+        const formData = req.body
+        const userAddress = await Address.findOne({userId:user})
+        if(userAddress){
+            userAddress.address.push({
+                name:formData.name,
+                email:formData.email,
+                phone:formData.phone,
+                city:formData.city,
+                zipCode:formData.zipCode,
+                state:formData.state,
+                houseNumber:formData.houseNumber,
+                district:formData.district,
+            })
+            await userAddress.save()
+            return res.status(200).json({message:"Address is addedd successfully"})
+        }else{
+            const newAddress =new Address({
+                userId:user,
+                address:[{
+                name:formData.name,
+                email:formData.email,
+                phone:formData.phone,
+                city:formData.city,
+                zipCode:formData.zipCode,
+                state:formData.state,
+                houseNumber:formData.houseNumber,
+                district:formData.district,
+               
+            }]
+            })
+            await newAddress.save()
+            return res.status(200).json({message:"Address added successfully"})
+        }
+
     } catch (error) {
         console.error('Error saving address:', error);
         return res.status(500).json({ error: 'Internal server error' });
 
     }
 }
+
+const getAddress = async(req,res)=>{
+    try {
+        const userId = req.session.user
+        console.log("The user id is"+userId)
+        const existingAddress = await Address.findOne({userId})
+        console.log("The address is "+address)
+        if(!existingAddress){
+            res.render('user/getAddress',{address:[]})
+        }
+        console.log("The address is "+existingAddress)
+        return res.render('user/getAddress',{address:existingAddress.address})
+    } catch (error) {
+        console.log("The error is"+error)
+    }
+}
+
+const getEditPage = async(req,res)=>{
+    try {
+        const{id} = req.params
+        const userId = req.session.user
+        console.log("The user id is "+userId)
+        const addressId = id
+        console.log("The address id is"+addressId)
+        const userAddress= await Address.findOne({userId})
+        console.log("The user address is "+userAddress)
+        if(!userAddress){
+            return res.redirect('/getAddress')
+        }
+        const address = userAddress.address.find(addr=>addr._id.toString()===addressId)
+        console.log("The nested address is "+address)
+        if(!address){
+            return res.redirect('/getAddress')
+        }
+        return res.render('user/edit-address',{address})
+    } catch (error) {
+        console.log("Error in get eidt page",error)
+    }
+}
+
 //load Orders page
 const orders = async(req,res)=>{
     try {
@@ -144,21 +196,17 @@ const updateProfile = async(req,res)=>{
         console.log("The error is"+error)
     }
 }
-const getAddress = async(req,res)=>{
-    try {
-        const userId = req.session.user
-        console.log("The user id is"+userId)
-        const existingAddress = await Address.findOne({userId})
-        console.log("The address is "+address)
-        if(!existingAddress){
-            res.render('user/getAddress',{address:[]})
-        }
-        console.log("The address is "+existingAddress)
-        return res.render('user/getAddress',{address:existingAddress.address})
-    } catch (error) {
-        console.log("The error is"+error)
-    }
+
+
+export {
+    loadHome,
+    loadError,
+    loadShoppingPage,
+    loadProfile,
+    orders,
+    updateProfile,
+    getAddress,
+    addAddress,
+    address,
+    getEditPage
 }
-
-
-export {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address}

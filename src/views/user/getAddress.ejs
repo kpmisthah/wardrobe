@@ -22,11 +22,12 @@
                         <p><%=addr.city%>,<%=addr.houseNumber%></p>
                         <p><%=addr.email%></p>
                         <p><%=addr.phone%></p>
+                        <div class="address-actions">
+                            <a href="/edit/<%=addr._id%>" class="action-link edit-link" >Edit</a>
+                            <a href="" class="action-link remove-link">Remove</a>
+                        </div>
+                        <hr>
                         <%})%>
-                    </div>
-                    <div class="address-actions">
-                        <a href="#" class="action-link edit-link">Edit</a>
-                        <a href="#" class="action-link remove-link">Remove</a>
                     </div>
                 </div>
                 <a href="/add-address" class="add-new-link">Add new</a>
