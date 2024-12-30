@@ -16,14 +16,12 @@ const subcategoryManagement = async(req,res)=>{
         console.log('Request body:', req.body); // Log the request body
         const{name,description} = req.body
         const existingSub = await Subcategory.findOne({name})
-        console.log("Sub cateogry is"+existingSub)
         if(existingSub){
             return res.status(400).json({error:"subcategory is already exist"})
         }
    
         const newSub = new Subcategory({name,description})
         await newSub.save()
-        console.log("new sub is"+newSub)
         return res.status(200).json({message:"successfully subcategory addedd"})
     } catch (error) {
         console.log(error)
@@ -35,7 +33,7 @@ const subcategoryManagement = async(req,res)=>{
   const isList = async(req,res)=>{
     try {
         const {id} = req.query
-        const subcategory = await Subcategory.findByIdAndUpdate(id,{isListed:true},{new:true})
+         await Subcategory.findByIdAndUpdate(id,{isListed:true},{new:true})
         res.redirect('/admin/subcategory')
 
     } catch (error) {
@@ -45,7 +43,7 @@ const subcategoryManagement = async(req,res)=>{
   const unList = async(req,res)=>{
     try {
         const {id} = req.query
-        const subcategory = await Subcategory.findByIdAndUpdate(id,{isListed:false},{new:true})
+         await Subcategory.findByIdAndUpdate(id,{isListed:false},{new:true})
         res.redirect('/admin/subcategory')
 
     } catch (error) {
@@ -73,15 +71,15 @@ const subcategoryManagement = async(req,res)=>{
         if(existingCategory){
         return res.status(400).json({error:"Subcategory exist pls choose another name"})
         }
-                    const updatesubCategory = await Subcategory.findByIdAndUpdate(id,{
-                        name:categoryName,
-                        description
-                    },{new:true})
-                    if(updatesubCategory){
-                        res.redirect('/admin/subcategory')
-                    }else{
-                        res.status(404).json({error:"Category not found"})
-                    }
+        const updatesubCategory = await Subcategory.findByIdAndUpdate(id,{
+        name:categoryName,
+        description
+        },{new:true})
+        if(updatesubCategory){
+        res.redirect('/admin/subcategory')
+        }else{
+        res.status(404).json({error:"Category not found"})
+        }
     } catch (error) {
         res.status(500).json({error:"Internal server error"})
     }
