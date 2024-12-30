@@ -14,10 +14,6 @@ const categorySchema = new Schema({
         type:Boolean,
         default:false
     },
-    image:{
-        type:String,
-        // required:true
-    },
     categoryOffer:{
         type:Number,
         default:0

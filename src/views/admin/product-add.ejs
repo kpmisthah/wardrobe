@@ -119,7 +119,17 @@
                                           
                                            <div id="category-error" class="error-message"></div>
                                        </div>
-                                   </div>
+                                           <!-- Subcategory Selection -->
+                                            <div class="mb-3">
+                                                <label for="subcategory" class="form-label">Select Subcategory</label>
+                                                <select class="form-control" id="subcategory" name="subcategory">
+                                                     <option value="">Select Subcategory</option>
+                                                     <% subcategory.forEach((subcat) => { %>
+                                                        <option value="<%= subcat._id %>"><%= subcat.name %></option>
+                                                        <% }) %>
+                                                    </select>
+                                                </div>
+                                            </div>
                                </div>
                            </div>
                            <div class="card mb-2">

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/subcategory.css">
+</head>
+<body>
+  <%- include("../../views/partials/adminPartials/headers") %>
+  <div class="container">
+    <div class="row">
+      <!-- Form Section -->
+      <div class="col-lg-4 col-md-12 form-container">
+        <h4 class="mb-3">Add Product</h4>
+        <form  id="loadCategory">
+          <div class="mb-3">
+            <label for="categoryName" class="form-label"></label>
+            <input type="text" class="form-control" id="subcategoryName" placeholder="Enter category name" name="name">
+            <div id="error1" class="error-message"></div>
+          </div>
+          <div class="mb-3">
+            <label for="categoryDescription" class="form-label"></label>
+            <textarea class="form-control" id="subcategoryDescription" rows="3" placeholder="Enter description" name="description"></textarea>
+            <div id="error2" class="error-message"></div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Product</button>
+        </form>
+
+      </div>
+<!-- Table Section -->
+<div class="col-lg-8 col-md-12 table-container">
+  <h4 class="mb-3">Product List</h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>List/Unlist</th>
+          <th>Status</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%subcategory.forEach((subcategory)=>{%>
+        <tr>
+          <!-- Name -->
+          <td><%=subcategory.name%></td>
+
+          <!-- Description -->
+          <td><%=subcategory.description%></td>
+
+
+
+          <!-- List and unlist -->
+          <td>
+            <% if (subcategory.isListed == false) { %>
+              <a href="/admin/list?id=<%=subcategory._id%>" class="btn btn-danger btn-sm">Listed</a>
+            <% } else { %>
+              <a href="/admin/unlist?id=<%=subcategory._id%>" class="btn btn-danger btn-sm">Unlisted</a>
+            <% } %>
+          </td>
+          <td> 
+            <% if (subcategory.isListed ==true) { %>
+              <a  class="btn btn-success btn-sm rounded-pill">Active</a>
+              <% } else { %>
+                <a class="btn btn-danger btn-sm rounded-pill">Inactive</a>
+                <% } %>
+              </td>
+
+           <td>
+              <!-- Edit Button  --> 
+              <a href="/admin/editted?id=<%=subcategory._id%>" class="btn btn-danger btn-sm">Edit</a>
+           </td> 
+        </tr>
+        <%})%>
+      </tbody>
+    </table>
+  </div>
+
+
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/javascript/subcategory.js"></script>
+
+</body>
+</html>

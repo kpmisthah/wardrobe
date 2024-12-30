@@ -1,10 +1,4 @@
-import mongoose,{Schema, trusted} from 'mongoose'
-
-
-
-
-
-
+import mongoose,{Schema} from 'mongoose'
 const productSchema = new Schema({
     name:{
         type:String,
@@ -38,6 +32,11 @@ const productSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:"Category",
         required:true
+    },
+    subcategory: {
+        type: Schema.Types.ObjectId,
+        ref: "Subcategory", // Link to Subcategory schema
+        required: true,
     },
     quantity:{
         type:Number,

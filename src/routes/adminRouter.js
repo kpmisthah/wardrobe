@@ -3,6 +3,7 @@ const router = express.Router()
 import { loginPage,login,dashboard } from "../controllers/admin/adminController.js"
 import { customer,blockUser,unblockUser } from "../controllers/admin/customerController.js"
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
+import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
 import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
 import {getProductAddPage,addProducts, getProductPage ,addProductOffer,removeProductOffer,blockProduct,unblockProduct,getEditProduct,editProduct} from "../controllers/admin/productController.js"
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
@@ -25,6 +26,13 @@ router.get('/listed',isListed)
 router.get('/unlisted',unListed)
 router.get('/edit',edit)
 router.post('/edit-page/:id',isAuthenticated,editCategory)
+//subcateogry management
+router.get('/subcategory',subcategoryManagement)
+router.post('/addsubcategory',subcategory)
+router.get('/list',isList)
+router.get('/unlist',unList)
+router.get('/editted',subedit)
+router.post('/edit-sub/:id',editSubcategory)
 //brand management
 router.get('/brand',brandController)
 router.post('/addBrand',uploads.single('image'),addBrand)

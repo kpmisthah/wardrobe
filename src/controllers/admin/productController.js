@@ -1,6 +1,7 @@
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Brand } from "../../models/brandSchema.js"
+import { Subcategory } from "../../models/subcategorySchema.js"
 import fs from "fs"
 import path from "path"
 import sharp from "sharp"
@@ -13,8 +14,9 @@ const getProductAddPage = async(req,res)=>{
     //extract category and brand from dbs
     const category = await Category.find({isListed:true})
     const brand = await Brand.find({isBlocked:false})
+    const subcategory = await Subcategory.find({ isListed: true });
     res.render('admin/product-add',{
-        category,brand
+        category,brand,subcategory
     })
     }else{
         res.redirect('/admin/login')
@@ -44,13 +46,15 @@ const addProducts = async(req,res)=>{
             }
             //ividathe products form nn varunne aan req.body nn.
             const category = await Category.findOne({name:products.category})
-            if(!category){
+            const subcategory = await Subcategory.findById(products.subcategory);
+            if(!category|| !subcategory){
                 return res.status(400).join("Invalid category name")
             }
             const newProduct = new Product({
                 name:products.productName,
                 description:products.description,
                 category:category._id,
+                subcategory:subcategory._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
                 createOn:new Date(),

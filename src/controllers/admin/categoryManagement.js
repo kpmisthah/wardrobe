@@ -13,17 +13,16 @@ const categoryManagement = async (req, res) => {
       let categoryCount = await Category.find({}).countDocuments();
       let totalpages = Math.ceil(categoryCount / limit);
 
-      res.render("admin/categorymanagement", {
+      return res.render("admin/categorymanagement", {
         categoryData: category,
         totalpages,
         currentPage: page,
       });
     } else {
-      res.redirect("/admin/login");
+      return res.redirect("/admin/login");
     }
   } catch (error) {
-    res.render("admin/pageNotFound");
-    console.log("The error is " + error);
+    return res.render("admin/pageNotFound");
   }
 };
 
@@ -73,7 +72,7 @@ const addCategoryOffer = async (req, res) => {
 
 const removeCategoryOffer = async (req, res) => {
   try {
-    if (req.session.admin) {
+    // if (req.session.admin) {
       const categoryId = req.body.categoryId;
       const category = await Category.findById(categoryId)
       if(!category){
@@ -87,11 +86,12 @@ const removeCategoryOffer = async (req, res) => {
         await product.save()
       }
       res.status(200).json({status:true,message:"Offer removed successfully"})
-    }
+    // }
   } catch (error) {
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
+
 
 const isListed = async (req, res) => {
   try {
@@ -133,7 +133,7 @@ const edit = async(req,res)=>{
             res.redirect('admin/login')
         }
     } catch (error) {
-
+      console.log("the error is "+error)
     }
 }
 const editCategory = async(req,res)=>{
@@ -171,5 +171,5 @@ export {
   isListed,
   unListed,
   edit,
-  editCategory
+  editCategory,
 };
