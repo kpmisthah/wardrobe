@@ -2,12 +2,7 @@ import mongoose,{Schema, trusted} from 'mongoose'
 
 
 
-// wishlist and cart fields:
-// A product should not have direct links 
-// to a wishlist or cart. Instead, users
-//  should have references to products 
-//  in their wishlist/cart. Remove these 
-//  fields:
+
 
 
 const productSchema = new Schema({
