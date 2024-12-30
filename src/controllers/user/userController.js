@@ -52,22 +52,41 @@ const loadShoppingPage =  async(req,res)=>{
     try {
         
             let page = parseInt(req.query.page ||1);
+            const sortOption = req.query.sort||null
             let limit = 4
-            let products =await Product.find(
-                {
-                    isBlocked:false
-                },
-            ).sort({createdAt:-1}).skip((page-1)*limit).limit(limit)
-            const count =await Product.countDocuments({isBlocked:false})
+            let filter = {isBlocked:false}
+
+            //sort method
+            let sort = {}
+            if(sortOption == 'priceLowtoHigh'){
+             sort = {salePrice:1}
+            }else if(sortOption === 'priceHightoLow'){
+             sort = {salePrice:-1}
+            }else if(sortOption === 'below-1500'){
+                filter.salePrice = {$lte:1500}
+            }else if(sortOption === '2000-2500' ){
+                filter.salePrice = {$gte:2000,$lte:2500}
+            }else if(sortOption === '2500-3000'){
+                filter.salePrice = {$gte:2500,$lte:3000}
+            }else if(sortOption === '3000-4000'){
+                filter.salePrice = {$gte:3000,$lte:4000}
+            }else if(sortOption === 'Above4000'){
+                filter.salePrice = {$gte:4000}
+            }else if(sortOption === '1500-2000'){
+                filter.salePrice = {$gte:1500,$lte:2000}
+            }else if(sortOption === 'new'){
+                sort = {createdAt:-1}
+            }
+
+            let products =await Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit)
+            const count =await Product.countDocuments(filter)
             const totalpage = Math.ceil(count/limit)
             let user = req.session.user
             console.log("The user is "+user)
                 let userData = await User.findOne({_id:user})
                return res.render('user/shop',{user:userData,products,totalpage,page})
-            }
-            
-            
-     catch (error) {
+
+            } catch (error) {
         console.log(error)
     }
 
