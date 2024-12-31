@@ -2,9 +2,9 @@ import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Brand } from "../../models/brandSchema.js"
 import { Subcategory } from "../../models/subcategorySchema.js"
-import fs from "fs"
 import path from "path"
 import sharp from "sharp"
+import { Size } from "../../models/sizeShema.js"
 
 
 const getProductAddPage = async(req,res)=>{
@@ -15,8 +15,10 @@ const getProductAddPage = async(req,res)=>{
     const category = await Category.find({isListed:true})
     const brand = await Brand.find({isBlocked:false})
     const subcategory = await Subcategory.find({ isListed: true });
+    const size = await Size.find()
+    console.log("The size is"+size)
     res.render('admin/product-add',{
-        category,brand,subcategory
+        category,brand,subcategory,size
     })
     }else{
         res.redirect('/admin/login')
@@ -47,6 +49,7 @@ const addProducts = async(req,res)=>{
             //ividathe products form nn varunne aan req.body nn.
             const category = await Category.findOne({name:products.category})
             const subcategory = await Subcategory.findById(products.subcategory);
+           
             if(!category|| !subcategory){
                 return res.status(400).join("Invalid category name")
             }
@@ -58,11 +61,10 @@ const addProducts = async(req,res)=>{
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
                 createOn:new Date(),
-                quantity:products.quantity,
                 brand:products.brand,
-                sizeOption:products.size,
                 colorOption:[products.color],
                 productImage:images,
+                sizeOption: [] ,
                 status:"Available"
 
             })
@@ -93,7 +95,7 @@ const getProductPage = async(req,res)=>{
                      name: { $regex: search,$options:"i"}
             };
             //search nokkanm
-            const productData = await Product.find(searchQuery).limit(limit).skip((page-1)*limit).populate({path:'category',select:'name'})
+            const productData = await Product.find(searchQuery).limit(limit).skip((page-1)*limit).populate({path:'category',select:'name'}).populate('sizeOptions')
             const count = await Product.countDocuments(searchQuery)
             const totalPages = Math.ceil(count/limit)
             // const category = await Category.find({isListed:true})
@@ -227,7 +229,7 @@ const editProduct = async(req,res)=>{
         category:data.category,
         regularPrice:data.regularPrice,
         salePrice:data.salePrice,
-        quantity:data.quantity,
+        sizeOption:data.sizeOption,
         size:data.size,
         color:data.color
        }
@@ -237,14 +239,49 @@ const editProduct = async(req,res)=>{
         updateFields.productImage = images
         }
         await Product.findByIdAndUpdate(id,updateFields,{new:true})
-        res.redirect('/admin/products')
+        return res.redirect('/admin/products')
     } catch (error) {
         console.error("The error is"+error)
-        res.redirect('/pageNotFound')
+        return res.redirect('/pageNotFound')
     }
 }
 
 
+const sizeManagement = async(req,res)=>{
+    try {
+        const products = await Product.find()
+        return res.render('admin/size',{products})
+    } catch (error) {
+        console.log("error")
+    }
+}
+const addSize = async(req,res)=>{
+    try {
+        const{product,size,quantity} = req.body
+        //existing size
+        const normalSize = size.toLowerCase()
+        const existingSize = await Size.findOne({size:normalSize,product})
+        if(existingSize){
+            existingSize.quantity = quantity
+            await existingSize.save()
+            return res.status(200).json({message:"quantity is update successfully"})
+        }
+        //new size
+        const newSize = new Size({
+            product,
+            size:normalSize,
+            quantity
+        })
+        await newSize.save()
+        //update the size option push the new sizes into array of sizeOptions in Product schema
+        await Product.findByIdAndUpdate(product,{$push:{sizeOptions:newSize._id}})
+        res.status(200).json({"message":"success"})
+    } catch (error) {
+        console.log("The error is error"+error)
+        // res.status(500).json({message:"Internal server error"})
+    }
+   
+}
 export{
     getProductAddPage,
     addProducts,getProductPage,
@@ -253,5 +290,7 @@ export{
     unblockProduct,
     getEditProduct,
     editProduct ,
+    sizeManagement,
+    addSize
 
 }

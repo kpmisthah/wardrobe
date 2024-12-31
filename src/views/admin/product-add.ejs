@@ -75,13 +75,6 @@
                                    </div>
                                    <div id="salePrice-error" class="error-message"></div>
                                </div>
-                               <div class="col-lg-4">
-                                   <div class="mb-4">
-                                       <label class="form-label">Quantity</label>
-                                       <input placeholder="" name="quantity" type="text" class="form-control border">
-                                       <div id="quantity-error" class="error-message"></div>
-                                   </div>
-                               </div>
                            </div>
                            <div class="row">
                               
@@ -112,27 +105,28 @@
                                                    </option>
                                                    <%}%>
                                                 </select>
-                                                  
-                                                  
-                                                 
-                                                   
-                                          
-                                           <div id="category-error" class="error-message"></div>
+                                        <div id="category-error" class="error-message"></div>
                                        </div>
                                            <!-- Subcategory Selection -->
                                             <div class="mb-3">
                                                 <label for="subcategory" class="form-label">Select Subcategory</label>
                                                 <select class="form-control" id="subcategory" name="subcategory">
-                                                     <option value="">Select Subcategory</option>
+                                                    <option value="">Select Subcategory</option>
                                                      <% subcategory.forEach((subcat) => { %>
                                                         <option value="<%= subcat._id %>"><%= subcat.name %></option>
                                                         <% }) %>
-                                                    </select>
-                                                </div>
+                                                </select>
                                             </div>
-                               </div>
-                           </div>
-                           <div class="card mb-2">
+                                            <h3>Sizes and Quantities</h3>
+                                            <ul>
+                                                <% size.forEach(sizeOption => { %>
+                                                    <li>size is <%= sizeOption.size %>: quantity is <%= sizeOption.quantity %> in stock</li>
+                                                <% }) %>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card mb-2">
                                <div class="card-header">
                                    <h4>Choose images</h4>
                                </div>
@@ -142,25 +136,18 @@
                                <div class="row">
                                    <div class="card-body align-items-center" style="margin-bottom: 20px;">
                                        <img src="" alt="" id="imgView1">
-                                                                   <input class="form-control" type="file" name="images" id="input1"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage1(event), viewImage(event, 1)">
-                                                                       <div id="images-error" class="error-message"></div>
-                                                               </div>
-                                                               <div class="image-cropper d-flex align-items-center"
-                                                                   style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
-                                                                   <img src="" id="croppedImg1" alt="">
-                                                                   <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
-                                                               </div>
-                                                           </div>
-                                                          
-                                                           <div class="row">
-                                                               <div class="card-body align-items-center" style="margin-bottom: 20px;">
-                                                                   <img src="" alt="" id="imgView2">
-
-                                                                   <input class="form-control" type="file" name="images" id="input2"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage2(event),viewImage(event, 2)">
+                                       <input class="form-control" type="file" name="images" id="input1"accept="image/png, image/jpeg, image/jpg"onchange="viewImage1(event), viewImage(event, 1)">
+                                       <div id="images-error" class="error-message"></div>
+                                    </div>
+                                    <div class="image-cropper d-flex align-items-center"style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                        <img src="" id="croppedImg1" alt="">
+                                        <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                        <img src="" alt="" id="imgView2">
+                                        <input class="form-control" type="file" name="images" id="input2"accept="image/png, image/jpeg, image/jpg"onchange="viewImage2(event),viewImage(event, 2)">
                                                                </div>
                                                                <div class="image-cropper d-flex align-items-center"
                                                                    style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
@@ -341,7 +328,6 @@
               const color = document.getElementsByName('color')[0].value;
               const category = document.getElementsByName('category')[0].value;
               const images = document.getElementById('input1')
-              const quantity=document.getElementsByName('quantity')
               let isValid = true
               if (name.trim() === "") {
       displayErrorMessage('productName-error', 'Please enter a product name.');
@@ -358,19 +344,6 @@
       displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
       isValid = false;
    }
-  
-  
-           
-  
-  
-              if ( parseInt(quantity) < 0) {
-                  displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                  isValid = false;
-              }
-  
-  
-  
-  
               if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
                   displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
                   isValid = false;

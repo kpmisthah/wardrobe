@@ -34,10 +34,11 @@ const productSchema = new Schema({
         ref: "Subcategory", // Link to Subcategory schema
         required: true,
     },
-    quantity:{
-        type:Number,
+    sizeOptions:[{
+        type:Schema.Types.ObjectId,
+        ref:'Size',
         required:true
-    },
+    }],
     colorOption:{
         type:[String],
         required:true

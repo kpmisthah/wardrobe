@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Sizes</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/size.css">
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h1>Add Size to Product</h1>
+      <form id="size-product">
+        <!-- Product Selection -->
+        <div class="mb-3">
+          <label for="product" class="form-label">Select Product</label>
+          <select class="form-select" id="product" name="product" required>
+            <option value="" selected disabled>Choose a product</option>
+            <% products.forEach(product => { %>
+              <option value="<%= product._id %>"><%= product.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <!-- Size Input -->
+        <div class="mb-3">
+          <label for="size" class="form-label">Size</label>
+          <input type="text" class="form-control" id="size" name="size" placeholder="e.g., S, M, L" required>
+        </div>
+
+        <!-- Quantity Input -->
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Quantity</label>
+          <input type="number" class="form-control" id="quantity" name="quantity" placeholder="Enter quantity" min="1" required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Add Size</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/javascript/size.js"></script>
+</body>
+</html>
