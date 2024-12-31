@@ -155,12 +155,15 @@ async function removeOffer(productId) {
         timerProgressBar:true
        }).then(async(result)=>{
         if(result.isConfirmed){
+            console.log("The response is"+response)
             const response = await fetch('/admin/removeProduct',{
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
                 body:JSON.stringify({productId})
             })
             const data = await response.json()
+             console.log("The data is"+data)
+             console.log("The data status is "+data.status)
             if( data.status === true){
                 Swal.fire("Removed","The offer has been removed","success")
                 .then(()=>{

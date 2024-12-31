@@ -45,8 +45,11 @@ const addCategoryOffer = async (req, res) => {
   try {
     if (req.session.admin) {
       const percentage = req.body.percentage;
+      console.log("the percentage is "+percentage)
       const categoryId = req.body.categoryId;
+      console.log("The category is "+categoryId)
       const category = await Category.findById(categoryId);
+      console.log("The category is "+category)
       if (!category) {
         return res
           .status(404)
@@ -57,8 +60,10 @@ const addCategoryOffer = async (req, res) => {
       category.categoryOffer = percentage
       await category.save()
       const products = await Product.find({ category: categoryId });
+      console.log("teh products is "+products)
       for(let product of products){
         const discount = product.regularPrice*(percentage/100)
+        console.log("The discount is "+discount)
         product.salePrice = product.regularPrice - discount
         await product.save()
         
@@ -66,6 +71,8 @@ const addCategoryOffer = async (req, res) => {
       res.json({ status: true });
     }
   } catch (error) {
+    console.log("Koooooooi")
+    console.log("The error is "+error)
     res.status(500).json({ status: false, message: "internal server error" });
   }
 };
@@ -74,13 +81,16 @@ const removeCategoryOffer = async (req, res) => {
   try {
     // if (req.session.admin) {
       const categoryId = req.body.categoryId;
+      console.log("The category id is "+categoryId)
       const category = await Category.findById(categoryId)
+      console.log("The category is "+category)
       if(!category){
         res.json({message:"something went wrong"})
       }
       category.categoryOffer = 0
       await category.save()
       const products = await Product.find({category:categoryId})
+      console.log("The product is "+products)
       for(let product of products ){
         product.salePrice = product.regularPrice
         await product.save()
@@ -88,6 +98,8 @@ const removeCategoryOffer = async (req, res) => {
       res.status(200).json({status:true,message:"Offer removed successfully"})
     // }
   } catch (error) {
+    console.log("Heelooooo")
+    console.log("The error is"+error)
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 };
