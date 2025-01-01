@@ -40,7 +40,7 @@ const loadHome = async(req,res)=>{
 //load Error page
 const loadError = async(req,res)=>{
     try {
-       return res.render('pageNotFound')
+       return res.render('user/pageNotFound')
     } catch (error) {
         console.log(error)
        return res.status(500).send("Server error")
@@ -263,5 +263,5 @@ export {
     address,
     getEditPage,
     edit,
-    deleteAddress
+    deleteAddress,
 }

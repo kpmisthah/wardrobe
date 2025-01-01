@@ -5,7 +5,7 @@ import { customer,blockUser,unblockUser } from "../controllers/admin/customerCon
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
 import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
-import {getProductAddPage,addProducts, getProductPage ,addProductOffer,removeProductOffer,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
+import {getProductAddPage,addProducts, getProductPage ,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
 const uploads = uploadMulter(storage)
@@ -46,8 +46,8 @@ router.get('/deleteBrand',deleteBrand)
 router.get('/addProducts',getProductAddPage)
 router.post('/addProducts',uploads.array('images',4),addProducts)
 router.get('/products',getProductPage)
-router.post('/addProduct',addProductOffer)
-router.post('/removeProduct',removeProductOffer)
+// router.post('/addProduct',addProductOffer)
+// router.post('/removeProduct',removeProductOffer)
 router.get('/blockProduct',blockProduct)
 router.get('/unblockProduct',unblockProduct)
 router.get('/editProduct',getEditProduct)

@@ -43,10 +43,6 @@ const productSchema = new Schema({
         type:[String],
         required:true
     },
-    productOffer:{
-        type:Number,
-        default:0
-    },
     isBlocked:{
         type:Boolean,
         default:false

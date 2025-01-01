@@ -1,5 +1,6 @@
 import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress} from "../controllers/user/userController.js"
+import { loadCart,cart } from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import { userAuth } from "../middlewares/userAuth.js"
 const router = express.Router()
@@ -22,4 +23,7 @@ router.post('/address',address)
 router.get('/edit/:id',getEditPage)
 router.put('/edit/:id',edit)
 router.delete('/delete/:id',deleteAddress)
+//cart page
+router.get('/cart',userAuth,loadCart)
+router.post('/add-to-cart',cart)
 export default router

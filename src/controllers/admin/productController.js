@@ -4,7 +4,7 @@ import { Brand } from "../../models/brandSchema.js"
 import { Subcategory } from "../../models/subcategorySchema.js"
 import path from "path"
 import sharp from "sharp"
-import { Size } from "../../models/sizeShema.js"
+import { Size } from "../../models/sizeSchema.js"
 
 
 const getProductAddPage = async(req,res)=>{
@@ -47,7 +47,7 @@ const addProducts = async(req,res)=>{
                 }
             }
             //ividathe products form nn varunne aan req.body nn.
-            const category = await Category.findOne({name:products.category})
+            const category = await Category.findById(products.category)
             const subcategory = await Subcategory.findById(products.subcategory);
            
             if(!category|| !subcategory){
@@ -120,50 +120,50 @@ const getProductPage = async(req,res)=>{
     }
 }
 
-const addProductOffer = async(req,res)=>{
-    try {
-        if(req.session.admin){
-            const{percentage,productId} = req.body
-            const product = await Product.findOne({_id:productId})
-            const category = await Category.findOne({_id:product.category})
-            if (category.categoryOffer < percentage) {
-                // If the product offer is more than the category offer, do not allow the product offer
-                return res.json({status: false,message: "Product offer cannot be more than category offer"})}
-            const discountAmount = Math.floor(product.regularPrice*(percentage/100))
-            product.salePrice = product.regularPrice - discountAmount
-            product.productOffer = parseInt(percentage)
-             await product.save()
-            category.categoryOffer = 0;
-            await category.save()
-            res.json({status:true,message:"Offer added successsfully"})
-        }else{
-            res.redirect('/admin/login')
-        }
-    } catch (error) {
-        res.redirect('/pageNotFound')
-        console.log("Teh error is"+error)
-    }
-}
+// const addProductOffer = async(req,res)=>{
+//     try {
+//         if(req.session.admin){
+//             const{percentage,productId} = req.body
+//             const product = await Product.findOne({_id:productId})
+//             const category = await Category.findOne({_id:product.category})
+//             if (category.categoryOffer < percentage) {
+//                 // If the product offer is more than the category offer, do not allow the product offer
+//                 return res.json({status: false,message: "Product offer cannot be more than category offer"})}
+//             const discountAmount = Math.floor(product.regularPrice*(percentage/100))
+//             product.salePrice = product.regularPrice - discountAmount
+//             product.productOffer = parseInt(percentage)
+//              await product.save()
+//             category.categoryOffer = 0;
+//             await category.save()
+//             res.json({status:true,message:"Offer added successsfully"})
+//         }else{
+//             res.redirect('/admin/login')
+//         }
+//     } catch (error) {
+//         res.redirect('/pageNotFound')
+//         console.log("Teh error is"+error)
+//     }
+// }
 
 
 
-const removeProductOffer = async(req,res)=>{
-    try {
-        if(req.session.admin){
-            const{productId} = req.body
-            const product = await Product.findOne({_id:productId})
-            product.salePrice = product.regularPrice
-            product.productOffer = 0
-            await product.save()
-            res.json({status:true})
+// const removeProductOffer = async(req,res)=>{
+//     try {
+//         if(req.session.admin){
+//             const{productId} = req.body
+//             const product = await Product.findOne({_id:productId})
+//             product.salePrice = product.regularPrice
+//             product.productOffer = 0
+//             await product.save()
+//             res.json({status:true})
 
-        }else{
-            res.redirect('/admin/login')
-        }
-    } catch (error) {
-        res.redirect("pageNotFound")
-    }
-}
+//         }else{
+//             res.redirect('/admin/login')
+//         }
+//     } catch (error) {
+//         res.redirect("pageNotFound")
+//     }
+// }
 
 const blockProduct = async(req,res)=>{
     try {
@@ -266,6 +266,7 @@ const addSize = async(req,res)=>{
             await existingSize.save()
             return res.status(200).json({message:"quantity is update successfully"})
         }
+        
         //new size
         const newSize = new Size({
             product,
@@ -285,7 +286,7 @@ const addSize = async(req,res)=>{
 export{
     getProductAddPage,
     addProducts,getProductPage,
-    addProductOffer,removeProductOffer,
+    // addProductOffer,removeProductOffer,
     blockProduct,
     unblockProduct,
     getEditProduct,

@@ -6,33 +6,41 @@ const cartSchema = new Schema({
         required:true,
     },
     items:[{
-        productName:{
+        product:{
             type:Schema.Types.ObjectId,
             ref:"Product",
             required:true
         },
+        name:String,
         quantity:{
             type:Number,
             required:true,
+            min:1,
             default:1
+        },
+        size: {
+            type: String,  
+            required: true
         },
         price:{
             type:Number,
             required:true
         },
-        totalPrice:{
-            type:Number,
-            required:true
-        },
-        status:{
-            type:String,
-            default:"placed"
-        },
-        cancellationReason:{
-            type:String,
-            default:"none"
-        }
-    }]
+        // status:{
+        //     type:String,
+        //     default:"placed"
+        // },
+        // cancellationReason:{
+        //     type:String,
+        //     default:"none"
+        // }
+    }],
+    maxQtyPerPerson: Number,
+    bill:{
+        type:Number,
+        required:true,
+        default:0
+    }
 },{timestamps:true})
 
 export const Cart = mongoose.model('Cart',cartSchema)
