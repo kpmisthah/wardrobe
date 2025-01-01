@@ -1,7 +1,11 @@
 
 async function addToCart(productId,name,price,stock,size) {
     if(!size || size == 'Choose an option'){
-        alert('please select a size')
+        Swal.fire({
+            icon: 'warning',
+            title: 'Size Required',
+            text: 'Please select a size',
+        });
         return
     }
 
@@ -14,13 +18,38 @@ async function addToCart(productId,name,price,stock,size) {
         })
         const responseData = await response.json()
         if(response.ok){
-            alert("Item is added to cart successfully")
-        }else if (responseData.message == 'Not enough stock for size'){
-            alert(`not enough stock left only ${responseData.stockLeft}`)
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Cart',
+                text: 'Item has been added to your cart successfully!',
+                showConfirmButton: true,
+                confirmButtonColor: '#3085d6',
+            });
+        }else if (responseData.message == `Not enough stock.`){
+            Swal.fire({
+                icon: 'error',
+                title: 'Insufficient Stock',
+                text: `Not enough stock left. Only ${responseData.stockLeft} items available.`,
+            });
+        }else if(responseData.message == `Cannot add more than 10 units per person.`){
+            Swal.fire({
+                icon:'error',
+                title:`Not Permitted`,
+                text:`Only add 10 units for a product`
+            })
         }else{
-            alert("failed to add item to cart")
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Add',
+                text: 'Failed to add the item to your cart. Please try again.',
+            });
         }
     } catch (error) {
-        console.log("error on adding item to cart"+error)
+        console.log("Error on adding item to cart: " + error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Unexpected Error',
+            text: 'An error occurred while adding the item to your cart. Please try again later.',
+        });
     }
 }

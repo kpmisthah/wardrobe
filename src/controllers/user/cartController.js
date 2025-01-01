@@ -3,15 +3,17 @@ import { Cart } from "../../models/cartSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 const loadCart = async(req,res)=>{
     try {
-        let user = req.session.user
-        let userData = await User.findOne({_id:user})
+        let userId = req.session.user
+        let cart = await Cart.findOne({userId}).populate('items.product')
         if(cart && cart.items.length>0){
-            return res.render('user/cart',{user:userData})
+            const userData = await User.findOne({_id:userId})
+            return res.render('user/cart',{user:userData,cart})
         }else{
             return res.status(400).json({message:"Cart is empty"})
         }
        
     } catch (error) {
+        console.log("the error is"+error)
         return res.redirect('/notfound')
     }
 }
@@ -20,17 +22,13 @@ const cart = async(req,res)=>{
     try {
         const owner = req.session.user
         const user = await User.findOne({_id:owner})
+
         //this got from cart.js
         const {productId,name,price,stock,size}= req.body
+
         //check the stock of the product and user enter stock 
        const productSize = await Size.findOne({product:productId,size})
-       let stockLeft = productSize.quantity - parseInt(stock)
-       console.log("The stock left is "+stockLeft)
-        productSize.quantity = stockLeft
-       await productSize.save()
-       if(productSize.quantity<parseInt(stock)){
-        return res.status(400).json({message:`Not enough stock for size`,stockLeft:productSize.quantity})
-       }
+
        let cart = await Cart.findOne({userId:owner})
        let maxQtyPerPerson = 10
        if(!cart){
@@ -38,29 +36,40 @@ const cart = async(req,res)=>{
        }
        
        //find the item in cart
-       const itemIndex = cart.items.findIndex((item)=>item.product.toString() == productId.toString() && item.size ==size)
-        if(itemIndex != -1){
-            //check new quantity with max quantity
-            const newQuantity = cart.items[itemIndex].quantity+parseInt(stock)
+       let itemIndex = cart.items.findIndex((item)=>item.product.toString() == productId.toString() && item.size ==size)
 
-            if(newQuantity>maxQtyPerPerson){
-                return res.status(400).json({message:`Cannot add more than maximum quantity units of size  to your cart`})
-            }
-            //add the quantity
-            cart.items[itemIndex].quantity = newQuantity
-            if(cart.items.quantity<productSize.quantity){
-                return res.status(400).json({message:`Not enough stock for size ${size}`})
-            }
-        }else{
+       let requestedQuantity = parseInt(stock)
+       let existingQuantity = itemIndex!=-1?cart.items[itemIndex].quantity:0
+       const totalQuantity = requestedQuantity+existingQuantity
+       if(totalQuantity>maxQtyPerPerson){
+        return res.status(400).json({
+            message: `Cannot add more than 10 units per person.`
+        })
+       }
+       if(requestedQuantity>productSize.quantity){
+        return res.status(400).json({ message: `Not enough stock.`,stockLeft:productSize.quantity})
+       }
+
+       //update cart item
+       if(itemIndex != -1){
+        cart.items[itemIndex].quantity = totalQuantity
+       }else{
             cart.items.push({
-                product:productId,
-                name,
-                quantity:stock,
-                size:size,
-                price
+            product:productId,
+            name,
+            quantity:stock,
+            size:size,
+            price
             })
-        }
-        //calculate bill
+       }
+       //change the quantity of stock in size schema
+
+       productSize.quantity -=requestedQuantity
+       if(productSize.quantity<0){
+        return res.status(400).json({message:`Not enough stock`})
+       }
+       await productSize.save()
+
         cart.bill = cart.items.reduce((acc,curr)=>acc+(curr.quantity*curr.price),0)
         await cart.save()
         res.status(200).json({message:"Item added to the cart successfully"})
