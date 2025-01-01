@@ -7,6 +7,8 @@ const loadCart = async(req,res)=>{
         let cart = await Cart.findOne({userId}).populate('items.product')
         if(cart && cart.items.length>0){
             const userData = await User.findOne({_id:userId})
+            res.locals.user = userData
+            res.locals.cart = cart
             return res.render('user/cart',{user:userData,cart})
         }else{
             return res.status(400).json({message:"Cart is empty"})
@@ -59,7 +61,8 @@ const cart = async(req,res)=>{
             name,
             quantity:stock,
             size:size,
-            price
+            price,
+            totalPrice:price*stock
             })
        }
        //change the quantity of stock in size schema

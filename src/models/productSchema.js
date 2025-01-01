@@ -39,6 +39,10 @@ const productSchema = new Schema({
         ref:'Size',
         required:true
     }],
+    isStock:{
+        type:Boolean,
+        default:true
+    },
     colorOption:{
         type:[String],
         required:true

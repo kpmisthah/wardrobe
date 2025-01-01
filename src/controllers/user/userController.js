@@ -1,9 +1,7 @@
 import {User} from "../../models/userSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
-import { Brand } from "../../models/brandSchema.js"
 import { Address } from "../../models/addressSchema.js"
-import { update } from "tar"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 //load Home page
@@ -50,7 +48,6 @@ const loadError = async(req,res)=>{
 const loadShoppingPage =  async(req,res)=>{
   
     try {
-        
             let page = parseInt(req.query.page ||1);
             const sortOption = req.query.sort||null
             let limit = 4
@@ -58,6 +55,8 @@ const loadShoppingPage =  async(req,res)=>{
 
             //sort method
             let sort = {}
+            //The empty object gets replaced with specific sort criteria when needed
+            //If no sort option matches, it remains empty, meaning no specific sorting
             if(sortOption == 'priceLowtoHigh'){
              sort = {salePrice:1}
             }else if(sortOption === 'priceHightoLow'){
@@ -73,14 +72,29 @@ const loadShoppingPage =  async(req,res)=>{
             }else if(sortOption === 'Above4000'){
                 filter.salePrice = {$gte:4000}
             }else if(sortOption === '1500-2000'){
-                filter.salePrice = {$gte:1500,$lte:2000}
+                filter.salePrice = {$gte:1500,$lte:2000} //==product.find({isBlocked:false,salePrice:{$gte:1500,$lte:2000}})
             }else if(sortOption === 'new'){
                 sort = {createdAt:-1}
+            }else if(sortOption == 'Available'){
+                filter.isStock = true
+            }else if(sortOption == 'Unavailable'){
+                filter.isStock = false
             }
+            
 
             let products =await Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit)
             const count =await Product.countDocuments(filter)
             const totalpage = Math.ceil(count/limit)
+
+            for(let product of products) {
+                const isStock = product.sizeOptions.some(option => option.quantity > 0);
+                if(isStock !== product.isStock) {
+                    product.isStock = isStock;
+                    await product.save();
+                }
+            }
+    // Calculate stock statuses using separate queries
+;
             let user = req.session.user
             console.log("The user is "+user)
                 let userData = await User.findOne({_id:user})

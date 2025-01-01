@@ -97,7 +97,7 @@
 
                                                 <select class="form-select border" style="width: 150px;" name="category">
                                                     <%for(let i=0;i<category.length;i++){%>
-                                                   <option value="<%=category[i].name%>">
+                                                   <option value="<%=category[i]._id%>">
                                                        
                                                         <%=category[i].name%>
 
@@ -117,12 +117,6 @@
                                                         <% }) %>
                                                 </select>
                                             </div>
-                                            <h3>Sizes and Quantities</h3>
-                                            <ul>
-                                                <% size.forEach(sizeOption => { %>
-                                                    <li>size is <%= sizeOption.size %>: quantity is <%= sizeOption.quantity %> in stock</li>
-                                                <% }) %>
-                                            </ul>
                                         </div>
                                     </div>
                                 </div>
