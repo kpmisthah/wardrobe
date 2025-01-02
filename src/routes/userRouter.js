@@ -2,6 +2,7 @@ import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress} from "../controllers/user/userController.js"
 import { loadCart,cart } from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
+import {loadCheckout, getEditAddressPage,editAddress} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
 const router = express.Router()
 //home page
@@ -26,4 +27,8 @@ router.delete('/delete/:id',deleteAddress)
 //cart page
 router.get('/cart',userAuth,loadCart)
 router.post('/add-to-cart',cart)
+//checkout page
+router.get('/checkout',loadCheckout)
+router.get('/edit/:id',getEditAddressPage)
+router.put('/edit/:id',editAddress)
 export default router

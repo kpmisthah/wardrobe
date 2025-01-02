@@ -1,0 +1,102 @@
+<%-include('../../views/partials/userPartials/header')%>
+    <div class="checkout-container">
+        <!-- Address Section -->
+        <div class="addresses-section">
+            <h2>Select Delivery Address</h2>
+            <%address.forEach((addr)=>{%>
+            <div class="saved-addresses">
+                <div class="address-card <%=addr._id == selectedAddress?'selected':''%>" id="addressid-<%addr._id%>">
+                    <div class="address-details">
+                        <h4><%=addr.name%></h4>
+                        <p><%=addr.email%></p>
+                        <p><%=addr.state%></p>
+                        <p><%=addr.district%></p>
+                        <p><%=addr.city%>/p>
+                        <p><%=addr.phone%></p>
+                        <p><%=addr.zipCode%></p>
+                    </div>
+                    <div class="address-actions">
+                        <button class="btn-edit action-link remove-link"><a href="/edit/<%=addr._id%>">Edit</a></button>
+                        <button class="btn-select " onclick="selectAddress('<%= addr._id %>')">Deliver Here</button>
+                    </div>
+                </div>
+
+                <div class="address-card">
+                    <div class="address-actions">
+                        <button class=""></button>
+                        <button class=""></button>
+                    </div>
+                </div>
+            </div>
+            <%})%>
+            
+            <button class="btn-add-address" onclick="showAddAddressForm()">Add New Address</button>
+            
+            <div id="addressForm" class="address-form" style="display: none;">
+                <form id="newAddressForm">
+                    <input type="text" name="name" placeholder="Full Name" required>
+                    <input type="tel" name="phone" placeholder="Phone Number" required>
+                    <input type="text" name="addressLine1" placeholder="Address Line 1" required>
+                    <input type="text" name="addressLine2" placeholder="Address Line 2">
+                    <input type="text" name="city" placeholder="City" required>
+                    <input type="text" name="state" placeholder="State" required>
+                    <input type="text" name="pincode" placeholder="Pincode" required>
+                    <button type="submit" class="btn-add-address">Save Address</button>
+                    <button type="button" class="btn-edit" onclick="hideAddressForm()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            
+            <div class="order-items">
+                <div class="order-item">
+                    <div class="item-image"></div>
+                    <div class="item-details">
+                        <h4>Classic White T-Shirt</h4>
+                        <p>Size: L | Color: White</p>
+                        <p>Quantity: 2</p>
+                        <p>$29.99</p>
+                    </div>
+                </div>
+
+                <div class="order-item">
+                    <div class="item-image"></div>
+                    <div class="item-details">
+                        <h4>Denim Jeans</h4>
+                        <p>Size: 32 | Color: Blue</p>
+                        <p>Quantity: 1</p>
+                        <p>$59.99</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subtotal-section">
+                <div class="price-row">
+                    <span>Subtotal</span>
+                    <span>$119.97</span>
+                </div>
+                <div class="price-row">
+                    <span>Shipping</span>
+                    <span>$5.99</span>
+                </div>
+                <div class="price-row">
+                    <span>Tax</span>
+                    <span>$12.00</span>
+                </div>
+                <div class="price-row total-row">
+                    <span>Total</span>
+                    <span>$137.96</span>
+                </div>
+            </div>
+
+            <button class="checkout-button">Place Order</button>
+        </div>
+    </div>
+<script src="/javascript/checkout.js"></script>
+</body>
+</html>
+<!-- Footer -->
+<%-include('../../views/partials/userPartials/footer')%>

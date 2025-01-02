@@ -145,6 +145,7 @@ const address = async(req,res)=>{
                 state:formData.state,
                 houseNumber:formData.houseNumber,
                 district:formData.district,
+                isDefault:false
             })
             await userAddress.save()
             return res.status(200).json({message:"Address is addedd successfully"})
@@ -160,6 +161,7 @@ const address = async(req,res)=>{
                 state:formData.state,
                 houseNumber:formData.houseNumber,
                 district:formData.district,
+                isDefault:true
                
             }]
             })
@@ -210,9 +212,7 @@ const getEditPage = async(req,res)=>{
 const edit = async(req,res)=>{
     try {
         const user = req.session.user
-        console.log("The update user"+user)
         const {id} = req.params
-        console.log("teh params"+id)
         const data = req.body
       await Address.updateOne({userId:user,'address._id':id},{
         $set:{

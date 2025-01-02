@@ -42,6 +42,10 @@ const addressSchema = new Schema({
           state:{
             type:String,
             required:true
+          },
+          isDefault:{
+            type:Boolean,
+            default:false
           }
     }]
 

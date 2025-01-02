@@ -66,7 +66,6 @@ const cart = async(req,res)=>{
             })
        }
        //change the quantity of stock in size schema
-
        productSize.quantity -=requestedQuantity
        if(productSize.quantity<0){
         return res.status(400).json({message:`Not enough stock`})
