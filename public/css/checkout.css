@@ -210,3 +210,74 @@ h2 {
         font-size: 16px;
     }
 }
+
+    .checkout-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .addresses-section, .order-summary {
+        flex: 1;
+        min-width: 300px;
+        margin-bottom: 20px;
+    }
+
+    .address-card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+
+    .payment-method-section {
+        margin-top: 20px;
+    }
+
+    .payment-option {
+        margin-bottom: 10px;
+    }
+
+    .payment-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .checkout-button {
+        margin-top: 20px;
+        padding: 10px 15px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .checkout-button:hover {
+        background-color: #218838;
+    }
+
+    @media (max-width: 768px) {
+        .checkout-container {
+            flex-direction: column;
+        }
+
+        .addresses-section, .order-summary {
+            min-width: 100%;
+        }
+    }
+    
+    /* Add this CSS to your stylesheet */
+.address-card.selected {
+    border: 2px solid #007bff; /* Change border color to indicate selection */
+    background-color: #e9f3ff; /* Light background color to show selection */
+}

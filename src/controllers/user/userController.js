@@ -145,7 +145,6 @@ const address = async(req,res)=>{
                 state:formData.state,
                 houseNumber:formData.houseNumber,
                 district:formData.district,
-                isDefault:false
             })
             await userAddress.save()
             return res.status(200).json({message:"Address is addedd successfully"})
@@ -161,7 +160,6 @@ const address = async(req,res)=>{
                 state:formData.state,
                 houseNumber:formData.houseNumber,
                 district:formData.district,
-                isDefault:true
                
             }]
             })

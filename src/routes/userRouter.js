@@ -2,7 +2,7 @@ import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,orders,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress} from "../controllers/user/userController.js"
 import { loadCart,cart } from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
-import {loadCheckout, getEditAddressPage,editAddress} from '../controllers/user/checkoutController.js'
+import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
 const router = express.Router()
 //home page
@@ -29,6 +29,11 @@ router.get('/cart',userAuth,loadCart)
 router.post('/add-to-cart',cart)
 //checkout page
 router.get('/checkout',loadCheckout)
-router.get('/edit/:id',getEditAddressPage)
-router.put('/edit/:id',editAddress)
+router.get('/editted/:id',getEditAddressPage)
+router.put('/editted/:id',editAddress)
+router.get('/add-checkoutaddress',loadAddcheckoutaddress)
+router.post('/add-checkout-address',addcheckoutAddress)
+//place order
+router.post('/place-order',placeOrder)
+router.get('/order-confirmation',orderConfirm)
 export default router

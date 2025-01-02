@@ -5,17 +5,17 @@ const orderIdSchema = new Schema({
     orderId:{
         type:String,
         default:()=>uuidv4(),
-        required:true
+        // required:true
     },
     orderedItems:[{
         product:{
             type:Schema.Types.ObjectId,
             ref:"Product",
-            required:true
+            // required:true
         },
         quantity:{
             type:Number,
-            required:true
+            // required:true
         },
         price:{
             type:Number,
@@ -25,7 +25,7 @@ const orderIdSchema = new Schema({
     }],
     totalPrice:{
         type:Number,
-        required:true
+        // required:true
     },
     discount:{
         type:Number,
@@ -33,7 +33,7 @@ const orderIdSchema = new Schema({
     },
     finalAmount:{
         type:Number,
-        required:true
+        // required:true
     },
     address:{
         type:Schema.Types.ObjectId,
@@ -49,12 +49,10 @@ const orderIdSchema = new Schema({
         ref:"User",
         required:true
     },
-
-    //doubt
-    // paymentId:{
-    //     type:Schema.Types.ObjectId,
-    //     required:true
-    // },
+    paymentMethod:{
+        type:String,
+        required:true
+    },
     status:{
         type:String,
        required:true,
