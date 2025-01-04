@@ -214,11 +214,12 @@ const sizeManagement = async(req,res)=>{
 const addSize = async(req,res)=>{
     try {
         const{product,size,quantity} = req.body
+        console.log("The product in size is "+product)
         //existing size
         const normalSize = size.toLowerCase()
         const existingSize = await Size.findOne({size:normalSize,product})
         if(existingSize){
-            existingSize.quantity = quantity
+            existingSize.quantity += parseInt(quantity)
             await existingSize.save()
             return res.status(200).json({message:"quantity is update successfully"})
         }

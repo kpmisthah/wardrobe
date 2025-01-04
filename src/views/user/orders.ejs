@@ -20,41 +20,36 @@
 
         <main class="main-content">
             <h2>Your Orders</h2>
-            <table class="orders-table">
-                <thead>
-                    <tr>
-                        <th>Orders</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Totals</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#1357</td>
-                        <td>March 19, 2022</td>
-                        <td>Processing</td>
-                        <td>$125.00</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>#2468</td>
-                        <td>June 29, 2022</td>
-                        <td>Completed</td>
-                        <td>$364.00</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                    <tr>
-                        <td>#2366</td>
-                        <td>August 02, 2022</td>
-                        <td>Completed</td>
-                        <td>$280.00</td>
-                        <td><a href="#" class="view-link">View</a></td>
-                    </tr>
-                </tbody>
-            </table>
+            <% if (order.length > 0) { %>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Orders</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Totals</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <% order.forEach((order) => { %>
+                    <tbody>
+                        <tr>
+                            <td><%= order.orderId %></td>
+                            <td><%= order.invoiceDate %></td>
+                            <td><%= order.status %></td>
+                            <td><%= order.totalPrice %></td>
+                            <td>
+                                <a href="/user/view-order/<%= order._id %>" class="view-link">View</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <% }) %>
+                </table>
+            <% } else { %>
+                <p>No orders to display.</p>
+            <% } %>
         </main>
+        
 
         <section class="newsletter">
             <div class="newsletter-container">

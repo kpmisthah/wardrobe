@@ -51,6 +51,7 @@ app.use(express.urlencoded({extended:true,limit:"16kb"}))
 app.use(express.static('public'))
 
 
+
 app.use(passport.initialize())
 app.use(passport.session())
 /*Security: Sometimes, sensitive data (like personal or session-related information)
@@ -68,7 +69,7 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 app.set('view engine', 'ejs')
 // app.set('views',[path.join(__dirname,'views/admin'),path.join(__dirname,'views/user')])
 app.set('views', path.join(__dirname, 'views'));
-
+app.use('/view-order', express.static(path.join(__dirname, 'public')));
 
 app.use('/',userRouter)
 app.use('/',authRouter)

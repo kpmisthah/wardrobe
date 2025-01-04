@@ -2,6 +2,7 @@ import {User} from "../../models/userSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Address } from "../../models/addressSchema.js"
+import { Order } from "../../models/orderIdSchema.js"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 //load Home page
@@ -112,9 +113,10 @@ const loadProfile = async(req,res)=>{
         const users =req.session.user
         const userProfile = await User.findOne({_id:users})
         console.log("The users is "+userProfile)
-        return res.render('user/myaccount',{userProfile})
+        return res.render('user/myaccount',{user:userProfile})
     } catch (error) {
-        
+        console.error("Error in loadProfile:", error);
+    return res.status(500).send("An error occurred");
     }
 }
 
@@ -244,14 +246,6 @@ const deleteAddress = async(req,res)=>{
         res.status(500).json({'message':'Internal server error'})
     }
 }
-//load Orders page
-const orders = async(req,res)=>{
-    try {
-        return res.render('user/orders')
-    } catch (error) {
-        console.log("The error is"+error)
-    }
-}
 
 const updateProfile = async(req,res)=>{
     try {
@@ -268,7 +262,6 @@ export {
     loadError,
     loadShoppingPage,
     loadProfile,
-    orders,
     updateProfile,
     getAddress,
     addAddress,

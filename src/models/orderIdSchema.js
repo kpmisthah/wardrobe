@@ -21,6 +21,14 @@ const orderIdSchema = new Schema({
             type:Number,
             default:0
         },
+        size: { 
+            type: String, 
+            required: true 
+        },
+        name:{
+            type:String,
+            required:true
+        }
        
     }],
     totalPrice:{
@@ -61,6 +69,10 @@ const orderIdSchema = new Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    cancellationReason:{
+        type:String,
+        // required:true
     }
 },{timestamps:true})
 

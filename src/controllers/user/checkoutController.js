@@ -3,11 +3,12 @@ import { Address } from "../../models/addressSchema.js"
 import {Cart} from '../../models/cartSchema.js'
 import { Order } from "../../models/orderIdSchema.js"
 
+
 const loadCheckout = async(req,res)=>{
     try {
         let user = req.session.user
         let userAddress = await Address.findOne({userId:user})
-        let cart = await Cart.findOne({userId:user}).populate('items.product')
+        const cart = await Cart.findOne({userId:user}).populate('items.product')
         if(!userAddress ){
             return res.redirect('/getAddress')
         }
@@ -118,21 +119,34 @@ const placeOrder = async(req,res)=>{
     try {
         const{payment,addressId} = req.body
         const userId = req.session.user
-        const  address = await Address.find({_id:addressId})
-        console.log("The address is "+address)
-        if(!address){
-            return res.status(400).json({message:"address is not found"})
+        const  address = await Address.findOne({userId})
+        const cart = await Cart.findOne({userId})
+        let orderedItems = []
+        //to add the size of particular product and manage the stock
+        for(let item of cart.items){
+            orderedItems.push({
+                product: item.product,
+                name: item.name,
+                size: item.size,  
+                quantity: item.quantity,
+                price: item.price,
+            });
+
         }
         const newOrder = new Order({
-            // orderId: uuidv4(), // Automatically handled in the schema
+            orderedItems,
             address: addressId,
             userId,
             paymentMethod: payment,
             status: "Pending", // Default initial status
+            totalPrice:cart.bill,
             invoiceDate: new Date(),
         });
 
         await newOrder.save()
+        cart.items = [];
+        cart.bill = 0;
+        await cart.save();
         res.redirect('/order-confirmation')
     } catch (error) {
         console.log("The error is"+error)
