@@ -10,15 +10,14 @@
         <main class="main-content">
             <section class="profile-section">
                 <h1>Update Profile</h1>
-                <form>
+                <form id="updateProfile" onsubmit="updateProfile(event)">
                     <div class="form-group">
-                        <input type="text" placeholder="Username">
+                        <input type="email" placeholder="email">
+                        <div id="error1" class="error-message"></div>
                     </div>
                     <div class="form-group">
-                        <input type="text" placeholder="Country">
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" placeholder="Phone">
+                        <input type="password" placeholder="Password">
+                        <div id="error2" class="error-message"></div>
                     </div>
                     <button type="submit" class="save-btn">Save</button>
                 </form>
@@ -53,5 +52,6 @@
             </div>
         </footer>
     </div>
+    <script src="/javascript/updateProfile.js"></script>
 </body>
 </html>

@@ -9,25 +9,27 @@
         </a>
 
         <span class="stext-109 cl4">
-            Shopping Cart
+            Order Details
         </span>
     </div>
 </div>
 
 <div class="container">
     <h2>Order Details</h2>
-    
+
     <% if (order) { %>
         <p><strong>Order ID:</strong> <%= order.orderId %></p>
         <p><strong>Order Date:</strong> <%= order.invoiceDate.toDateString() %></p>
         <p><strong>Status:</strong> <%= order.status %></p>
-        
+
         <table class="table-shopping-cart">
             <thead>
                 <tr>
                     <th>Product</th>
                     <th>Quantity</th>
                     <th>Price</th>
+                    <th>Return Status</th>
+                    <th>Action</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -45,23 +47,58 @@
                         </td>
                         <td><%= item.quantity %></td>
                         <td><%= item.price %></td>
+
+                        <!-- Show return status -->
                         <td>
+                            <% if (item.returnStatus === 'Requested') { %>
+                                <span class="badge bg-warning">Return Requested</span>
+                            <% } else if (item.returnStatus === 'Approved') { %>
+                                <span class="badge bg-success">Return Approved</span>
+                            <% } else if (item.returnStatus === 'Rejected') { %>
+                                <span class="badge bg-danger">Return Rejected</span>
+                            <% } else { %>
+                                <span class="badge bg-secondary">No Return Requested</span>
+                            <% } %>
+                        </td>
+
+                        <!-- Cancel Item Button -->
+                        <td>
+                            <%if(item.returnStatus !== "Approved"){%>
                             <button type="button" 
                                     class="btn-cancel" 
-                                    onclick="remove('<%= item._id %>', '<%= item.product._id %>')">
+                                    onclick="remove('<%= item._id %>')">
                                 Cancel
                             </button>
+                            <%}else{%>
+                                <button type="button" class="btn-cancel">
+                            The item is returned
+                        </button>
+                        <%}%>
+                        </td>
+
+                        <!-- Return Item Button -->
+                        <td>
+                            <% if (item.returnStatus === 'Not Requested') { %>
+                                <button type="button" 
+                                        class="btn-cancel" 
+                                        onclick="returnOrder('<%= item._id %>')">
+                                    Request Return
+                                </button>
+                            <% } else { %>
+                                <button class="btn-cancel" disabled>
+                                    Cannot Request Return
+                                </button>
+                            <% } %>
                         </td>
                     </tr>
                 <% }); %>
             </tbody>
         </table>
-        
+
         <h3>Total Amount: <%= order.totalPrice %></h3>
     <% } else { %>
         <p>No order data available.</p>
     <% } %>
-</div>
 </div>
 
 <!-- Footer -->

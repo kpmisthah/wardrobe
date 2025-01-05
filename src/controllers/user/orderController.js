@@ -37,14 +37,12 @@ const viewOrder = async(req,res)=>{
 
 const productCancel = async(req, res) => {
     try {
-        const { productId,product } = req.body;  // This is actually the item._id
-        console.log("The sieze id is"+product)
+        const { productId } = req.body;  // This is actually the item._id
 
         // Find the order containing this specific item._id
         const order = await Order.findOne({
             'orderedItems._id': productId
         });
-        console.log("The order is "+order)
 
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
@@ -60,15 +58,14 @@ const productCancel = async(req, res) => {
         }
 
         // Store the item before removal
+        //items that want to be removed stored here .it has size and quantity so compare it with our size schema
         const itemToRemove = order.orderedItems[itemIndex];
-        console.log("The item to remove"+itemToRemove)
 
         //so now we want to increase the stock count for specific product
         const size = await Size.findOne({product:itemToRemove.product,size:itemToRemove.size})
         size.quantity+=itemToRemove.quantity
         await size.save()
 
-        console.log("Hello sizeeeee"+size)
         // Remove the item
         order.orderedItems.splice(itemIndex, 1);
 
@@ -92,6 +89,31 @@ const productCancel = async(req, res) => {
     }
 };
 
+const returnOrder = async(req,res)=> {
+    try {
+        const{productId} = req.body
+        const orders = await Order.findOne({'orderedItems._id':productId})
+        const orderedIndex= orders.orderedItems.findIndex((item)=>item._id.toString()==productId)
+        if(orderedIndex == -1){
+            return res.status(401).json({message:"Item not found"})
+        }
+        const returnOrder = orders.orderedItems[orderedIndex]
+        if(returnOrder.returnStatus !== 'Not Requested'){
+            return res.status(400).json({ message: 'Return already requested for this product' });
+        }
+        if(returnOrder.returnStatus == 'Approved'){
+
+        }else if(returnOrder.returnStatus == 'Rejected'){
+
+        }
+        returnOrder.returnStatus = 'Requested'
+        await orders.save()
+        res.status(200).json({ message: 'Return request submitted successfully'});
+    } catch (error) {
+        console.log("the error is"+error)
+    }
+}
+
 const emptyOrder = async(req,res)=>{
     try {
         return res.render('user/emptyOrder')
@@ -99,4 +121,4 @@ const emptyOrder = async(req,res)=>{
         console.log(error)
     }
 }
-export{orders,viewOrder,productCancel,emptyOrder}
+export{orders,viewOrder,productCancel,returnOrder,emptyOrder}

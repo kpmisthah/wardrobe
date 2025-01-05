@@ -6,6 +6,8 @@ import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isLis
 import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
 import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
 import {getProductAddPage,addProducts, getProductPage ,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
+import { orderList,orderStatus,handleReturn } from "../controllers/admin/orderController.js"
+
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
 const uploads = uploadMulter(storage)
@@ -52,6 +54,8 @@ router.get('/blockProduct',blockProduct)
 router.get('/unblockProduct',unblockProduct)
 router.get('/editProduct',getEditProduct)
 router.post('/editProducts/:id',uploads.array('images',4),editProduct)
-
-
+//ordermanagement
+router.get('/orderList',orderList)
+router.post('/order-status',orderStatus)
+router.post('/handleReturn',handleReturn)
 export default router

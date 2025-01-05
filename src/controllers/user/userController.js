@@ -3,6 +3,9 @@ import { Product } from "../../models/productSchema.js"
 import { Category } from "../../models/categoriesSchema.js"
 import { Address } from "../../models/addressSchema.js"
 import { Order } from "../../models/orderIdSchema.js"
+import bcrypt from "bcrypt"
+import { Otp } from "../../models/otpModels.js";
+import randomString from "randomstring"
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 //load Home page
@@ -256,6 +259,81 @@ const updateProfile = async(req,res)=>{
     }
 }
 
+const profileUpdate = async (req,res)=>{
+    try {
+        const userId = req.session.user
+        const previousMail = await User.findOne({_id:userId})
+        const oldEmail = previousMail.email
+        const{email,password} = req.body
+        console.log("The email and password"+email+" "+password)
+        // const updateUser = await User.findByIdAndUpdate(userId,{
+        //     email,
+        //     password:hashedPassword
+        // })
+        // console.log("The update user"+updateUser)
+        // await updateUser.save()
+        // return res.status(200).json({message:"email and password changed successfully"})
+         const otp = randomString.generate({ length: 6, charset: "numeric" });
+         console.log("The new otp is"+otp)
+         await Otp.create({ email:oldEmail, otp });
+         req.session.updateProfile = {email,password}
+         return res.status(200).json({ message: "OTP sent to your current email address." });
+
+    } catch (error) {
+        console.log("The error is"+error)
+    }
+}
+
+const otpVerification = async(req,res)=>{
+    try {
+        return res.render('user/update-otp-verification')
+    } catch (error) {
+        console.log("otp error"+error)
+    }
+}
+
+const verifyOtp = async (req,res)=>{
+    try {    
+      const userId = req.session.user
+      const previousMail = await User.findOne({_id:userId})
+      const oldEmail = previousMail.email
+      const{otps} = req.body 
+      const otpRecord = await Otp.findOne({email:oldEmail}) 
+      console.log("The record is "+otpRecord)
+      if (!otpRecord) {
+        return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
+      }
+      if(otpRecord.otp!=otps){
+        return res.status(400).json({ success: false, message: "Invalid OTP." });
+      }
+      const {email,password} = req.session.updateProfile
+      const hashedPassword = await bcrypt.hash(password, 10); // Ensure hashing is done properly
+      const updateUser = await User.findByIdAndUpdate(userId,{email:email,password:hashedPassword})
+      console.log("The updated user is "+updateUser)
+      await updateUser.save()
+      return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/updateProfile" });  // Example redirect URL
+    } catch (error) {
+      console.log("the errorr is"+error);
+      return res.status(500).json({success:false,message:"An error occured"})
+    }
+   
+  
+  }
+
+  const resendOtp = async(req,res)=>{
+    try {
+      const{email} = req.body
+      const otp =  randomString.generate({ length: 6, charset: "numeric" });
+      const existingOtp = await Otp.findOneAndUpdate({email},{otp},{upsert:true,new:true})
+      console.log("The otp is "+ existingOtp)
+      
+      return res.json({ success: true, message: 'OTP sent successfully!' });
+  
+    } catch (error) {
+      console.error('Error while resending OTP:', error);
+      return res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' });
+    }
+  }
 
 export {
     loadHome,
@@ -269,4 +347,8 @@ export {
     getEditPage,
     edit,
     deleteAddress,
+    profileUpdate,
+    otpVerification,
+    verifyOtp,
+    resendOtp
 }

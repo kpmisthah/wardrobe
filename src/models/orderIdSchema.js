@@ -28,7 +28,12 @@ const orderIdSchema = new Schema({
         name:{
             type:String,
             required:true
-        }
+        },
+        returnStatus: {
+            type: String,
+            enum: ['Not Requested', 'Requested', 'Approved', 'Rejected'],
+            default: 'Not Requested',
+          }
        
     }],
     totalPrice:{

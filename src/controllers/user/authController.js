@@ -72,7 +72,6 @@ const verifyOtp = async (req,res)=>{
     return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/" });  // Example redirect URL
   } catch (error) {
     console.log(error);
-    console.log("this working 2 times")
     return res.status(500).json({success:false,message:"An error occured"})
   }
  
@@ -152,7 +151,90 @@ const login = async(req,res)=>{
   }
 }
 
+const forgotPassword = async(req,res)=>{
+  try {
+    return res.render('user/forgot-password')
+  } catch (error) {
+    console.log(error)
+  }
+}
 
+const handleForgotPassword = async(req,res)=>{
+  try {
+    const{email} = req.body
+    const user = await User.findOne({email})
+    console.log("The user is "+user)
+    if (!user) {
+      return res.status(404).json({success: false,message: "No account found with this email"});
+    }
+    const otp = randomString.generate({ length: 6, charset: "numeric" });
+    const result = await Otp.create({ email:user.email, otp });
+    console.log("The result of otp  is "+result)
+      // Store email in session
+      req.session.email = email;
+    return res.status(200).json({message:"Otp is created"})
+
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const otpVerified= async(req,res)=>{
+  try {
+    const email = req.session.email
+    return res.render('user/otp-page',{email})
+  } catch (error) {
+    
+  }
+}
+
+
+const verify = async (req,res)=>{
+  try {    
+    const{otps} = req.body 
+    const email = req.session.email
+    const otpRecord = await Otp.findOne({email}) 
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
+    }
+    if(otpRecord.otp!=otps){
+      return res.status(400).json({ success: false, message: "Invalid OTP." });
+    }
+
+  
+    // return res.redirect("/")
+    return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/reset-password" });  // Example redirect URL
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({success:false,message:"An error occured"})
+  }
+ 
+
+}
+
+const resetPassword = async(req,res)=>{
+  try {
+    return res.render('user/reset-password')
+  } catch (error) {
+    console.log(error)
+  }
+}
+const postNewPassword = async(req,res)=>{
+  try {
+    const{ password, confirmPassword} = req.body
+    const email = req.session.email
+    if(password == confirmPassword){
+      const hashedPassword = await bcrypt.hash(password,10)
+      await User.updateOne({email:email},{$set:{password:hashedPassword}})
+      return res.status(200).json({message:"password changed successfully"})
+    }else{
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+  } catch (error) {
+    console.log("The error"+error)
+  }
+}
 const logout = (req,res)=>{
   try {
     req.session.destroy((err)=>{
@@ -162,9 +244,9 @@ const logout = (req,res)=>{
     })
     return res.redirect('/login')
   } catch (error) {
-    
+    console.log("The error is"+error)
   }
 }
 
-export {signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout}
+export {signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout,forgotPassword,handleForgotPassword,otpVerified,verify,resetPassword,postNewPassword}
 

@@ -130,6 +130,7 @@ const placeOrder = async(req,res)=>{
                 size: item.size,  
                 quantity: item.quantity,
                 price: item.price,
+                returnStatus:'Not Requested'
             });
 
         }

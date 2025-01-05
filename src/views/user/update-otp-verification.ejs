@@ -37,7 +37,6 @@
           let canResend = true;
 
           // Simulating an email for demonstration
-          emailSpan.textContent = "<%=email%>"
 
           function startTimer() {
             canResend = false
@@ -135,7 +134,7 @@
                       const response =  await fetch('/verify-otp',{
                         method:"POST",
                         headers:{"Content-Type":"application/json"},
-                        body:JSON.stringify({otps})
+                        body:JSON.stringify({otps,email})
                         
                     })
 

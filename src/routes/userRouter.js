@@ -1,10 +1,10 @@
 import express from "express"
-import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress} from "../controllers/user/userController.js"
+import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
 import { loadCart,cart } from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
-import { viewOrder,orders,productCancel,emptyOrder } from "../controllers/user/orderController.js"
+import { viewOrder,orders,productCancel,emptyOrder ,returnOrder} from "../controllers/user/orderController.js"
 const router = express.Router()
 //home page
 router.get('/',loadHome)
@@ -18,6 +18,7 @@ router.get('/productDetails',productDetails)
 //profile page
 router.get('/myaccount',userAuth,loadProfile)
 router.get('/updateProfile',userAuth,updateProfile)
+router.put('/update-profile',profileUpdate)
 router.get('/getAddress',userAuth,getAddress)
 router.get('/add-address',userAuth,addAddress)
 router.post('/address',address)
@@ -41,4 +42,10 @@ router.get('/orders',userAuth,orders)
 router.get('/user/view-order/:orderid',viewOrder)
 router.delete('/order-cancel',productCancel)
 router.get('/emptyOrder',emptyOrder)
+router.post('/return-order',returnOrder)
+//otp-page
+router.get('/otp',otpVerification)
+router.post('/verify-otp',verifyOtp)
+router.post('/resend-otp',resendOtp)
+
 export default router
