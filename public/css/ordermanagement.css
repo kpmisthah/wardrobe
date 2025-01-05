@@ -80,6 +80,7 @@ th, td {
 
 th {
     font-weight: bold;
+    color: black;
 }
 
 tbody tr:nth-child(even) {

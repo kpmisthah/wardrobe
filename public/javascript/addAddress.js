@@ -139,11 +139,23 @@ async function address(event){
     
         })
         if(response.ok){
-            await response.json()
+                        await Swal.fire({
+                title: 'Success!',
+                text: 'Address added successfully!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
             window.location.href = '/add-address'
         }
     } catch (error) {
-        console.log("The error"+error)
-    }
+      console.log("The error " + error);
+      // Show error message if there was an issue in the try block
+      await Swal.fire({
+          title: 'Error!',
+          text: 'There was an issue with the network. Please try again later.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+      });
+  }
 
 }

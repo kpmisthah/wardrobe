@@ -1,117 +1,162 @@
 <!-- Header -->
 <%-include('../../views/partials/userPartials/header')%>
 
+<!-- breadcrumb -->
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+      Home
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
 
-	<!-- breadcrumb -->
-	<div class="container">
-		<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-			<a href="/" class="stext-109 cl8 hov-cl1 trans-04">
-				Home
-				<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-			</a>
+    <span class="stext-109 cl4"> Shoping Cart </span>
+  </div>
+</div>
 
-			<span class="stext-109 cl4">
-				Shoping Cart
-			</span>
-		</div>
-	</div>
-		
+<!-- Shoping Cart -->
+<form class="bg0 p-t-75 p-b-85">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
+        <div class="m-l-23 m-r--33 m-lr-0-xl">
+          <div class="wrap-table-shopping-cart">
+            <table class="table-shopping-cart">
+              <tr class="table_head">
+                <th class="column-1">Product</th>
+                <th class="column-2"></th>
+                <th class="column-3">Price</th>
+                <th class="column-4">Quantity</th>
+                <th class="column-5">Size</th>
+                <th class="column-6">Total</th>
+              </tr>
+              <% cart.items.forEach((product) => { %>
+              <tr class="table_row">
+                <td class="column-1">
+                  <div class="how-itemcart1">
+                    <% if (product.product.productImage &&
+                    product.product.productImage.length > 0) { %>
+                    <img
+                      src="/uploads/product-images/<%= product.product.productImage[0] %>"
+                      alt="IMG"
+                    />
+                    <% } else { %>
+                    <img
+                      src="/uploads/default-image.jpg"
+                      alt="No Image Available"
+                    />
+                    <% } %>
+                  </div>
+                </td>
+                <td class="column-2"><%= product.name %></td>
+                <td class="column-3"><%= product.price %></td>
+                <td class="column-4"><%= product.quantity %></td>
+                <td class="column-5"><%= product.size %></td>
+                <td class="column-6"><%= product.totalPrice %></td>
+                <!-- Add this new column for the remove button -->
+                <td class="column-7">
+                  <button
+                    onclick="removeFromCart('<%= product._id %>')"
+                    class="flex-c-m cl2 size-50 bg8 bor13 hov-btn3 p-all-10 trans-04 pointer m-tb-5"
+                    style="border: none; background: none"
+                  >
+                    <i
+                      class="zmdi zmdi-delete"
+                      style="color: #e74c3c; font-size: 20px"
+                    ></i>
+                  </button>
+                </td>
+              </tr>
+              <% }) %>
+            </table>
+          </div>
 
-	<!-- Shoping Cart -->
-	<form class="bg0 p-t-75 p-b-85">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-					<div class="m-l-23 m-r--33 m-lr-0-xl">
-						<div class="wrap-table-shopping-cart">
-							<table class="table-shopping-cart">
-								<tr class="table_head">
-									<th class="column-1">Product</th>
-									<th class="column-2"></th>
-									<th class="column-3">Price</th>
-									<th class="column-4">Quantity</th>
-									<th class="column-5">Size</th>
-									<th class="column-6">Total</th>
-								</tr>
-								<%cart.items.forEach((product)=>{%>
-								<tr class="table_row">
-									<td class="column-1">
-										<div class="how-itemcart1">
-											<img src="/uploads/product-images/<%=product.product.productImage[0]%>" alt="IMG">
-										</div>
-									</td>
-									<td class="column-2"><%=product.name%></td>
-									<td class="column-3"><%=product.price%></td>
-									<td class="column-4"><%=product.quantity%></td>
-									<td class="column-5"><%=product.size%></td>
-									<td class="column-6"><%=product.totalPrice%></td>
-								</tr>
-								<%})%>
-							</table>
-						</div>
+          <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
+            <div class="flex-w flex-m m-r-20 m-tb-5">
+              <input
+                class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
+                type="text"
+                name="coupon"
+                placeholder="Coupon Code"
+              />
 
-						<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-							<div class="flex-w flex-m m-r-20 m-tb-5">
-								<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
-									
-								<div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-									Apply coupon
-								</div>
-							</div>
+              <div
+                class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5"
+              >
+                Apply coupon
+              </div>
+            </div>
 
-							<div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-								Update Cart
-							</div>
-						</div>
-					</div>
-				</div>
+            <div
+              class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10"
+            >
+              Update Cart
+            </div>
+          </div>
+        </div>
+      </div>
 
-				<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-					<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-						<h4 class="mtext-109 cl2 p-b-30">
-							Cart Totals
-						</h4>
+      <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
+        <div
+          class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm"
+        >
+          <h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
 
-						<div class="flex-w flex-t bor12 p-b-13">
-							<div class="size-208">
-								<span class="stext-110 cl2">
-									Subtotal:
-								</span>
-							</div>
+          <div class="flex-w flex-t bor12 p-b-13">
+            <div class="size-208">
+              <span class="stext-110 cl2"> Subtotal: </span>
+            </div>
 
-							<div class="size-209">
-								<span class="mtext-110 cl2">
-									<%=cart.bill%>
-								</span>
-							</div>
-						</div>
-<!--  -->
+            <div class="size-209">
+              <span class="mtext-110 cl2"> <%=cart.bill%> </span>
+            </div>
+          </div>
+          <!--  -->
 
-						<div class="flex-w flex-t p-t-27 p-b-33">
-							<div class="size-208">
-								<span class="mtext-101 cl2">
-									Total:
-								</span>
-							</div>
+          <div class="flex-w flex-t p-t-27 p-b-33">
+            <div class="size-208">
+              <span class="mtext-101 cl2"> Total: </span>
+            </div>
 
-							<div class="size-209 p-t-1">
-								<span class="mtext-110 cl2">
-									<%=cart.bill%>
-								</span>
-							</div>
-						</div>
+            <div class="size-209 p-t-1">
+              <span class="mtext-110 cl2"> <%=cart.bill%> </span>
+            </div>
+          </div>
 
-						<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-							<a href="/checkout" style="text-decoration: none  ;color: #FFFFFF;">Proceed to Checkout</a>
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</form>
-		
-	
-		
+          <button
+            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
+          >
+            <a href="/checkout" style="text-decoration: none; color: #ffffff"
+              >Proceed to Checkout</a>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
 
-	<!-- Footer -->
-<%-include('../../views/partials/userPartials/footer')%>	
+<script>
+  async function removeFromCart(productId) {
+    if (confirm("Are you sure you want to remove this item?")) {
+      try {
+        const response = await fetch(`/cart/remove/${productId}`, {
+          method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Refresh the page to show updated cart
+          window.location.reload();
+        } else {
+          alert("Failed to remove item from cart");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while removing the item");
+      }
+    }
+  }
+</script>
+
+<!-- Footer -->
+<%-include('../../views/partials/userPartials/footer')%>

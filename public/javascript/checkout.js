@@ -28,7 +28,7 @@ async function placeOrder(event){
             body:JSON.stringify({payment,addressId})
         })
         if(response.ok){
-             window.location.href = '/order-success'
+             window.location.href = '/order-confirmation'
         }
     } catch (error) {
         console.log("the error is "+error)

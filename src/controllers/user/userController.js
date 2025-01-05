@@ -12,13 +12,11 @@ import randomString from "randomstring"
 const loadHome = async(req,res)=>{
     try {
     //separate category
-         const menCategory = await Category.findOne({name:"Men"})
-         console.log("The product is "+menCategory)
-         const womenCategory = await Category.findOne({name:"Women"})
-         const kidsCategory = await Category.findOne({name:"Kids"})
+         const menCategory = await Category.findOne({name:"Men",isListed:true})
+         const womenCategory = await Category.findOne({name:"Women",isListed:true})
+         const kidsCategory = await Category.findOne({name:"Kids",isListed:true})
 
          const menProducts = await Product.find({ category: menCategory._id ,isBlocked:false}).limit(1);
-         console.log("The products rendered is", menProducts);
          const womenProducts = await Product.find({category:womenCategory._id,isBlocked:false}).limit(1)
          const kidsProducts = await Product.find({category:kidsCategory._id,isBlocked:false}).limit(1)
 
@@ -86,7 +84,7 @@ const loadShoppingPage =  async(req,res)=>{
             }
             
 
-            let products =await Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit)
+            let products =await Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit).populate('sizeOptions')
             const count =await Product.countDocuments(filter)
             const totalpage = Math.ceil(count/limit)
 
@@ -98,11 +96,16 @@ const loadShoppingPage =  async(req,res)=>{
                 }
             }
     // Calculate stock statuses using separate queries
-;
+
             let user = req.session.user
             console.log("The user is "+user)
+            if(user){
                 let userData = await User.findOne({_id:user})
-               return res.render('user/shop',{user:userData,products,totalpage,page})
+                return res.render('user/shop',{user:userData,products,totalpage,page})
+            }else{
+                return res.render('user/shop',{products,totalpage,page})
+            }
+
 
             } catch (error) {
         console.log(error)
@@ -115,10 +118,8 @@ const loadProfile = async(req,res)=>{
     try {
         const users =req.session.user
         const userProfile = await User.findOne({_id:users})
-        console.log("The users is "+userProfile)
         return res.render('user/myaccount',{user:userProfile})
     } catch (error) {
-        console.error("Error in loadProfile:", error);
     return res.status(500).send("An error occurred");
     }
 }
@@ -140,33 +141,25 @@ const address = async(req,res)=>{
         const user = req.session.user
         const formData = req.body
         const userAddress = await Address.findOne({userId:user})
+
+        const newAddressData = {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            city: formData.city,
+            zipCode: formData.zipCode,
+            state: formData.state,
+            houseNumber: formData.houseNumber,
+            district: formData.district,
+        };
         if(userAddress){
-            userAddress.address.push({
-                name:formData.name,
-                email:formData.email,
-                phone:formData.phone,
-                city:formData.city,
-                zipCode:formData.zipCode,
-                state:formData.state,
-                houseNumber:formData.houseNumber,
-                district:formData.district,
-            })
+            userAddress.address.push(newAddressData)
             await userAddress.save()
             return res.status(200).json({message:"Address is addedd successfully"})
         }else{
             const newAddress =new Address({
                 userId:user,
-                address:[{
-                name:formData.name,
-                email:formData.email,
-                phone:formData.phone,
-                city:formData.city,
-                zipCode:formData.zipCode,
-                state:formData.state,
-                houseNumber:formData.houseNumber,
-                district:formData.district,
-               
-            }]
+                address:[newAddressData]
             })
             await newAddress.save()
             return res.status(200).json({message:"Address added successfully"})
@@ -184,7 +177,7 @@ const getAddress = async(req,res)=>{
         const userId = req.session.user
         const existingAddress = await Address.findOne({userId})
         if(!existingAddress){
-            res.render('user/getAddress',{address:[]})
+            return res.render('user/getAddress',{address:[]})
         }
         console.log("The address is "+existingAddress)
         return res.render('user/getAddress',{address:existingAddress.address})
@@ -197,12 +190,11 @@ const getEditPage = async(req,res)=>{
     try {
         const{id} = req.params
         const userId = req.session.user
-        const addressId = id
         const userAddress= await Address.findOne({userId})
         if(!userAddress){
             return res.redirect('/getAddress')
         }
-        const address = userAddress.address.find(addr=>addr._id.toString()===addressId)
+        const address = userAddress.address.find(addr=>addr._id.toString()===id)
         if(!address){
             return res.redirect('/getAddress')
         }
@@ -265,14 +257,9 @@ const profileUpdate = async (req,res)=>{
         const previousMail = await User.findOne({_id:userId})
         const oldEmail = previousMail.email
         const{email,password} = req.body
-        console.log("The email and password"+email+" "+password)
-        // const updateUser = await User.findByIdAndUpdate(userId,{
-        //     email,
-        //     password:hashedPassword
-        // })
-        // console.log("The update user"+updateUser)
-        // await updateUser.save()
-        // return res.status(200).json({message:"email and password changed successfully"})
+        if(email == oldEmail){
+            return res.status(400).json({message:"Email already exist"})
+        }
          const otp = randomString.generate({ length: 6, charset: "numeric" });
          console.log("The new otp is"+otp)
          await Otp.create({ email:oldEmail, otp });

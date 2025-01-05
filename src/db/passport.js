@@ -4,14 +4,13 @@ import passport from "passport"
 import {Strategy}from "passport-google-oauth20"
 import { User } from "../models/userSchema.js"
 
-console.log(process.env.GOOGLE_CLIENT_ID)
 passport.use(new Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: '/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        console.log('Profile from Google:', profile); // Debug log
+
 
         let user = await User.findOne({ email: profile.emails[0].value });
         
@@ -28,16 +27,14 @@ passport.use(new Strategy({
                 name: profile.displayName,
                 email: profile.emails[0].value,
                 googleId: profile.id,
-                // Set default values for required fields
                 isAdmin: false,
                 isBlocked: false,
-                referalCode: '', // Set appropriate default if needed
+                referalCode: '', 
                 redeemed: false
             };
 
             user = new User(newUser);
             await user.save();
-            console.log('New user created:', user); // Debug log
             return done(null, user);
         }
     } catch (error) {
@@ -48,17 +45,14 @@ passport.use(new Strategy({
 
 passport.serializeUser((user, done) => {
     try {
-        console.log('Serializing user:', user.id); // Debug log
         done(null, user.id); // Use user.id instead of user._id
     } catch (err) {
-        console.error('Serialization error:', err);
         done(err, null);
     }
 });
 
 passport.deserializeUser(async (id, done) => {
     try {
-        console.log('Deserializing id:', id); // Debug log
         const user = await User.findById(id)
             .select('-password'); // Exclude password field
         

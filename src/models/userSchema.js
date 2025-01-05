@@ -41,34 +41,6 @@ const userSchema = new Schema({
         type:Boolean,
         default:false
     },
-    cart:[{
-        type:Schema.Types.ObjectId,
-        ref:'Cart'
-    }],
-    wishlist:[{
-        type:Schema.Types.ObjectId,
-        ref:"Wishlist"
-    }],
-    wallet:[{
-        type:Schema.Types.ObjectId,
-        ref:"Wallet"
-    }],
-    review:[{
-        type:Schema.Types.ObjectId,
-        ref:'Review'
-    }],
-    orderHistory:[{
-        type:Schema.Types.ObjectId,
-        ref:"Orders"
-    }],
-    payment:[{
-        type:Schema.Types.ObjectId,
-        ref:"Payment"
-    }],
-    coupons:[{
-        type:Schema.Types.ObjectId,
-        ref:"Coupons"
-    }],
    
     //What is this
     referalCode:{

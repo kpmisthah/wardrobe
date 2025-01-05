@@ -49,7 +49,7 @@
                 <% orders.forEach((order) => { %>
                     <tr>
                         <td><%= order.orderId %></td>
-                        <td><%= order.userId.name %></td>
+                        <td><%= order.orderedItems.name %></td>
                         <td><%= order.totalPrice %></td>
                         <td><%= order.paymentMethod %></td>
                         <td>

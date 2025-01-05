@@ -1,11 +1,84 @@
+Order Confirmation Page
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Order Confirmation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .success-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        
+        .success-icon {
+            width: 70px;
+            height: 70px;
+            background-color: #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .success-icon::after {
+            content: "✓";
+            font-size: 40px;
+            color: white;
+        }
+        
+        .order-details {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .thank-you-message {
+            color: #28a745;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello</h1>
+    <div class="container">
+        <div class="success-container">
+            <div class="success-icon"></div>
+            
+            <div class="text-center mb-4">
+                <h1 class="thank-you-message">Thank You for Your Order!</h1>
+                <p class="lead">Your order has been successfully placed.</p>
+            </div>
+
+            <div class="order-details">
+                <h3>Order Details</h3>
+                <div class="row mt-3">
+            
+                    <div class="col-md-6">
+                        <p><strong>Shipping Method:</strong> <span id="shippingMethod">Standard Delivery</span></p>
+                        <p><strong>Estimated Delivery:</strong> <span id="estimatedDelivery">January 10-12, 2025</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <p>A confirmation email has been sent to your email address.</p>
+                <div class="mt-4">
+                    <a href="/" class="btn btn-primary me-2">Continue Shopping</a>
+                    <!-- <a href="order-tracking.html" class="btn btn-outline-primary">Track Order</a> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

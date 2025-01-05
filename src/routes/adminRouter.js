@@ -4,7 +4,6 @@ import { loginPage,login,dashboard } from "../controllers/admin/adminController.
 import { customer,blockUser,unblockUser } from "../controllers/admin/customerController.js"
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
-import{brandController,addBrand,blockBrand,unblockBrand,deleteBrand} from "../controllers/admin/brandController.js"
 import {getProductAddPage,addProducts, getProductPage ,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
 import { orderList,orderStatus,handleReturn } from "../controllers/admin/orderController.js"
 
@@ -38,12 +37,7 @@ router.post('/edit-sub/:id',editSubcategory)
 //size management
 router.get('/size',sizeManagement)
 router.post('/add-size',addSize)
-//brand management
-router.get('/brand',brandController)
-router.post('/addBrand',uploads.single('image'),addBrand)
-router.get('/blockBrand',blockBrand)
-router.get('/unblockBrand',unblockBrand)
-router.get('/deleteBrand',deleteBrand)
+
 //product management
 router.get('/addProducts',getProductAddPage)
 router.post('/addProducts',uploads.array('images',4),addProducts)

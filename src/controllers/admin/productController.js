@@ -13,12 +13,11 @@ const getProductAddPage = async(req,res)=>{
         if(req.session.admin){
     //extract category and brand from dbs
     const category = await Category.find({isListed:true})
-    const brand = await Brand.find({isBlocked:false})
     const subcategory = await Subcategory.find({ isListed: true });
     const size = await Size.find()
     console.log("The size is"+size)
     res.render('admin/product-add',{
-        category,brand,subcategory,size
+        category,subcategory,size
     })
     }else{
         res.redirect('/admin/login')
@@ -64,8 +63,8 @@ const addProducts = async(req,res)=>{
                 brand:products.brand,
                 colorOption:[products.color],
                 productImage:images,
-                sizeOption: [] ,
-                status:"Available"
+                sizeOptions: [] ,
+                status:"Available",
 
             })
             const val = await newProduct.save()

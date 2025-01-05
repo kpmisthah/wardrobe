@@ -18,7 +18,7 @@ const loadCheckout = async(req,res)=>{
         }
         
     } catch (error) {
-        
+        console.log(error)
     }
 }
 
@@ -156,7 +156,10 @@ const placeOrder = async(req,res)=>{
 
 const orderConfirm = async(req,res)=>{
     try {
-        return res.render('user/orderconfirmed')
+        const user = req.session.user
+        const orders = await Order.findOne({userId:user})
+        console.log("The alst order is"+orders)
+        return res.render('user/orderconfirmed',{orders})
     } catch (error) {
         
     }
