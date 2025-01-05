@@ -12,9 +12,20 @@ router.post('/verify-otp',verifyOtp)
 router.post('/resend-otp',resendOtp)
 //google auth
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),(req,res)=>{
-    res.redirect('/')
-})
+router.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/signup' }),
+    (req, res) => {
+        // Set the session the same way as regular login
+        req.session.user = req.user._id;
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.redirect('/signup');
+            }
+            res.redirect('/');
+        });
+    }
+);
 //forgot password
 router.get('/forgot-password',userLogin,forgotPassword)
 router.post('/forgot-password',handleForgotPassword)

@@ -18,7 +18,7 @@ const userSchema = new Schema({
         type:String,
         required:false,  //single signup we didnt use password
         minlength:6,
-        unique:true
+    
     },
     phone:{
         type:String,
