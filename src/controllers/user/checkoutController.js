@@ -139,9 +139,9 @@ const placeOrder = async(req,res)=>{
             address: addressId,
             userId,
             paymentMethod: payment,
-            status: "Pending", // Default initial status
+            status: "Pending", 
             totalPrice:cart.bill,
-            invoiceDate: new Date(),
+            invoiceDate: new Date()
         });
 
         await newOrder.save()
@@ -158,7 +158,6 @@ const orderConfirm = async(req,res)=>{
     try {
         const user = req.session.user
         const orders = await Order.findOne({userId:user})
-        console.log("The alst order is"+orders)
         return res.render('user/orderconfirmed',{orders})
     } catch (error) {
         

@@ -69,7 +69,7 @@ const orderIdSchema = new Schema({
     status:{
         type:String,
        required:true,
-       enum:['Pending','Processing','Shipped','Delivered',"cancelled","Return Request","Returned"]
+       enum:['Pending','Processing','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
     },
     couponApplied:{
         type:Boolean,

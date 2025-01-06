@@ -39,3 +39,17 @@ async function handleReturn(orderId,productId,action){
         console.log("The error is"+error)
     }
 }
+
+async function cancelOrder(orderId){
+    try {
+        const response = await fetch(`/admin/cancelorder/${orderId}`,{
+            method:"DELETE"
+        })
+        if(response.ok){
+            alert("order deleted successfully")
+            
+        }
+    } catch (error) {
+        console.log("error"+error)
+    }
+}

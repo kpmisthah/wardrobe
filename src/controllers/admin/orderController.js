@@ -59,4 +59,23 @@ const handleReturn = async(req,res)=>{
         console.log("The error of handleReturn",handleReturn)
     }
 }
-export{orderList,orderStatus,handleReturn}
+
+const orderCancelled = async(req,res)=>{
+    try {
+        const orderId= req.params.id
+        console.log("The order id is "+orderId)
+        const order = await Order.findById(orderId)
+        console.log("The order is "+order)
+        if(!order){
+            return res.status(400).json({message:"order is not found"})
+        }
+        order.status = 'Canceled'
+        await order.save()
+        return res.status(200).json({message:"Order is cancelled"})
+    } catch (error) {
+        console.log("the error is "+error)
+        return res.status(500).json({message: "Internal server error"}) // Add error
+    }
+}
+
+export{orderList,orderStatus,handleReturn,orderCancelled}

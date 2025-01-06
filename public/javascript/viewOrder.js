@@ -38,7 +38,7 @@ async function remove(productId) {
         alert('Failed to remove item. Something went wrong');
     }
 }
-window.history.replaceState(null, null, '/emptyOrder');
+// window.history.replaceState(null, null, '/emptyOrder');
 
 async function returnOrder(productId){
     try {

@@ -4,6 +4,7 @@ function emailValidateChecking(email){
   const emailPattern =  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   if(email == ""){
     error1.style.display = "block"
+    const loader = document.getElementById('loader'); // Reference the loader element
     error1.innerHTML = "please enter a valid email"
   }else if(!emailPattern.test(email)){
     error1.style.display = "block"
@@ -34,16 +35,27 @@ function passwordValidateChecking(password){
 }
 
 function userLogin(event){    
-    const form = document.getElementById('loginform')
     //form validation
+    const loader = document.getElementById('loader'); // Reference the loader element
+    loader.style.display = 'block'; // Show loader
     const email = form[0].value
     const password = form[1].value
+
+    const error1 = document.getElementById('error1');
+    const error2 = document.getElementById('error2');
+
     emailValidateChecking(email)
     passwordValidateChecking(password);
-    if(error1.innerHTML || error2.innerHTML){
-        event.preventDefault()
-    }
 
+    if(error1.innerHTML || error2.innerHTML){
+      loader.style.display = 'none'; // Hide loader if validation fails
+      return; // Stop further executio
+    }
+  setTimeout(() => {
+        loader.style.display = 'none'; // Hide loader when processing is complete
+        console.log('Form submitted successfully');
+        alert('Login successful!'); // Simulate successful login
+    }, 2000); // Simulate a delay for demonstration
     console.log('asdfasdf')
 
 }

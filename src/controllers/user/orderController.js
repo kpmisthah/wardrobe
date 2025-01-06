@@ -68,18 +68,14 @@ const productCancel = async(req, res) => {
 
         // Remove the item
         order.orderedItems.splice(itemIndex, 1);
+        if (order.orderedItems.length === 0) {
+            await Order.deleteOne({ _id: order._id });  // Delete the order
+            return res.status(200).json({ message: "Order is empty and has been deleted" });
+        }
 
         // Update total price
         order.totalPrice -= itemToRemove.price * itemToRemove.quantity;
 
-        if (order.orderedItems.length === 0) {
-            await order.save();
-            // Instead of rendering, send JSON with redirect info
-            return res.status(200).json({ 
-                message: "Order is empty",
-                redirect: '/emptyOrder'  // Frontend will handle this redirect
-            });
-        }
         await order.save();
         return res.status(200).json({ message: "Item removed successfully" });
 
@@ -101,11 +97,7 @@ const returnOrder = async(req,res)=> {
         if(returnOrder.returnStatus !== 'Not Requested'){
             return res.status(400).json({ message: 'Return already requested for this product' });
         }
-        if(returnOrder.returnStatus == 'Approved'){
-
-        }else if(returnOrder.returnStatus == 'Rejected'){
-
-        }
+  
         returnOrder.returnStatus = 'Requested'
         await orders.save()
         res.status(200).json({ message: 'Return request submitted successfully'});
@@ -114,11 +106,11 @@ const returnOrder = async(req,res)=> {
     }
 }
 
-const emptyOrder = async(req,res)=>{
-    try {
-        return res.render('user/emptyOrder')
-    } catch (error) {
-        console.log(error)
-    }
-}
-export{orders,viewOrder,productCancel,returnOrder,emptyOrder}
+// const emptyOrder = async(req,res)=>{
+//     try {
+//         return res.render('user/emptyOrder')
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+export{orders,viewOrder,productCancel,returnOrder}

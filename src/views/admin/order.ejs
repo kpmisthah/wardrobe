@@ -9,25 +9,7 @@
 
     <div class="card">
         <div class="card-body">
-            <!-- Filter Section -->
-            <div class="filter-section mb-4">
-                <form id="filter-form"  class="row g-3">
-                    <div class="col-md-4">
-                        <label for="status" class="form-label">Filter by Status:</label>
-                        <select name="status"  class="statusSelect">
-                            <option value="">All</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Processing">Processing</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary">Filter</button>
-                    </div>
-                </form>
-            </div>
+
 
             <!-- Order Table -->
  <!-- Order Table -->
@@ -55,11 +37,12 @@
                         <td>
                             <form id="order-status">
                                 <select name="status" class="statusSelect" data-order-id="<%= order.orderId %>">
-                                    <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                    <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                    <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                    <option value="Cancelled" <%= order.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                         <!-- Status dropdown with preselected status -->
+                         <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                         <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                         <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                         <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                         <option value="Completed" <%= order.status === 'Completed' ? 'selected' : '' %>>Completed</option>
                                 </select>
                             </form>
                         </td>
@@ -95,9 +78,9 @@
                                     <% } %>
                                 <% }) %>
                             <% } else { %>
-                                <form action="" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this order?')">
-                                    <button type="submit" class="btn btn-danger btn-sm">Cancel Order</button>
-                                </form>
+                              
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="cancelOrder('<%=order._id%>')">Cancel Order</button>
+                            
                             <% } %>
                         </td>
                     </tr>
