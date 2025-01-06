@@ -101,14 +101,14 @@ const loadShoppingPage =  async(req,res)=>{
             console.log("The user is "+user)
             if(user){
                 let userData = await User.findOne({_id:user})
-                return res.render('user/shop',{user:userData,products,totalpage,page})
+                return res.render('user/shop',{user:userData,products,totalpage, page,sortOption })
             }else{
-                return res.render('user/shop',{products,totalpage,page})
+                return res.render('user/shop',{products,totalpage,page, sortOption })
             }
 
 
             } catch (error) {
-        console.log(error)
+             console.log(error)
     }
 
 }
