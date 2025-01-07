@@ -7,12 +7,20 @@ const wishlistSchema = new Schema({
         required:true
     },
     items:[{
-       productId:{
-        type:Schema.Types.ObjectId
+       product:{
+        type:Schema.Types.ObjectId,
+        ref:"Product",
+        required:true
        },
-       addedOn:{
-        type:Date,
-        default:Date.now
+       size:{
+        type:String,
+        required:true
+       },
+       quantity:{
+        type:Number,
+        required:true,
+        min:1,
+        default:1
        }
     }]
 },{timestamps:true})

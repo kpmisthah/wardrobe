@@ -1,7 +1,35 @@
 
 <%-include('../../views/partials/userPartials/header')%>	 
 <style>
-								
+.flex-container {
+	display: flex;
+	gap: 10px; /* Adds some space between the buttons */
+}	
+/* Style the Like button */
+.btn-like {
+  background-color: #ff4d4d;
+  color: #fff;
+  font-size: 18px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-like:hover {
+  background-color: #ff3333;
+  transform: scale(1.1);
+}
+
+.btn-like i {
+  margin-right: 8px;
+}
+
+.btn-like:focus {
+  outline: none;
+}
+
 	.imageZoom {
 		width: 512px;
 		height: 512px;
@@ -144,10 +172,18 @@
 											<i class="fs-16 zmdi zmdi-plus"></i>
 										</div>
 									</div>
-
-									<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="addToCart('<%=value._id%>','<%=value.name%>','<%=value.salePrice%>',document.querySelector('.num-product').value,document.querySelector('.js-select2').value)">
-										Go to cart
-									</button>
+									<div class="flex-container">
+										<!-- Go to cart button -->
+										<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="addToCart('<%=value._id%>','<%=value.name%>','<%=value.salePrice%>',document.querySelector('.num-product').value,document.querySelector('.js-select2').value)">
+											Go to cart
+										</button>
+										
+										<!-- Like button with emoji -->
+										<button class="btn-like" onclick="likeProduct('<%=value._id%>', document.querySelector('.js-select2').value, document.querySelector('.num-product').value)">
+											<i class="fa fa-heart"></i> Like
+										</button>
+										
+									</div>
 								</div>
 							</div>	
 						</div>

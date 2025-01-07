@@ -53,3 +53,54 @@ async function addToCart(productId,name,price,stock,size) {
         });
     }
 }
+async function likeProduct(productId, size, quantity) {
+    if (!size || size === 'Choose an option') {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Size Required',
+            text: 'Please select a size',
+        });
+        return;
+    }
+    try {
+        const response = await fetch('/add-to-wishlist', {
+            method: "POST",
+            headers: { 'Content-Type': "application/json" },
+            body: JSON.stringify({ productId, size, quantity })
+        });
+        const result = await response.json();
+
+        if (result.message === "product addedd to wishlist") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Wishlist!',
+                text: 'Product added successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else if (result.message === 'product is already exist') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Already Exists',
+                text: 'This product is already in your wishlist.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else if (result.message === "Only one quantity of a product can be added to the wishlist") {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Limit Reached',
+                text: 'Only one quantity of a product can be added to the wishlist.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    } catch (error) {
+        console.log("Error:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong. Please try again later.',
+        });
+    }
+}
