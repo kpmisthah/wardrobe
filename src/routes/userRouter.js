@@ -5,6 +5,7 @@ import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
 import { viewOrder,orders,productCancel ,returnOrder} from "../controllers/user/orderController.js"
+import { loadWishlist,addToWishlist } from "../controllers/user/wishlistController.js"
 const router = express.Router()
 //home page
 router.get('/',loadHome)
@@ -51,5 +52,8 @@ router.post('/return-order',returnOrder)
 router.get('/otp',otpVerification)
 router.post('/verify-otp',verifyOtp)
 router.post('/resend-otp',resendOtp)
-
+//wishlist
+router.get('/wishlist',userAuth,loadWishlist)
+//come from shop
+router.post('/add-to-wishlist',addToWishlist)
 export default router
