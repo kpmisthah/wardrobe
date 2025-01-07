@@ -1,6 +1,6 @@
 import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
-import { loadCart,cart ,deleteItem} from "../controllers/user/cartController.js"
+import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
@@ -29,6 +29,9 @@ router.delete('/delete/:id',deleteAddress)
 router.get('/cart',userAuth,loadCart)
 router.post('/add-to-cart',cart)
 router.delete('/cart/remove/:productId',deleteItem);
+//increment and decrement
+router.post('/decrement',dec)
+router.post('/increment',inc)
 //checkout page
 router.get('/checkout',loadCheckout)
 router.get('/editted/:id',getEditAddressPage)

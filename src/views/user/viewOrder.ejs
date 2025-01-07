@@ -38,11 +38,18 @@
                     <tr>
                         <td>
                             <div class="product-info">
-                                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
-                                     alt="<%= item.product.name %>" 
-                                     width="50px" 
-                                     height="50px">
-                                <p><%= item.product.name %></p>
+                                <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
+                                         alt="<%= item.product.name %>" 
+                                         width="50px" 
+                                         height="50px">
+                                <% } else { %>
+                                    <img src="/uploads/product-images/default-product-image.jpg" 
+                                         alt="Product image not available" 
+                                         width="50px" 
+                                         height="50px">
+                                <% } %>
+                                <p><%= item.product ? item.product.name : 'Product not available' %></p>
                             </div>
                         </td>
                         <td><%= item.quantity %></td>
@@ -64,16 +71,16 @@
                         <!-- Cancel Item Button -->
                         <td>
                             <%if(item.returnStatus !== "Approved"){%>
-                            <button type="button" 
-                                    class="btn-cancel" 
-                                    onclick="remove('<%= item._id %>')">
-                                Cancel
-                            </button>
+                                <button type="button" 
+                                        class="btn-cancel" 
+                                        onclick="remove('<%= item._id %>')">
+                                    Cancel
+                                </button>
                             <%}else{%>
                                 <button type="button" class="btn-cancel">
-                            The item is returned
-                        </button>
-                        <%}%>
+                                    The item is returned
+                                </button>
+                            <%}%>
                         </td>
 
                         <!-- Return Item Button -->

@@ -1,4 +1,6 @@
 <!-- Header -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <%-include('../../views/partials/userPartials/header')%>
 
 <!-- breadcrumb -->
@@ -26,6 +28,7 @@
                 <th class="column-2"></th>
                 <th class="column-3">Price</th>
                 <th class="column-4">Quantity</th>
+                <th></th>
                 <th class="column-5">Size</th>
                 <th class="column-6">Total</th>
               </tr>
@@ -50,12 +53,38 @@
                 <td class="column-2"><%= product.name %></td>
                 <td class="column-3"><%= product.price %></td>
                 <td class="column-4"><%= product.quantity %></td>
+                <td>
+                  <div class="wrap-num-product flex-w m-r-20 m-tb-10">
+                    <button
+                      type="button"
+                      class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
+                      onClick="decrement_quantity('<%=product.product%>','<%=product.size%>','<%=product.quantity%>',document.querySelector('.num-product').value)"
+                    >
+                      <i class="fs-16 zmdi zmdi-minus"></i>
+                    </button>
+
+                    <input
+                      class="mtext-104 cl3 txt-center num-product"
+                      id="input-quantity"
+                      type="number"
+                      name="num-product"
+                      value="<%= product.quantity %>"
+                    />
+
+                    <button
+                      type="button"
+                      class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
+                      onClick="increment_quantity('<%=product.product._id%>','<%=product.size%>','<%=product.quantity%>')"
+                    >
+                      <i class="fs-16 zmdi zmdi-plus"></i>
+                    </button>
+                  </div>
+                </td>
                 <td class="column-5"><%= product.size %></td>
                 <td class="column-6"><%= product.totalPrice %></td>
-                <!-- Add this new column for the remove button -->
                 <td class="column-7">
                   <button
-                    onclick="removeFromCart('<%= product._id %>')"
+                    onclick="removeFromCart('<%= product._id %>',event)"
                     class="flex-c-m cl2 size-50 bg8 bor13 hov-btn3 p-all-10 trans-04 pointer m-tb-5"
                     style="border: none; background: none"
                   >
@@ -110,7 +139,6 @@
               <span class="mtext-110 cl2"> <%=cart.bill%> </span>
             </div>
           </div>
-          <!--  -->
 
           <div class="flex-w flex-t p-t-27 p-b-33">
             <div class="size-208">
@@ -126,7 +154,8 @@
             class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
           >
             <a href="/checkout" style="text-decoration: none; color: #ffffff"
-              >Proceed to Checkout</a>
+              >Proceed to Checkout</a
+            >
           </button>
         </div>
       </div>
@@ -135,9 +164,21 @@
 </form>
 
 <script>
-  async function removeFromCart(productId) {
-    if (confirm("Are you sure you want to remove this item?")) {
-      try {
+  async function removeFromCart(productId, event) {
+    event.preventDefault();
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to remove this item from your cart?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, remove it!",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
         const response = await fetch(`/cart/remove/${productId}`, {
           method: "DELETE",
         });
@@ -145,18 +186,80 @@
         const data = await response.json();
 
         if (data.success) {
-          // Refresh the page to show updated cart
+          await Swal.fire({
+            icon: "success",
+            title: "Item Removed",
+            text: "The item was successfully removed from your cart!",
+          });
+
           window.location.reload();
         } else {
-          alert("Failed to remove item from cart");
+          await Swal.fire({
+            icon: "error",
+            title: "Failed to Remove Item",
+            text: "There was an issue removing the item from the cart.",
+          });
         }
-      } catch (error) {
-        console.error("Error:", error);
-        alert("An error occurred while removing the item");
       }
+    } catch (error) {
+      console.error("Error:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while removing the item.",
+      });
+    }
+  }
+
+  async function decrement_quantity(productId, size, quantity) {
+    try {
+      const response = await fetch("/decrement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+      if (response.ok) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function increment_quantity(productId, size, quantity) {
+    try {
+      const response = await fetch("/increment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, size, stock: quantity }),
+      });
+      const responseData = await response.json();
+      if (response.ok) {
+        window.location.reload();
+      }
+      if (responseData.message == `Not enough stock.`) {
+        Swal.fire({
+          icon: "error",
+          title: "Insufficient Stock",
+          text: `Not enough stock left. Only ${responseData.stockLeft} items available.`,
+        });
+      } else if (
+        responseData.message == `Cannot add more than 10 units per person.`
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: `Not Permitted`,
+          text: `Only add 10 units for a product`,
+        });
+      }
+    } catch (error) {
+      console.log("Error on adding item to cart: " + error);
+      Swal.fire({
+        icon: "error",
+        title: "Unexpected Error",
+        text: "An error occurred while adding the item to your cart. Please try again later.",
+      });
     }
   }
 </script>
-
 <!-- Footer -->
 <%-include('../../views/partials/userPartials/footer')%>

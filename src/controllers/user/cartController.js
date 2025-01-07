@@ -1,6 +1,7 @@
 import { User } from "../../models/userSchema.js"
 import { Cart } from "../../models/cartSchema.js"
 import { Size } from "../../models/sizeSchema.js"
+import { Product } from "../../models/productSchema.js"
 // const loadCart = async(req,res)=>{
 //     try {
 //         let userId = req.session.user
@@ -24,15 +25,13 @@ const loadCart = async(req,res)=>{
         let cart = await Cart.findOne({userId})
             .populate({
                 path: 'items.product',
-                select: 'name productImage price description'  // Include needed fields
+                select: 'name productImage price description'  
             });
 
         if(cart && cart.items.length>0){
             const userData = await User.findOne({_id:userId})
-            console.log("Cart data:", JSON.stringify(cart, null, 2)); // Debug log
             return res.render('user/cart',{user:userData,cart})
         }else{
-            // Instead of sending JSON, render an empty cart page
             return res.render('user/cart', {
                 user: await User.findOne({_id:userId}),
                 cart: { items: [], bill: 0 }
@@ -109,8 +108,6 @@ const cart = async(req,res)=>{
 const deleteItem = async (req, res) => {
     try {
         const user = req.session.user;
-        console.log('Session user:', req.session.user);
-
         const productId = req.params.productId;
 
         // Find the cart
@@ -138,7 +135,7 @@ const deleteItem = async (req, res) => {
             productSize.quantity += quantity;
             await productSize.save();
         } else {
-            console.warn(`Size entry not found for product: ${product}, size: ${size}`);
+            console.log(`Size entry not found for product: ${product}, size: ${size}`);
         }
 
         // Remove the item 
@@ -148,12 +145,59 @@ const deleteItem = async (req, res) => {
         cart.bill = cart.items.reduce((total, item) => total + item.totalPrice, 0);
         await cart.save();
 
-        res.json({ success: true });
+        return res.json({ success: true });
     } catch (error) {
         console.error('Error removing item from cart:', error);
         res.status(500).json({ success: false, error: 'Failed to remove item' });
     }
 };
 
-
-export{loadCart,cart,deleteItem}
+const inc =async(req,res)=>{
+    try {
+        //product inc cheyyumbo atheth mansilaaki stock
+        //athava size schema l ulla aa product nte size kurakknm
+        const userId = req.session.user
+        const{productId,size} = req.body
+        const cart = await Cart.findOne({userId})
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+        const productSize = await Size.findOne({product:productId,size})
+        // console.log(cart.items.product+"ith correct aano")
+        const cartIndex =  cart.items.findIndex((item)=>item.product.toString()==productId)
+       const cartItem = cart.items[cartIndex]
+       const currrentQuantity = cartItem.quantity
+       let maxQuantityPerPerson = 10
+       let newQuantity = currrentQuantity+1
+       if (newQuantity > maxQuantityPerPerson) {
+        return res.status(400).json({
+            message: `Cannot add more than 10 units per person.`
+        });
+    }
+    if(newQuantity>productSize.quantity+currrentQuantity){
+        return res.status(400).json({ message: `Not enough stock.`,stockLeft:productSize.quantity})
+    }
+        
+        cart.items[cartIndex].quantity = newQuantity
+        cart.items[cartIndex].totalPrice = cartItem.price*newQuantity
+        productSize.quantity -= 1
+        await productSize.save()
+        if(productSize.quantity<0){
+            return res.status(400).json({message:`Not enough stock`})
+           }
+        cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+        cart.bill = cart.items.reduce((acc,curr)=>acc+(curr.quantity*curr.price),0)
+        await cart.save()
+       return res.status(200).json({message:"Item added to the cart successfully"})
+    } catch (error) {
+        console.log("The error is "+error)
+    }
+}
+const dec = async(req,res)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+export{loadCart,cart,inc,dec,deleteItem}

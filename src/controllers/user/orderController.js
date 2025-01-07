@@ -10,9 +10,6 @@ const orders = async(req,res)=>{
         const nonZeroOrders = orders.filter((item)=>item.totalPrice>0)
 
             return res.render('user/orders',{order:nonZeroOrders})
-    
-        
-       
         
     } catch (error) {
         console.log("The error is"+error)

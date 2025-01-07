@@ -7,7 +7,7 @@ async function deleteAddress(addressId,e){
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes, Delete it!",
+            confirmButtonText: "Yes, archive it!",
             cancelButtonText: "No, cancel please!",
             closeOnConfirm: false,
             closeOnCancel: false

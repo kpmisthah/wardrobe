@@ -52,7 +52,7 @@ const loadShoppingPage =  async(req,res)=>{
     try {
             let page = parseInt(req.query.page ||1);
             const sortOption = req.query.sort||null
-            let limit = 4
+            let limit = 12
             let filter = {isBlocked:false}
 
             //sort method
@@ -81,6 +81,10 @@ const loadShoppingPage =  async(req,res)=>{
                 filter.isStock = true
             }else if(sortOption == 'Unavailable'){
                 filter.isStock = false
+            }else if(sortOption == 'alphabetical'){
+                sort = {name:1}
+            }else if(sortOption == 'reverseAlphabetical'){
+                sort = {name:-1}
             }
             
 
@@ -101,7 +105,7 @@ const loadShoppingPage =  async(req,res)=>{
             console.log("The user is "+user)
             if(user){
                 let userData = await User.findOne({_id:user})
-                return res.render('user/shop',{user:userData,products,totalpage, page,sortOption })
+                return res.render('user/shop',{user:userData,products,totalpage, page })
             }else{
                 return res.render('user/shop',{products,totalpage,page, sortOption })
             }
@@ -294,7 +298,7 @@ const verifyOtp = async (req,res)=>{
         return res.status(400).json({ success: false, message: "Invalid OTP." });
       }
       const {email,password} = req.session.updateProfile
-      const hashedPassword = await bcrypt.hash(password, 10); // Ensure hashing is done properly
+      const hashedPassword = await bcrypt.hash(password, 10); 
       const updateUser = await User.findByIdAndUpdate(userId,{email:email,password:hashedPassword})
       console.log("The updated user is "+updateUser)
       await updateUser.save()

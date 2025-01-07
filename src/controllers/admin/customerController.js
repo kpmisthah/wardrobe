@@ -25,7 +25,7 @@ const blockUser = async(req,res)=>{
     try {
         const{id} = req.query
         await User.updateOne({_id:id},{$set:{isBlocked:true}})
-        res.redirect('/admin/customers')
+        res.redirect('/admin/customer')
     } catch (error) {
         //404
     }
@@ -36,7 +36,7 @@ const unblockUser = async(req,res)=>{
     try {
         const{id} = req.query
         await User.updateOne({_id:id},{$set:{isBlocked:false}})
-        res.redirect('/admin/customers')
+        res.redirect('/admin/customer')
     } catch (error) {
         //404
     }

@@ -1,6 +1,37 @@
 
 <%-include('../../views/partials/userPartials/header')%>	 
+<style>
+								
+	.imageZoom {
+		width: 512px;
+		height: 512px;
+		border: 1px solid black;
+		position: relative;
+		/* margin-bottom: 20px; */
+	}
 
+	.imageZoom img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: 0 0;
+		/* object-position: center; */
+	}
+
+	.imageZoom::after {
+		display: var(--display);
+		content: "";
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		background-image: var(--url);
+		background-size: 500%;
+		background-position: var(--zoom-x) var(--zoom-y);
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+</style>
 	<!-- Product Details -->
 	<section class="sec-product-detail bg0 p-t-65 p-b-60">
 		<div class="container">
@@ -11,34 +42,33 @@
 						<div class="wrap-slick3 flex-sb flex-w">
 							<div class="wrap-slick3-dots"></div>
 							<div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
-
 							<div class="slick3 gallery-lb ">
 								<div class="item-slick3" data-thumb="/uploads/product-images/<%=value.productImage[0]%>">
-									<div class="wrap-pic-w pos-relative">
+									<!-- <div class="wrap-pic-w pos-relative"> -->
 										<div id="imageZoom" class="wrap-pic-w pos-relative  imageZoom"  style="
 										--url:url('/uploads/product-images/<%=value.productImage[0]%>');
 										--zoom-x:0%,--zoom-y:0%;
 										--display:none">
 										<img  src="/uploads/product-images/<%=value.productImage[0]%>" alt="IMG-PRODUCT">
 									   </div>
-										<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/uploads/product-images/<%=value.productImage[0]%>">
+										<!-- <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/uploads/product-images/<%=value.productImage[0]%>">
 											<i class="fa fa-expand"></i>
-										</a>
-									</div>
+										</a> -->
+									<!-- </div> -->
 								</div>
 
 								<div class="item-slick3" data-thumb="/uploads/product-images/<%=value.productImage[1]%>">
-									<div class="wrap-pic-w pos-relative">
+									<!-- <div class="wrap-pic-w pos-relative"> -->
 										<div id="imageZoom" class="wrap-pic-w pos-relative  imageZoom"  style="
 										--url:url('/uploads/product-images/<%=value.productImage[1]%>');
 										--zoom-x:0%,--zoom-y:0%;
 										--display:none">
 										<img  src="/uploads/product-images/<%=value.productImage[1]%>" alt="IMG-PRODUCT">
 									   </div>
-										<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/uploads/product-images/<%=value.productImage[1]%>">
+										<!-- <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/uploads/product-images/<%=value.productImage[1]%>">
 											<i class="fa fa-expand"></i>
-										</a>
-									</div>
+										</a> -->
+									<!-- </div> -->
 								</div>
 
 								<div class="item-slick3" data-thumb="/uploads/product-images/<%=value.productImage[2]%>">
@@ -116,7 +146,7 @@
 									</div>
 
 									<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="addToCart('<%=value._id%>','<%=value.name%>','<%=value.salePrice%>',document.querySelector('.num-product').value,document.querySelector('.js-select2').value)">
-										Add to cart
+										Go to cart
 									</button>
 								</div>
 							</div>	

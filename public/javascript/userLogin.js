@@ -34,28 +34,31 @@ function passwordValidateChecking(password){
      }
 }
 
-function userLogin(event){    
-    //form validation
-    const loader = document.getElementById('loader'); // Reference the loader element
-    loader.style.display = 'block'; // Show loader
-    const email = form[0].value
-    const password = form[1].value
+function userLogin(event) {
+  event.preventDefault(); // Prevent form from submitting normally
 
-    const error1 = document.getElementById('error1');
-    const error2 = document.getElementById('error2');
+  const loader = document.getElementById('loader'); // Reference the loader element
+  loader.style.display = 'flex'; // Show loader
 
-    emailValidateChecking(email)
-    passwordValidateChecking(password);
+  const email = document.getElementById('email').value; // Get email input value
+  const password = document.getElementById('password').value; // Get password input value
 
-    if(error1.innerHTML || error2.innerHTML){
+  const error1 = document.getElementById('error1');
+  const error2 = document.getElementById('error2');
+
+  // Validate email and password
+  emailValidateChecking(email);
+  passwordValidateChecking(password);
+
+  // If there are errors, hide loader and return
+  if (error1.innerHTML || error2.innerHTML) {
       loader.style.display = 'none'; // Hide loader if validation fails
-      return; // Stop further executio
-    }
-  setTimeout(() => {
-        loader.style.display = 'none'; // Hide loader when processing is complete
-        console.log('Form submitted successfully');
-        alert('Login successful!'); // Simulate successful login
-    }, 2000); // Simulate a delay for demonstration
-    console.log('asdfasdf')
+      return; // Stop further execution
+  }
 
+  // Simulate API call or form submission
+  setTimeout(() => {
+      loader.style.display = 'none'; // Hide loader after a simulated API call
+      document.getElementById('loginform').submit(); // Submit the form
+  }, 2000); // Simulate a delay for API call
 }
