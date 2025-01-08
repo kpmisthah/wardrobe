@@ -11,7 +11,6 @@ const loadCheckout = async(req,res)=>{
         let userAddress = await Address.findOne({userId:user})
         const cart = await Cart.findOne({userId:user}).populate('items.product')
         const coupon = await Coupon.find()
-        console.log("The coupon is "+coupon)
         if(!userAddress ){
             return res.redirect('/getAddress')
         }
@@ -128,26 +127,35 @@ const placeOrder = async(req,res)=>{
         let coupon = await Coupon.findOne({code:couponCode,isActive:true})
         console.log("The coupon is "+coupon);
         
+                //oru coupon oru user ..oru user n same coupon 2 thavana add aakan patoola
+        const orderedCoupon = await Order.findOne({userId,'orderedItems.couponCode':couponCode})
+       if(orderedCoupon){
+        return res.status(401).json({message:"coupon is already ordered"})
+       }
         //discount
         let discount = 0
         if(coupon.discountType == 'percentage'){
             discount = (cart.bill*coupon.discountValue)/100
         }else{
-            discount = cart.bill*coupon.discountValue
+            discount = coupon.discountValue
         }
         console.log("Teh dicscount pricer is"+discount)
+
+           //final amount
+        const finalPrice = cart.bill - discount
+        console.log("the final price is"+finalPrice);
+
         //minpurchase
-        if(coupon.minPurchase<cart.bill){
+        if(coupon.minPurchase>cart.bill){
             return res.status(400).json({message:"total price should be greater than minimum purchase"})
         }
-        if(coupon.startDate<Date.now() && coupon.endDate>Date.now){
-            return res.status(400).json({message:"coupon is not valid"})
+        console.log(coupon.minPurchase+"cooooooooooooooo");
+        
+        if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
+            return res.status(400).json({message: "Coupon is not valid"});
         }
-        //oru coupon oru user ..oru user n same coupon 2 thavana add aakan patoola
-        const orderedCoupon = await Order.findOne({userId,'orderedItems.couponCode':couponCode})
-        if(orderedCoupon){
-            return res.status(401).json({message:"coupon is already ordered"})
-        }
+        
+
         console.log("The ordered coupon is"+orderedCoupon)
         let orderedItems = []
         //to 
@@ -164,9 +172,7 @@ const placeOrder = async(req,res)=>{
             });
 
         }
-        //final amount
-        const finalprice = totalPrice - discount
-        console.log("the final price is"+finalprice);
+     
         
         const newOrder = new Order({
             orderedItems,
@@ -176,7 +182,7 @@ const placeOrder = async(req,res)=>{
             status: "Pending", 
             totalPrice:cart.bill,
             discount,
-            finalAmount:finalprice,
+            finalAmount:finalPrice,
             invoiceDate: new Date()
         });
 
@@ -184,7 +190,7 @@ const placeOrder = async(req,res)=>{
         cart.items = [];
         cart.bill = 0;
         await cart.save();
-        res.redirect('/order-confirmation')
+        return res.status(200).json({ message: "Order placed successfully", redirectUrl: "/order-confirmation" });
     } catch (error) {
         console.log("The error is"+error)
     }

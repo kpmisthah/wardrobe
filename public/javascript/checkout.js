@@ -29,7 +29,18 @@ async function placeOrder(event){
             body:JSON.stringify({payment,addressId,couponCode})
         })
         if(response.ok){
-             window.location.href = '/order-confirmation'
+            const result = await response.json()
+            console.log("teh result is"+result.message)
+            if(result.message == 'coupon is already ordered'){
+                alert("order is already ordered")
+            }else if(response.message == 'total price should be greater than minimum purchase'){
+                alert('order is lareadye exist')
+            }else if(response.message == "total price should be greater than minimum purchase"){
+                alert("minimum proice")
+            }else{
+                window.location.href = result.redirectUrl;
+            }
+            
         }
     } catch (error) {
         console.log("the error is "+error)
