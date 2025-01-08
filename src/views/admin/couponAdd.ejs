@@ -1,0 +1,56 @@
+<%- include("../../views/partials/adminPartials/headers") %>
+
+<div class="content-header">
+    <div>
+        <h2 class="content-title card-title">Create New Coupon</h2>
+    </div>
+</div>
+
+<form id="coupon" onsubmit="return validateCouponForm(event)">
+    <div class="card-body">
+        <div class="form-group">
+            <label for="code">Coupon Code</label>
+            <input type="text" class="form-control" id="code" name="code" required placeholder="Enter coupon code">
+            <span id="codeError" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="discountType">Discount Type</label>
+            <select class="form-control" id="discountType" name="discountType" required>
+                <option value="percentage">Percentage</option>
+                <option value="flat">Flat</option>
+            </select>
+            <span id="discountTypeError" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="discountValue">Discount Value</label>
+            <input type="number" class="form-control" id="discountValue" name="discountValue" required placeholder="Enter discount value">
+            <span id="discountValueError" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="minOrderValue">Minimum Order Value</label>
+            <input type="number" class="form-control" id="minOrderValue" name="minOrderValue" required placeholder="Enter minimum order value">
+            <span id="minOrderValueError" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="startDate">Start Date</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" required>
+            <span id="startDateError" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="endDate">End Date</label>
+            <input type="date" class="form-control" id="endDate" name="endDate" required>
+            <span id="endDateError" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select class="form-control" id="status" name="status" required>
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+            </select>
+            <span id="statusError" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-success">Add Coupon</button>
+    </div>
+</form>
+
+<script src="/javascript/coupon.js"></script>

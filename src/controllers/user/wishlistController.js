@@ -100,4 +100,22 @@ const wishlistToCart = async(req,res)=>{
         
     }
 }
-export{loadWishlist,addToWishlist,wishlistToCart}
+
+const removeWishlist = async(req,res)=>{
+    try {
+        const userId = req.session.user
+        const {productId} = req.params
+        console.log("The aprams is"+productId)
+        const wishlist = await Wishlist.findOneAndUpdate({userId},{$pull:{items:{_id:productId}}})
+        console.log("The wishlsit is"+wishlist);
+        
+        if(!wishlist){
+            return res.status(404).json({message:"wishlist not found"})
+        }
+        return res.status(200).json({message:"wishlist deleted successfully"})
+       
+    } catch (error) {
+        
+    }
+}
+export{loadWishlist,addToWishlist,wishlistToCart,removeWishlist}

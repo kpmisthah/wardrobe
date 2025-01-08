@@ -1,0 +1,59 @@
+<%- include("../../views/partials/adminPartials/headers") %>
+
+<div class="content-header">
+    <div>
+        <h2 class="content-title card-title">Coupon Management</h2>
+    </div>
+</div>
+
+<header class="card-header text-center mb-20">
+    <form action="/admin/coupons" method="get" class="d-inline">
+        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
+            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search coupons" name="search" id="search">
+            <button class="btn border-0" type="submit">Search</button>
+        </div>
+    </form>
+    <!-- Add Coupon Button -->
+    <div class="text-center mt-3">
+        <a href="/admin/addCoupon" class="btn btn-primary" style="width: 150px;">Add Coupon</a>
+    </div>
+</header>
+
+<div class="right mt-5">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"><b>Code</b></th>
+                <th scope="col"><b>Type</b></th>
+                <th scope="col"><b>Value</b></th>
+                <th scope="col"><b>Min Order</b></th>
+                <th scope="col"><b>Start Date</b></th>
+                <th scope="col"><b>End Date</b></th>
+                <th scope="col"><b>Status</b></th>
+                <th scope="col"><b>Action</b></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% coupon.forEach(coupon => { %>
+                <tr>
+                    <td><%= coupon.code %></td>
+                    <td><%= coupon.discountType %></td>
+                    <td><%= coupon.discountValue %></td>
+                    <td><%= coupon.minOrderValue %></td>
+                    <td><%= coupon.startDate %></td>
+                    <td><%= coupon.endDate %></td>
+                    <td><%= coupon.status === 'true' ? 'Active' : 'Inactive' %></td>
+                    <td>
+                        <button class="btn btn-info" style="width: 80px;" onclick="editCoupon('<%= coupon._id %>')">
+                            Edit
+                        </button>
+                        <button class="btn btn-danger" style="width: 80px;" onclick="deleteCoupon('<%= coupon._id %>')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>   
+</div>
+<script src="/javascript/coupon.js"></script>

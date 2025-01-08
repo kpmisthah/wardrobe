@@ -39,28 +39,33 @@
         </aside>
 
         <!-- Wishlist Items -->
-        <div class="row isotope-grid">
-            <% wishlist.items.forEach(value => { %>
-            <div class="col-sm-6 col-md-4 col-lg-3 p-b-35">
-                <div class="card">
-                    <img src="/uploads/product-images/<%= value.product.productImage[0] %>" class="card-img-top" alt="IMG-PRODUCT">
-                    <div class="card-body">
-                        <h5 class="card-title"><%= value.product.name %></h5>
-                        <p class="card-text"><%= value.product.salePrice %></p>
-                        <p class="card-text"><%= value.size %></p>
-                        <button type="submit" class="btn btn-primary" 
+<!-- Wishlist Items -->
+<div class="row isotope-grid">
+    <% if (wishlist.items && wishlist.items.length > 0) { %>
+        <% wishlist.items.forEach(value => { %>
+        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35">
+            <div class="card">
+                <img src="/uploads/product-images/<%= value.product.productImage[0] %>" class="card-img-top" alt="IMG-PRODUCT">
+                <div class="card-body">
+                    <h5 class="card-title"><%= value.product.name %></h5>
+                    <p class="card-text"><%= value.product.salePrice %></p>
+                    <p class="card-text"><%= value.size %></p>
+                    <button type="submit" class="btn btn-primary" 
                         onclick="addCart('<%= value.product._id %>','<%= value.product.name %>','<%= value.size %>','<%= value.product.regularPrice %>')">
                         Add to Cart
                     </button>
-                        <button type="submit" class="btn btn-danger mt-2" onclick="removeCart('<%=value.product._id%>')">Remove</button>
-                    </div>
+                    <button type="submit" class="btn btn-danger mt-2" onclick="removeCart('<%=value._id%>')">Remove</button>
                 </div>
             </div>
-            <% }) %>
         </div>
-        
-    </div>
+        <% }) %>
+    <% } else { %>
+        <div class="col-12 text-center">
+            <p class="text-muted">Your wishlist is empty. Start adding your favorite items!</p>
+        </div>
+    <% } %>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="/javascript/wishlist.js"></script>

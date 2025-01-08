@@ -45,3 +45,41 @@ async function addCart(productId, productName, productSize, productPrice) {
         });
     }
 }
+
+async function removeCart(productId) {
+    try {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        });
+
+        if (result.isConfirmed) {
+            const response = await fetch(`/remove-wishlist/${productId}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete the item');
+            }
+
+            const data = await response.json();
+            await Swal.fire({
+                title: 'Deleted!',
+                text: 'The item has been removed from your wishlist.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('The error is', error);
+
+    }
+}
