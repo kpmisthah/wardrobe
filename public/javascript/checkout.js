@@ -21,11 +21,12 @@ async function placeOrder(event){
     const form = document.getElementById('payment-form')
     const payment = form['paymentMethod'].value.trim()
     const addressId = form['addressId'].value.trim()
+    const couponCode = document.getElementById('coupon-code-input').value.trim()
     try {
         const response = await fetch('/place-order',{
             method:"POST",
             headers:{"Content-Type":'application/json'},
-            body:JSON.stringify({payment,addressId})
+            body:JSON.stringify({payment,addressId,couponCode})
         })
         if(response.ok){
              window.location.href = '/order-confirmation'
@@ -34,3 +35,5 @@ async function placeOrder(event){
         console.log("the error is "+error)
     }
 }
+
+//coupon logic

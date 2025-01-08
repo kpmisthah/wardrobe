@@ -248,8 +248,9 @@ const deleteAddress = async(req,res)=>{
 
 const updateProfile = async(req,res)=>{
     try {
-
-        return res.render('user/updateProfile')
+        const user = req.session.user
+        const userData = await User.findOne({_id:user})
+        return res.render('user/updateProfile',{userData})
     } catch (error) {
         console.log("The error is"+error)
     }
@@ -261,9 +262,7 @@ const profileUpdate = async (req,res)=>{
         const previousMail = await User.findOne({_id:userId})
         const oldEmail = previousMail.email
         const{email,password} = req.body
-        if(email == oldEmail){
-            return res.status(400).json({message:"Email already exist"})
-        }
+        console.log("The email is"+email+" and the password is "+password)
          const otp = randomString.generate({ length: 6, charset: "numeric" });
          console.log("The new otp is"+otp)
          await Otp.create({ email:oldEmail, otp });

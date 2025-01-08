@@ -29,6 +29,8 @@
                 <th scope="col"><b>Min Order</b></th>
                 <th scope="col"><b>Start Date</b></th>
                 <th scope="col"><b>End Date</b></th>
+                <th scope="col"><b>Maximum Discount</b></th>
+                <th scope="col"><b>Usage limit</b></th>
                 <th scope="col"><b>Status</b></th>
                 <th scope="col"><b>Action</b></th>
             </tr>
@@ -39,9 +41,11 @@
                     <td><%= coupon.code %></td>
                     <td><%= coupon.discountType %></td>
                     <td><%= coupon.discountValue %></td>
-                    <td><%= coupon.minOrderValue %></td>
+                    <td><%= coupon.minPurchase %></td>
                     <td><%= coupon.startDate %></td>
                     <td><%= coupon.endDate %></td>
+                    <td><%= coupon.maxDiscount %></td>
+                    <td><%= coupon.usageLimit %></td>
                     <td><%= coupon.status === 'true' ? 'Active' : 'Inactive' %></td>
                     <td>
                         <a href="/admin/editCoupon/<%= coupon._id %>" class="btn btn-info" style="width: 80px;">

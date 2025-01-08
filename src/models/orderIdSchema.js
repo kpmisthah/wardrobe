@@ -33,6 +33,10 @@ const orderIdSchema = new Schema({
             type: String,
             enum: ['Not Requested', 'Requested', 'Approved', 'Rejected'],
             default: 'Not Requested',
+          },
+          couponCode:{
+            type:String,
+            required:false
           }
        
     }],
@@ -70,10 +74,6 @@ const orderIdSchema = new Schema({
         type:String,
        required:true,
        enum:['Pending','Processing','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
-    },
-    couponApplied:{
-        type:Boolean,
-        default:false
     },
     cancellationReason:{
         type:String,

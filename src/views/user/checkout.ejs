@@ -72,6 +72,39 @@
                     <input type="radio" id="card" name="paymentMethod" value="Card">
                     <label for="card">Credit/Debit Card</label>
                 </div>
+                <div class="coupon-section">
+                    <div class="flex-w flex-m m-r-20 m-tb-5">
+                        <!-- Coupon Input -->
+                        <input
+                            class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
+                            type="text"
+                            name="coupon"
+                            id="coupon-code-input"
+                            placeholder="Enter Coupon Code"
+                        />
+                        <!-- Apply Coupon Button -->
+                        <div
+                            class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5"
+                            onclick="applyCoupon()"
+                        >
+                            Apply Coupon
+                        </div>
+                    </div>
+                
+                    <!-- Display Applied Coupon Name -->
+    <!-- Display Available Coupons -->
+    <div class="coupon-display">
+        <% if (coupon && coupon.length > 0) { %>
+            <h4>Available Coupons:</h4>
+            <% coupon.forEach((coupon) => { %>
+                <p><strong>Coupon Code:</strong> <%= coupon.code %> - <%=coupon.discountValue%> <%=coupon.discountType == 'percentage'?'percentage':'rupees'%> %>offer</p>
+            <% }) %>
+        <% } else { %>
+            <p>No coupons available at the moment.</p>
+        <% } %>
+    </div>
+                </div>
+                
                 <input type="hidden" name="addressId" id="selected-address-id">
                 <button type="submit" class="checkout-button">Place Order</button>
             </form>

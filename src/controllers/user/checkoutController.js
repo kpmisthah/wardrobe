@@ -2,6 +2,7 @@ import { User } from "../../models/userSchema.js"
 import { Address } from "../../models/addressSchema.js"
 import {Cart} from '../../models/cartSchema.js'
 import { Order } from "../../models/orderIdSchema.js"
+import { Coupon } from "../../models/couponSchema.js"
 
 
 const loadCheckout = async(req,res)=>{
@@ -9,12 +10,14 @@ const loadCheckout = async(req,res)=>{
         let user = req.session.user
         let userAddress = await Address.findOne({userId:user})
         const cart = await Cart.findOne({userId:user}).populate('items.product')
+        const coupon = await Coupon.find()
+        console.log("The coupon is "+coupon)
         if(!userAddress ){
             return res.redirect('/getAddress')
         }
         if(user){
             let userData = await User.findOne({_id:user})
-            return res.render('user/checkout',{user:userData,address:userAddress.address ,cart})
+            return res.render('user/checkout',{user:userData,address:userAddress.address ,cart,coupon})
         }
         
     } catch (error) {
@@ -117,12 +120,38 @@ const addcheckoutAddress = async(req,res)=>{
 
 const placeOrder = async(req,res)=>{
     try {
-        const{payment,addressId} = req.body
+        const{payment,addressId,couponCode} = req.body
+        console.log("The coupon code is"+couponCode)
         const userId = req.session.user
-        const  address = await Address.findOne({userId})
         const cart = await Cart.findOne({userId})
+        const  address = await Address.findOne({userId})
+        let coupon = await Coupon.findOne({code:couponCode,isActive:true})
+        console.log("The coupon is "+coupon);
+        
+        //discount
+        let discount = 0
+        if(coupon.discountType == 'percentage'){
+            discount = (cart.bill*coupon.discountValue)/100
+        }else{
+            discount = cart.bill*coupon.discountValue
+        }
+        console.log("Teh dicscount pricer is"+discount)
+        //minpurchase
+        if(coupon.minPurchase<cart.bill){
+            return res.status(400).json({message:"total price should be greater than minimum purchase"})
+        }
+        if(coupon.startDate<Date.now() && coupon.endDate>Date.now){
+            return res.status(400).json({message:"coupon is not valid"})
+        }
+        //oru coupon oru user ..oru user n same coupon 2 thavana add aakan patoola
+        const orderedCoupon = await Order.findOne({userId,'orderedItems.couponCode':couponCode})
+        if(orderedCoupon){
+            return res.status(401).json({message:"coupon is already ordered"})
+        }
+        console.log("The ordered coupon is"+orderedCoupon)
         let orderedItems = []
-        //to add the size of particular product and manage the stock
+        //to 
+        // Add the size of particular product and manage the stock
         for(let item of cart.items){
             orderedItems.push({
                 product: item.product,
@@ -130,10 +159,15 @@ const placeOrder = async(req,res)=>{
                 size: item.size,  
                 quantity: item.quantity,
                 price: item.price,
+                couponCode,
                 returnStatus:'Not Requested'
             });
 
         }
+        //final amount
+        const finalprice = totalPrice - discount
+        console.log("the final price is"+finalprice);
+        
         const newOrder = new Order({
             orderedItems,
             address: addressId,
@@ -141,6 +175,8 @@ const placeOrder = async(req,res)=>{
             paymentMethod: payment,
             status: "Pending", 
             totalPrice:cart.bill,
+            discount,
+            finalAmount:finalprice,
             invoiceDate: new Date()
         });
 

@@ -7,13 +7,13 @@ async function deleteCoupon(couponId) {
         const data = await response.json();
 
         if (response.ok) {
-            alert(data.message); 
-            window.location.href = '/admin/coupon'
+            swal("Success", data.message, "success"); 
+            window.location.href = '/admin/coupon';
         } else {
-            alert(data.message || "Failed to delete coupon");
+            swal("Error", data.message || "Failed to delete coupon", "error");
         }
     } catch (error) {
         console.log("Error deleting coupon:", error);
-        alert("An error occurred while deleting the coupon.");
+        swal("Error", "An error occurred while deleting the coupon.", "error");
     }
 }

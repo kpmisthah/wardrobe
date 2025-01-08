@@ -7,6 +7,9 @@ async function validateCouponForm(event) {
     const code = document.getElementById('code').value.trim();
     const discountValue = parseFloat(document.getElementById('discountValue').value);
     const minOrderValue = parseFloat(document.getElementById('minOrderValue').value);
+    const maxDiscount = parseFloat(document.getElementById('maxDiscount').value); 
+    const usageLimit = parseInt(document.getElementById('usageLimit').value); 
+    console.log("MININIM"+minOrderValue)
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     const status = document.getElementById('status').value;
@@ -29,6 +32,15 @@ async function validateCouponForm(event) {
         document.getElementById('minOrderValueError').textContent = "Minimum order value must be a positive number.";
         isValid = false;
     }
+    if (!maxDiscount || maxDiscount <= 0) {
+        document.getElementById('maxDiscountError').textContent = "Max discount value must be a positive number.";
+        isValid = false;
+    }
+
+    if (!usageLimit || usageLimit <= 0) {
+        document.getElementById('usageLimitError').textContent = "Usage limit must be a positive number.";
+        isValid = false;
+    }
     if (new Date(startDate) > new Date(endDate)) {
         document.getElementById('endDateError').textContent = "End date must be later than start date.";
         isValid = false;
@@ -38,6 +50,11 @@ async function validateCouponForm(event) {
         document.getElementById('statusError').textContent = "Please select the status.";
         isValid = false;
     }
+    if (!discountType) {
+        document.getElementById('discountTypeError').textContent = "Please select a discount type.";
+        isValid = false;
+    }
+
 
     // Submit form if all validations pass
     if (isValid) {
@@ -50,6 +67,8 @@ async function validateCouponForm(event) {
             minPurchase: minOrderValue, 
             startDate,
             endDate,
+            maxDiscount,
+            usageLimit,
             isActive: status === 'true' 
         };
         

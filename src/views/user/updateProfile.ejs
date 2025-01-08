@@ -12,12 +12,9 @@
                 <h1>Update Profile</h1>
                 <form id="updateProfile" onsubmit="updateProfile(event)">
                     <div class="form-group">
-                        <input type="email" placeholder="email">
-                        <div id="error1" class="error-message"></div>
-                    </div>
-                    <div class="form-group">
                         <input type="password" placeholder="Password">
-                        <div id="error2" class="error-message"></div>
+                        <div id="error1" class="error-message"></div>
+                        <input type="hidden" name="email" value="<%=userData.email%>">
                     </div>
                     <button type="submit" class="save-btn">Save</button>
                 </form>
@@ -52,6 +49,7 @@
             </div>
         </footer>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/javascript/updateProfile.js"></script>
 </body>
 </html>
