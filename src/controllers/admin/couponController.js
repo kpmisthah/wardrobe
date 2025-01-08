@@ -19,12 +19,12 @@ const addcoupon = async(req,res)=>{
 
 const createCoupon = async(req,res)=>{
     try {
-        const { code, discountValue, minOrderValue, startDate, endDate, status,discountType } = req.body;
+        const { code, discountValue, minPurchase, startDate, endDate, isActive,discountType } = req.body;
         const couponExist = await Coupon.findOne({code})
         if(couponExist){
             return res.status(400).json({message:"coupon is already exist"})
         }
-        const newCoupon = new Coupon({code, discountValue, minOrderValue, startDate, endDate, status,discountType})
+        const newCoupon = new Coupon({code, discountValue, minPurchase, startDate, endDate, isActive,discountType})
         await newCoupon.save()
         res.status(200).json({message:"coupon is added successfully"})
     } catch (error) {
@@ -32,4 +32,50 @@ const createCoupon = async(req,res)=>{
         res.status(500).json({message:"internal server error"})
     }
 }
-export{laodCoupon,addcoupon,createCoupon}
+
+const geteditCoupon = async(req,res)=>{
+    try {
+        const {edit} = req.params
+        const coupon = await Coupon.findOne({_id:edit})
+        return res.render('admin/edit-coupon',{coupon})
+    } catch (error) {
+        console.log("Ther error is"+error)
+    }
+}
+const editCoupon = async(req,res)=>{
+    try {
+        const{edit} = req.params
+         const{code, discountValue, minPurchase, startDate, endDate, isActive,discountType} = req.body
+
+         const existingCoupon = await Coupon.findOne({code})
+         if(existingCoupon){
+            return res.status(400).json({message:"coupon already exist"})
+         }
+        const updateCoupon= await Coupon.findByIdAndUpdate(edit,{
+            code, discountValue, minPurchase, startDate, endDate, isActive,discountType
+        },{new:true})
+        
+        if (!updateCoupon) {
+            return res.status(404).json({ message: 'Coupon not found' });
+        }
+        return res.status(200).json({message:"coupon updated successfully"})
+    } catch (error) {
+        
+    }
+}
+
+const deleteCoupon = async(req,res)=> {
+    try {
+        const{id} = req.params
+        const coupon = await Coupon.findByIdAndDelete(id)
+        if(!coupon){
+            return res.status(401).json({message:"coupom is not found"})
+        }
+        res.status(200).json({ success: true, message: "Coupon deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting coupon:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+
+}
+export{laodCoupon,addcoupon,createCoupon,editCoupon,geteditCoupon,deleteCoupon}

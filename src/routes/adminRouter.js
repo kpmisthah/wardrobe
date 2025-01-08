@@ -6,7 +6,7 @@ import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isLis
 import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
 import {getProductAddPage,addProducts, getProductPage ,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
 import { orderList,orderStatus,handleReturn ,orderCancelled} from "../controllers/admin/orderController.js"
-import { laodCoupon,addcoupon,createCoupon } from "../controllers/admin/couponController.js"
+import { laodCoupon,addcoupon,createCoupon ,editCoupon,geteditCoupon,deleteCoupon} from "../controllers/admin/couponController.js"
 
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
@@ -58,9 +58,8 @@ router.delete('/cancelorder/:id',orderCancelled)
 router.get('/coupon',laodCoupon)
 router.get('/addCoupon',addcoupon)
 router.post('/coupon',createCoupon)
-router.get('/coupons/:edit')
+router.get('/editCoupon/:edit',geteditCoupon)
+router.put('/editCoupon/:edit',editCoupon)
+router.delete('/deleteCoupon/:id',deleteCoupon)
 export default router
 
-// const couponSchema = new mongoose.Schema({
-
-//   module.exports = mongoose.model('Coupons', couponSchema);

@@ -44,9 +44,9 @@
                     <td><%= coupon.endDate %></td>
                     <td><%= coupon.status === 'true' ? 'Active' : 'Inactive' %></td>
                     <td>
-                        <button class="btn btn-info" style="width: 80px;" onclick="editCoupon('<%= coupon._id %>')">
+                        <a href="/admin/editCoupon/<%= coupon._id %>" class="btn btn-info" style="width: 80px;">
                             Edit
-                        </button>
+                        </a>
                         <button class="btn btn-danger" style="width: 80px;" onclick="deleteCoupon('<%= coupon._id %>')">
                             Delete
                         </button>
@@ -56,4 +56,4 @@
         </tbody>
     </table>   
 </div>
-<script src="/javascript/coupon.js"></script>
+<script src="/javascript/deleteCoupon.js"></script>
