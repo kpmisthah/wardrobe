@@ -117,86 +117,150 @@ const addcheckoutAddress = async(req,res)=>{
     }
 }
 
-const placeOrder = async(req,res)=>{
+const placeOrder = async (req, res) => {
     try {
-        const{payment,addressId,couponCode} = req.body
-        console.log("The coupon code is"+couponCode)
-        const userId = req.session.user
-        const cart = await Cart.findOne({userId})
-        const  address = await Address.findOne({userId})
-        let coupon = await Coupon.findOne({code:couponCode,isActive:true})
-        if (!coupon) {
-            return res.status(400).json({ message: "Invalid or expired coupon" });
-        }
-        console.log("The coupon is "+coupon);
+        const { payment, addressId, couponCode } = req.body;
+        const userId = req.session.user;
+        const cart = await Cart.findOne({ userId });
+        const address = await Address.findOne({ userId });
         
-     
-        if(coupon.minPurchase>cart.bill){
-            return res.status(400).json({message:"total price should be greater than minimum purchase"})
-        }
-        console.log(coupon.minPurchase+"cooooooooooooooo");
-        
-        if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
-            return res.status(400).json({message: "Coupon is not valid"});
-        }
-        
-              
-        const orderedCoupon = await Order.findOne({userId,'orderedItems.couponCode':couponCode})
-        console.log("The ordered coupon is"+orderedCoupon)
-       if(orderedCoupon){
-        return res.status(401).json({message:"coupon is already ordered"})
-       }
-        //discount
-        let discount = 0
-        if(coupon.discountType == 'percentage'){
-            discount = (cart.bill*coupon.discountValue)/100
-        }else{
-            discount = coupon.discountValue
-        }
-        console.log("Teh dicscount pricer is"+discount)
+        let discount = 0;
+        if (couponCode) {
+            let coupon = await Coupon.findOne({ code: couponCode, isActive: true });
+            if (!coupon) {
+                return res.status(400).json({ message: "Invalid or expired coupon" });
+            }
 
-         
-        const finalPrice = cart.bill - discount
-        console.log("the final price is"+finalPrice);
+            if (coupon.minPurchase > cart.bill) {
+                return res.status(400).json({ message: "Total price should be greater than minimum purchase" });
+            }
 
-        let orderedItems = []
-        //to 
-        // Add the size of particular product and manage the stock
-        for(let item of cart.items){
+            if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
+                return res.status(400).json({ message: "Coupon is not valid" });
+            }
+
+            const orderedCoupon = await Order.findOne({ userId, 'orderedItems.couponCode': couponCode });
+            if (orderedCoupon) {
+                return res.status(401).json({ message: "Coupon is already ordered" });
+            }
+
+            if (coupon.discountType == 'percentage') {
+                discount = (cart.bill * coupon.discountValue) / 100;
+            } else {
+                discount = coupon.discountValue;
+            }
+        }
+
+        console.log("The discount price is " + discount);
+        const finalPrice = cart.bill - discount;
+
+        let orderedItems = [];
+        for (let item of cart.items) {
             orderedItems.push({
                 product: item.product,
                 name: item.name,
-                size: item.size,  
+                size: item.size,
                 quantity: item.quantity,
                 price: item.price,
-                couponCode,
-                returnStatus:'Not Requested'
+                couponCode: couponCode || null,
+                returnStatus: 'Not Requested'
             });
-
         }
-     
-        
+
         const newOrder = new Order({
             orderedItems,
             address: addressId,
             userId,
             paymentMethod: payment,
-            status: "Pending", 
-            totalPrice:cart.bill,
+            status: "Pending",
+            totalPrice: cart.bill,
             discount,
-            finalAmount:finalPrice,
+            finalAmount: finalPrice,
             invoiceDate: new Date()
         });
 
-        await newOrder.save()
+        await newOrder.save();
         cart.items = [];
         cart.bill = 0;
         await cart.save();
         return res.status(200).json({ message: "Order placed successfully", redirectUrl: "/order-confirmation" });
     } catch (error) {
-        console.log("The error is"+error)
+        console.log("The error is " + error);
+        res.status(500).json({ message: "Failed to place order", error: error.message });
     }
-}
+};
+
+const saveOrder = async (req, res) => {
+    try {
+        let userId = req.session.user;
+        const { addressId, couponCode, amount } = req.body;
+        const cart = await Cart.findOne({ userId });
+
+        let discount = 0;
+        if (couponCode) {
+            let coupon = await Coupon.findOne({ code: couponCode, isActive: true });
+            if (!coupon) {
+                return res.status(400).json({ message: "Invalid or expired coupon" });
+            }
+
+            if (coupon.minPurchase > cart.bill) {
+                return res.status(400).json({ message: "Total price should be greater than minimum purchase" });
+            }
+
+            if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
+                return res.status(400).json({ message: "Coupon is not valid" });
+            }
+
+            const orderedCoupon = await Order.findOne({ userId, 'orderedItems.couponCode': couponCode });
+            if (orderedCoupon) {
+                return res.status(401).json({ message: "Coupon is already ordered" });
+            }
+
+            if (coupon.discountType == 'percentage') {
+                discount = (cart.bill * coupon.discountValue) / 100;
+            } else {
+                discount = coupon.discountValue;
+            }
+        }
+
+        console.log("The discount price is " + discount);
+        const finalPrice = cart.bill - discount;
+
+        let orderedItems = [];
+        for (let item of cart.items) {
+            orderedItems.push({
+                product: item.product,
+                name: item.name,
+                size: item.size,
+                quantity: item.quantity,
+                price: item.price,
+                couponCode: couponCode || null,
+                returnStatus: 'Not Requested'
+            });
+        }
+
+        const newOrder = new Order({
+            orderedItems,
+            address: addressId,
+            userId,
+            paymentMethod: 'razorpay',
+            status: "Pending",
+            totalPrice: cart.bill,
+            discount,
+            finalAmount: finalPrice,
+            invoiceDate: new Date()
+        });
+
+        await newOrder.save();
+        cart.items = [];
+        cart.bill = 0;
+        await cart.save();
+        res.json({ status: 200, message: "Order saved successfully", redirectUrl: '/order-confirmation' });
+    } catch (error) {
+        console.error("Error saving order:", error);
+        res.status(500).json({ message: "Failed to save order", error: error.message });
+    }
+};
 // Backend controller for applying coupon
 const applyCoupon = async(req, res) => {
     try {
@@ -210,7 +274,6 @@ const applyCoupon = async(req, res) => {
         }
           
         const coupon = await Coupon.findOne({ code: couponCode, isActive: true })
-        console.log("The couon is "+coupon);
         
         if (!coupon) {
             return res.status(400).json({ message: "Invalid or expired coupon" })
@@ -277,4 +340,4 @@ const orderConfirm = async(req,res)=>{
         
     }
 }
-export{loadCheckout,getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon}
+export{loadCheckout,getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder}

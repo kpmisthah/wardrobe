@@ -191,14 +191,14 @@
                     type="number"
                     name="num-product"
                     value="1"
-                  />
-
+                  />                
                   <div
                     class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
                   >
                     <i class="fs-16 zmdi zmdi-plus"></i>
                   </div>
                 </div>
+                <input type="hidden" id="product_id" value="<%= value._id %>">
                 <div class="flex-container">
                   <!-- Go to cart button -->
                   <button
@@ -247,7 +247,7 @@
 
           <li class="nav-item p-b-10">
             <a class="nav-link" data-toggle="tab" href="#reviews" role="tab"
-              >Reviews (1)</a
+              >Reviews </a
             >
           </li>
         </ul>
@@ -261,62 +261,11 @@
             role="tabpanel"
           >
             <div class="how-pos2 p-lr-15-md">
-              <p class="stext-102 cl6">
-                Aenean sit amet gravida nisi. Nam fermentum est felis, quis
-                feugiat nunc fringilla sit amet. Ut in blandit ipsum. Quisque
-                luctus dui at ante aliquet, in hendrerit lectus interdum. Morbi
-                elementum sapien rhoncus pretium maximus. Nulla lectus enim,
-                cursus et elementum sed, sodales vitae eros. Ut ex quam, porta
-                consequat interdum in, faucibus eu velit. Quisque rhoncus ex ac
-                libero varius molestie. Aenean tempor sit amet orci nec iaculis.
-                Cras sit amet nulla libero. Curabitur dignissim, nunc nec
-                laoreet consequat, purus nunc porta lacus, vel efficitur tellus
-                augue in ipsum. Cras in arcu sed metus rutrum iaculis. Nulla non
-                tempor erat. Duis in egestas nunc.
-              </p>
-            </div>
-          </div>
-
-          <!-- - -->
-          <div class="tab-pane fade" id="information" role="tabpanel">
-            <div class="row">
-              <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
-                <ul class="p-lr-28 p-lr-15-sm">
-                  <li class="flex-w flex-t p-b-7">
-                    <span class="stext-102 cl3 size-205"> Weight </span>
-
-                    <span class="stext-102 cl6 size-206"> 0.79 kg </span>
-                  </li>
-
-                  <li class="flex-w flex-t p-b-7">
-                    <span class="stext-102 cl3 size-205"> Dimensions </span>
-
-                    <span class="stext-102 cl6 size-206">
-                      110 x 33 x 100 cm
-                    </span>
-                  </li>
-
-                  <li class="flex-w flex-t p-b-7">
-                    <span class="stext-102 cl3 size-205"> Materials </span>
-
-                    <span class="stext-102 cl6 size-206"> 60% cotton </span>
-                  </li>
-
-                  <li class="flex-w flex-t p-b-7">
-                    <span class="stext-102 cl3 size-205"> Color </span>
-
-                    <span class="stext-102 cl6 size-206">
-                      Black, Blue, Grey, Green, Red, White
-                    </span>
-                  </li>
-
-                  <li class="flex-w flex-t p-b-7">
-                    <span class="stext-102 cl3 size-205"> Size </span>
-
-                    <span class="stext-102 cl6 size-206"> XL, L, M, S </span>
-                  </li>
-                </ul>
-              </div>
+              <%products.forEach((value)=>{%>
+                <p class="stext-102 cl6">
+                  <%=value.description%>
+                </p>
+                <%})%>
             </div>
           </div>
 
@@ -326,43 +275,34 @@
               <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
                 <div class="p-b-30 m-lr-15-sm">
                   <!-- Review -->
+                  <%review.forEach((review)=>{%>
                   <div class="flex-w flex-t p-b-68">
-                    <div
-                      class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6"
-                    >
-                      <img src="images/avatar-01.jpg" alt="AVATAR" />
-                    </div>
-
                     <div class="size-207">
                       <div class="flex-w flex-sb-m p-b-17">
                         <span class="mtext-107 cl2 p-r-20">
-                          Ariana Grande
+                          <%=review.userId.name%>
                         </span>
+
 
                         <span class="fs-18 cl11">
-                          <i class="zmdi zmdi-star"></i>
-                          <i class="zmdi zmdi-star"></i>
-                          <i class="zmdi zmdi-star"></i>
-                          <i class="zmdi zmdi-star"></i>
-                          <i class="zmdi zmdi-star-half"></i>
+                          <% 
+                          const rating = review.rating; 
+                          for (let i = 1; i <= 5; i++) { 
+                          %>
+                            <i class="zmdi zmdi-star <%= i <= rating ? 'star-colored' : '' %>"></i>
+                          <% } %>
                         </span>
                       </div>
-
                       <p class="stext-102 cl6">
-                        Quod autem in homine praestantissimum atque optimum est,
-                        id deseruit. Apud ceteros autem philosophos
+                      <%=review.review%>
                       </p>
                     </div>
                   </div>
+                  <%})%>
 
                   <!-- Add review -->
-                  <form class="w-full" id="review-form">
+                  <form class="w-full" id="review-form" onsubmit="handleReviewSubmit(event)">
                     <h5 class="mtext-108 cl2 p-b-7">Add a review</h5>
-
-                    <p class="stext-102 cl6">
-                      Your email address will not be published. Required fields
-                      are marked *
-                    </p>
 
                     <div class="flex-w flex-m p-t-50 p-b-23">
                       <span class="stext-102 cl3 m-r-16"> Your Rating </span>
@@ -398,26 +338,6 @@
                           name="review"
                         ></textarea>
                       </div>
-
-                      <div class="col-sm-6 p-b-5">
-                        <label class="stext-102 cl3" for="name">Name</label>
-                        <input
-                          class="size-111 bor8 stext-102 cl2 p-lr-20"
-                          id="name"
-                          type="text"
-                          name="name"
-                        />
-                      </div>
-
-                      <div class="col-sm-6 p-b-5">
-                        <label class="stext-102 cl3" for="email">Email</label>
-                        <input
-                          class="size-111 bor8 stext-102 cl2 p-lr-20"
-                          id="email"
-                          type="text"
-                          name="email"
-                        />
-                      </div>
                     </div>
 
                     <button
@@ -435,11 +355,6 @@
     </div>
   </div>
 
-  <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
-    <span class="stext-107 cl6 p-lr-25"> SKU: JAK-01 </span>
-
-    <span class="stext-107 cl6 p-lr-25"> Categories: Jacket, Men </span>
-  </div>
 </section>
 
 <script>

@@ -2,7 +2,6 @@ import express from "express"
 import  { signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout,forgotPassword ,handleForgotPassword,verify,otpVerified,resetPassword,postNewPassword} from '../controllers/user/authController.js'
 import {passport} from "../db/passport.js"
 import {userLogin } from "../middlewares/userAuth.js"
-import { otpVerification } from "../controllers/user/userController.js"
 const router = express.Router()
 //signup
 

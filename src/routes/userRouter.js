@@ -2,11 +2,12 @@ import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
 import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
-import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon} from '../controllers/user/checkoutController.js'
+import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
 import { viewOrder,orders,productCancel ,returnOrder} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
+import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
 const router = express.Router()
 //home page
 router.get('/',loadHome)
@@ -17,6 +18,9 @@ router.get('/shop',userAuth,loadShoppingPage)
 
 //product detail page
 router.get('/productDetails',productDetails)
+
+//review page
+router.post('/submit-review',handleReviewSubmission)
 //profile page
 router.get('/myaccount',userAuth,loadProfile)
 router.get('/updateProfile',userAuth,updateProfile)
@@ -62,4 +66,5 @@ router.post('/add-cart',wishlistToCart)
 router.delete('/remove-wishlist/:productId',removeWishlist)
 //razorpay
 router.post('/create-order', rzpOrder)
+router.post('/save-order',saveOrder)
 export default router
