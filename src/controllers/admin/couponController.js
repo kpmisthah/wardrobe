@@ -63,16 +63,7 @@ const geteditCoupon = async (req, res) => {
 const editCoupon = async (req, res) => {
   try {
     const { edit } = req.params;
-    const {
-      code,
-      discountValue,
-      minPurchase,
-      startDate,
-      endDate,
-      isActive,
-      discountType,
-    } = req.body;
-
+    const {code,discountValue,minPurchase,startDate,endDate,isActive,discountType} = req.body;
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
       return res.status(400).json({ message: "coupon already exist" });
@@ -105,9 +96,7 @@ const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res.status(401).json({ message: "coupom is not found" });
     }
-    res
-      .status(200)
-      .json({ success: true, message: "Coupon deleted successfully" });
+    res.status(200).json({ success: true, message: "Coupon deleted successfully" });
   } catch (error) {
     console.error("Error deleting coupon:", error);
     res.status(500).json({ success: false, message: "Internal server error" });

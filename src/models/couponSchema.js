@@ -33,6 +33,14 @@ const couponSchema = new Schema({
       type: Date,
       required: true,
     },
+    usageLimit: {
+      type: Number, 
+      default: null,
+    },
+    usedCount: {
+      type: Number, 
+      default: 0,
+    },
     isActive: {
       type: Boolean, 
       default: true,
