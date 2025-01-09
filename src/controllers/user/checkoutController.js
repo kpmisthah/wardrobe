@@ -125,10 +125,24 @@ const placeOrder = async(req,res)=>{
         const cart = await Cart.findOne({userId})
         const  address = await Address.findOne({userId})
         let coupon = await Coupon.findOne({code:couponCode,isActive:true})
+        if (!coupon) {
+            return res.status(400).json({ message: "Invalid or expired coupon" });
+        }
         console.log("The coupon is "+coupon);
         
-                //oru coupon oru user ..oru user n same coupon 2 thavana add aakan patoola
+     
+        if(coupon.minPurchase>cart.bill){
+            return res.status(400).json({message:"total price should be greater than minimum purchase"})
+        }
+        console.log(coupon.minPurchase+"cooooooooooooooo");
+        
+        if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
+            return res.status(400).json({message: "Coupon is not valid"});
+        }
+        
+              
         const orderedCoupon = await Order.findOne({userId,'orderedItems.couponCode':couponCode})
+        console.log("The ordered coupon is"+orderedCoupon)
        if(orderedCoupon){
         return res.status(401).json({message:"coupon is already ordered"})
        }
@@ -141,22 +155,10 @@ const placeOrder = async(req,res)=>{
         }
         console.log("Teh dicscount pricer is"+discount)
 
-           //final amount
+         
         const finalPrice = cart.bill - discount
         console.log("the final price is"+finalPrice);
 
-        //minpurchase
-        if(coupon.minPurchase>cart.bill){
-            return res.status(400).json({message:"total price should be greater than minimum purchase"})
-        }
-        console.log(coupon.minPurchase+"cooooooooooooooo");
-        
-        if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
-            return res.status(400).json({message: "Coupon is not valid"});
-        }
-        
-
-        console.log("The ordered coupon is"+orderedCoupon)
         let orderedItems = []
         //to 
         // Add the size of particular product and manage the stock
@@ -195,6 +197,76 @@ const placeOrder = async(req,res)=>{
         console.log("The error is"+error)
     }
 }
+// Backend controller for applying coupon
+const applyCoupon = async(req, res) => {
+    try {
+        const { couponCode } = req.body
+        const userId = req.session.user
+        
+       
+        const cart = await Cart.findOne({ userId })
+        if (!cart) {
+            return res.status(400).json({ message: "Cart not found" })
+        }
+          
+        const coupon = await Coupon.findOne({ code: couponCode, isActive: true })
+        console.log("The couon is "+coupon);
+        
+        if (!coupon) {
+            return res.status(400).json({ message: "Invalid or expired coupon" })
+        }
+
+           //minpurchase
+        if (coupon.minPurchase > cart.bill) {
+            return res.status(400).json({
+                message: `Minimum purchase amount of ₹${coupon.minPurchase} required`
+            })
+        }
+
+       
+        if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
+            return res.status(400).json({ message: "Coupon is not valid at this time" })
+        }
+
+      //oru coupon oru user ..oru user n same coupon 2 thavana add aakan patoola
+        const existingOrder = await Order.findOne({
+            userId,
+            'orderedItems.couponCode': couponCode
+        })
+        
+        if (existingOrder) {
+            return res.status(400).json({ message: "You have already used this coupon" })
+        }
+
+        // Calculate discount
+        let discount = 0
+        if (coupon.discountType === 'percentage') {
+            discount = (cart.bill * coupon.discountValue) / 100
+            if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                discount = coupon.maxDiscount
+            }
+        } else {
+            discount = coupon.discountValue
+        }
+          //final amount
+        const finalAmount = cart.bill - discount
+        console.log("The final amount is"+finalAmount);
+        
+        return res.status(200).json({
+            success: true,
+            discount,
+            finalAmount,
+            message: "Coupon applied successfully"
+        })
+
+    } catch (error) {
+        console.error("Error applying coupon:", error)
+        return res.status(500).json({ 
+            message: "Failed to apply coupon",
+            error: error.message 
+        })
+    }
+}
 
 const orderConfirm = async(req,res)=>{
     try {
@@ -205,4 +277,4 @@ const orderConfirm = async(req,res)=>{
         
     }
 }
-export{loadCheckout,getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm}
+export{loadCheckout,getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon}

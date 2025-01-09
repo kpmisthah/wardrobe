@@ -51,7 +51,15 @@
         <div class="subtotal-section">
             <div class="price-row">
                 <span>Subtotal</span>
-                <span><%= cart.bill %></span>
+                <span id="subtotal">₹<%= cart.bill %></span>
+            </div>
+            <div class="price-row" id="discount-row" style="display: none;">
+                <span>Discount</span>
+                <span id="discount-amount">₹0</span>
+            </div>
+            <div class="price-row">
+                <span>Final Amount</span>
+                <span id="final-amount">₹<%= cart.bill %></span>
             </div>
         </div>
 
@@ -74,30 +82,38 @@
                 </div>
                 <div class="coupon-section">
                     <div class="flex-w flex-m m-r-20 m-tb-5">
-                        <!-- Coupon Input -->
-                        <input
-                            class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
-                            type="text"
-                            name="coupon"
-                            id="coupon-code-input"
-                            placeholder="Enter Coupon Code"
-                        />
-                        <!-- Apply Coupon Button -->
-                        <div
-                            class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5"
-                           
-                        >
-                            Apply Coupon
+
+                    
+                    <div class="coupon-section">
+                        <div class="flex-w flex-m m-r-20 m-tb-5">
+                            <input
+                                class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5"
+                                type="text"
+                                name="coupon"
+                                id="coupon-code-input"
+                                placeholder="Enter Coupon Code"
+                            />
+                            <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5" 
+                                 id="apply-coupon-btn" 
+                                 onclick="applyCoupon(event)">
+                                Apply Coupon
+                            </div>
+                            <%coupon.forEach((value)=>{%>
+                                <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5" 
+                                id="remove-coupon-btn" 
+                                onclick="removeCoupon('<%=value._id%>')" 
+                               >
+                               Remove Coupon
+                           </div>
+                            <%})%>
                         </div>
-                    </div>
-                
                     <!-- Display Applied Coupon Name -->
     <!-- Display Available Coupons -->
     <div class="coupon-display">
         <% if (coupon && coupon.length > 0) { %>
             <h4>Available Coupons:</h4>
             <% coupon.forEach((coupon) => { %>
-                <p><strong>Coupon Code:</strong> <%= coupon.code %> - <%=coupon.discountValue%> <%=coupon.discountType == 'percentage'?'percentage':'rupees'%> %>offer</p>
+                <p><strong>Coupon Code:</strong> <%= coupon.code %> - <%=coupon.discountValue%> <%=coupon.discountType == 'percentage'?'percentage':'rupees'%> %>offer (Min. Purchase: ₹<%= coupon.minPurchase %>)</p>
             <% }) %>
         <% } else { %>
             <p>No coupons available at the moment.</p>

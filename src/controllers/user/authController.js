@@ -16,6 +16,8 @@ const signupPage = async(req,res)=>{
 const signup = async(req,res)=>{
   try {
     const{name,email,password,phone,cPassword} = req.body
+    console.log("name"+name+'email'+email);
+    
     if(!name || !email || !password){
       return res.status(403).json({
         success:"false",
@@ -43,6 +45,9 @@ const signup = async(req,res)=>{
 
      
      req.session.userDetails = {name,email,password:hashedPassword,phone}
+     console.log("The session details: ", JSON.stringify(req.session.userDetails, null, 2));
+
+     
     
     return res.render('user/otpVerification',{email})
   } catch (error) {
@@ -56,6 +61,12 @@ const signup = async(req,res)=>{
 const verifyOtp = async (req,res)=>{
   try {    
     const{otps,email} = req.body 
+    if (!email || !otps) {
+      return res.status(400).json({ success: false, message: "Invalid request data. OTP or email missing." });
+  }
+  console.log("Email and OTP received in backend:", email, otps);
+    console.log("otps"+otps+" and"+email);
+    
     const otpRecord = await Otp.findOne({email}) 
     if (!otpRecord) {
       return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
@@ -71,7 +82,8 @@ const verifyOtp = async (req,res)=>{
     // return res.redirect("/")
     return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/" });  // Example redirect URL
   } catch (error) {
-    console.log(error);
+    console.error("Error in verifyOtp:", error.stack || error);
+
     return res.status(500).json({success:false,message:"An error occured"})
   }
  

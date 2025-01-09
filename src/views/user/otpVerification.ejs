@@ -37,7 +37,9 @@
           let canResend = true;
 
           // Simulating an email for demonstration
-          emailSpan.textContent = "<%=email%>"
+          const res = emailSpan.textContent = "<%=email%>"
+          console.log(res);
+          
 
           function startTimer() {
             canResend = false
@@ -129,17 +131,21 @@
          async function verifyOTP() {
               const otps = Array.from(inputs).map(input => input.value).join('');
               const email = emailSpan.textContent;
+              console.log("The emial is"+email)
+              console.log("the otps"+otps)
               if (otps.length === 6) {
                   if (timeLeft > 0) {
                     try {
                       const response =  await fetch('/verify-otp',{
                         method:"POST",
                         headers:{"Content-Type":"application/json"},
-                        body:JSON.stringify({otps})
+                        body:JSON.stringify({otps,email})
                         
                     })
 
                     const result = await response.json()
+                    console.log("The result is otp json"+JSON.stringify(result));
+                    
                     if(result.success){
                         Swal.fire("Success", "OTP Verified Successfully!", "success");
                         console.log(result.redirectUrl)
