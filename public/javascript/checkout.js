@@ -91,12 +91,14 @@ async function removeCoupon(couponid) {
 }
 
 
-async function placeOrder(event){
+async function placeOrder(event) {
     event.preventDefault(); 
-    const form = document.getElementById('payment-form')
-    const payment = form['paymentMethod'].value.trim()
-    const addressId = form['addressId'].value.trim()
-    let couponCode = document.getElementById('coupon-code-input').value
+    const form = document.getElementById('payment-form');
+    const payment = form['paymentMethod'].value.trim(); // Selected payment method
+    const addressId = form['addressId'].value.trim(); // Selected address ID
+    const couponCode = document.getElementById('coupon-code-input').value; // Applied coupon code
+    const subtotal = document.getElementById('subtotal').textContent.replace('₹', '').trim(); // Order subtotal
+
     if (!addressId) {
         alert("Please select a delivery address");
         return;
@@ -108,16 +110,67 @@ async function placeOrder(event){
     }
 
     try {
-        const response = await fetch('/place-order',{
-            method:"POST",
-            headers:{"Content-Type":'application/json'},
-            body:JSON.stringify({payment,addressId,couponCode})
-        })
-        if(response.ok){
-            const result =await response.json()
-                window.location.href = result.redirectUrl;  
+        if (payment === 'razorpay') {
+            // Request backend to create Razorpay order
+            const response = await fetch('/create-order', {
+                method: 'POST',
+                headers: { "Content-Type": 'application/json' },
+                body: JSON.stringify({ amount: subtotal, addressId, payment })
+            });
+
+            if (response.ok) {
+                const { orderId, razorpayKey, amount } = await response.json(); // Get order details from backend
+                const userName = document.getElementById('user-name').value;
+                const userEmail = document.getElementById('user-email').value;
+                const userContact = document.getElementById('user-contact').value;
+                console.log('User Contact:', userContact);  // Add this line to debug
+                const options = {
+                    key: razorpayKey, // Razorpay API key
+                    amount: amount * 100, // Amount in paise
+                    currency: 'INR',
+                    name: 'wadrob',
+                    description: 'Order Payment',
+                    image: '/path-to-logo.png', // Optional logo
+                    order_id: orderId, // Razorpay order ID
+                    handler: async function (response) {
+                        // Payment successful
+                        alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+                        
+                    },
+                    prefill: {
+                        name: userName, // Prefill customer details
+                        email: userEmail,
+                        contact: userContact,
+                    },
+                    theme: { color: '#3399cc' }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+                rzp.on('payment.failed', function (response) {
+                    alert('Payment failed. Please try again.');
+                    console.error(response.error);
+                });
+            } 
+        } else if (payment === 'cod') {
+            // Handle Cash on Delivery
+            const response = await fetch('/place-order', {
+                method: "POST",
+                headers: { "Content-Type": 'application/json' },
+                body: JSON.stringify({ payment, addressId, couponCode })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                window.location.href = result.redirectUrl;
+            } else {
+                alert("Failed to place order. Please try again.");
+            }
+        } else {
+            alert("Unsupported payment method");
         }
     } catch (error) {
-        console.log("the error is "+error)
+        console.log("The error is " + error);
     }
 }

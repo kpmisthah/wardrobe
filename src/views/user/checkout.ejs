@@ -69,7 +69,7 @@
             <br>
             <form class="payment-form"  id="payment-form" class="payment-form"  onsubmit="placeOrder(event)">
                 <div class="payment-option">
-                    <input type="radio" id="upi" name="paymentMethod" value="UPI" required>
+                    <input type="radio" id="upi" name="paymentMethod" value="Wallet" required>
                     <label for="upi">UPI</label>
                 </div>
                 <div class="payment-option">
@@ -77,7 +77,7 @@
                     <label for="cod">Cash on Delivery</label>
                 </div>
                 <div class="payment-option">
-                    <input type="radio" id="card" name="paymentMethod" value="Card">
+                    <input type="radio" id="card" name="paymentMethod" value="razorpay">
                     <label for="card">Credit/Debit Card</label>
                 </div>
                 <div class="coupon-section">
@@ -122,13 +122,16 @@
                 </div>
                 
                 <input type="hidden" name="addressId" id="selected-address-id">
+                <input type="hidden" id="user-name" value="<%= user.name %>" />
+                <input type="hidden" id="user-email" value="<%= user.email %>" />
+                <input type="hidden" id="user-contact" value="<%= user.phone %>" />
                 <button type="submit" class="checkout-button">Place Order</button>
             </form>
         </div>
     </div>
 
 </div>
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="/javascript/checkout.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addc
 import { userAuth } from "../middlewares/userAuth.js"
 import { viewOrder,orders,productCancel ,returnOrder} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
+import { rzpOrder } from "../controllers/user/paymentController.js"
 const router = express.Router()
 //home page
 router.get('/',loadHome)
@@ -59,4 +60,6 @@ router.get('/wishlist',userAuth,loadWishlist)
 router.post('/add-to-wishlist',addToWishlist)
 router.post('/add-cart',wishlistToCart)
 router.delete('/remove-wishlist/:productId',removeWishlist)
+//razorpay
+router.post('/create-order', rzpOrder)
 export default router

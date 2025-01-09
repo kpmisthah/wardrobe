@@ -7,7 +7,6 @@ import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategor
 import {getProductAddPage,addProducts, getProductPage ,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
 import { orderList,orderStatus,handleReturn ,orderCancelled} from "../controllers/admin/orderController.js"
 import { laodCoupon,addcoupon,createCoupon ,editCoupon,geteditCoupon,deleteCoupon} from "../controllers/admin/couponController.js"
-
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
 const uploads = uploadMulter(storage)
@@ -61,5 +60,6 @@ router.post('/coupon',createCoupon)
 router.get('/editCoupon/:edit',geteditCoupon)
 router.put('/editCoupon/:edit',editCoupon)
 router.delete('/deleteCoupon/:id',deleteCoupon)
+
 export default router
 
