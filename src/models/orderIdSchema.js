@@ -37,6 +37,11 @@ const orderIdSchema = new Schema({
           couponCode:{
             type:String,
             required:false
+          },
+          cancelStatus:{
+            type:String,
+            enum:['completed','canceled'],
+            default:'completed'
           }
        
     }],
@@ -73,7 +78,7 @@ const orderIdSchema = new Schema({
     status:{
         type:String,
        required:true,
-       enum:['Pending','Processing','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
+       enum:['Pending','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
     },
     cancellationReason:{
         type:String,

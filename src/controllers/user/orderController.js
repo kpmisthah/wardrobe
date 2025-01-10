@@ -6,10 +6,9 @@ import { User } from '../../models/userSchema.js';
 const orders = async(req,res)=>{
     try {
         const user = req.session.user
-        const orders = await Order.find({userId:user})
-        const nonZeroOrders = orders.filter((item)=>item.totalPrice>0)
+        const order = await Order.find({userId:user})
 
-            return res.render('user/orders',{order:nonZeroOrders})
+            return res.render('user/orders',{order})
         
     } catch (error) {
         console.log("The error is"+error)
@@ -32,21 +31,20 @@ const viewOrder = async(req,res)=>{
     }
 }
 
-const productCancel = async(req, res) => {
+const orderCancel = async(req, res) => {
     try {
-        const { productId } = req.body;  // This is actually the item._id
+        const { orderId,productId} = req.body;  // This is actually the item._id
 
         // Find the order containing this specific item._id
-        const order = await Order.findOne({
-            'orderedItems._id': productId
-        });
+        const orderedProducts = await Order.findOne({orderId})
+        // const order = await Order.findByIdAndUpdate({orderId},{status:'Canceled'})
 
-        if (!order) {
-            return res.status(404).json({ message: "Order not found" });
-        }
+        // if (!order) {
+        //     return res.status(404).json({ message: "Order not found" });
+        // } 
 
         // Find the specific item using its _id
-        const itemIndex = order.orderedItems.findIndex(
+        const itemIndex = orderedProducts.orderedItems.findIndex(
             item => item._id.toString() === productId
         );
 
@@ -54,27 +52,22 @@ const productCancel = async(req, res) => {
             return res.status(404).json({ message: "Item not found" });
         }
 
-        // Store the item before removal
         //items that want to be removed stored here .it has size and quantity so compare it with our size schema
-        const itemToRemove = order.orderedItems[itemIndex];
+        const items = orderedProducts.orderedItems[itemIndex];
 
         //so now we want to increase the stock count for specific product
-        const size = await Size.findOne({product:itemToRemove.product,size:itemToRemove.size})
-        size.quantity+=itemToRemove.quantity
-        await size.save()
-
-        // Remove the item
-        order.orderedItems.splice(itemIndex, 1);
-        if (order.orderedItems.length === 0) {
-            await Order.deleteOne({ _id: order._id });  // Delete the order
-            return res.status(200).json({ message: "Order is empty and has been deleted" });
+         items.cancelStatus = 'canceled'
+        if(items.cancelStatus == 'canceled'){
+            const size = await Size.findOne({product:items.product,size:items.size})
+            size.quantity+=items.quantity
+            await size.save()
         }
-
         // Update total price
-        order.totalPrice -= itemToRemove.price * itemToRemove.quantity;
+        orderedProducts.totalPrice -= items.price * items.quantity;
 
-        await order.save();
-        return res.status(200).json({ message: "Item removed successfully" });
+        await orderedProducts.save();
+       
+        return res.status(200).json({ message: "Item canceled successfully" });
 
     } catch (error) {
         console.log("Error in productCancel:", error);
@@ -110,4 +103,4 @@ const returnOrder = async(req,res)=> {
 //         console.log(error)
 //     }
 // }
-export{orders,viewOrder,productCancel,returnOrder}
+export{orders,viewOrder,orderCancel,returnOrder}

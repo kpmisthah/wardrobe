@@ -70,17 +70,15 @@
 
                         <!-- Cancel Item Button -->
                         <td>
-                            <%if(item.returnStatus !== "Approved"){%>
-                                <button type="button" 
-                                        class="btn-cancel" 
-                                        onclick="remove('<%= item._id %>')">
-                                    Cancel
-                                </button>
-                            <%}else{%>
-                                <button type="button" class="btn-cancel">
-                                    The item is returned
-                                </button>
-                            <%}%>
+                            <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
+                                <% if (item.returnStatus !== "Approved") { %>
+                                    <button type="button" class="btn-cancel" onclick="cancel('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
+                                <% } else { %>
+                                    <button type="button" class="btn-cancel">The item is returned</button>
+                                <% } %>
+                            <% } else { %>
+                                <button type="button" class="btn-cancel" disabled>Cannot Cancel</button>
+                            <% } %>
                         </td>
 
                         <!-- Return Item Button -->
