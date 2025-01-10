@@ -37,10 +37,6 @@ async function validateCouponForm(event) {
         isValid = false;
     }
 
-    if (!usageLimit || usageLimit <= 0) {
-        document.getElementById('usageLimitError').textContent = "Usage limit must be a positive number.";
-        isValid = false;
-    }
     if (new Date(startDate) > new Date(endDate)) {
         document.getElementById('endDateError').textContent = "End date must be later than start date.";
         isValid = false;
@@ -68,7 +64,6 @@ async function validateCouponForm(event) {
             startDate,
             endDate,
             maxDiscount,
-            usageLimit,
             isActive: status === 'true' 
         };
         

@@ -2,7 +2,7 @@ import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
 import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
-import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder} from '../controllers/user/checkoutController.js'
+import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
 import { viewOrder,orders,orderCancel,returnOrder} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
@@ -48,7 +48,7 @@ router.post('/add-checkout-address',addcheckoutAddress)
 router.post('/place-order',placeOrder)
 router.post('/apply-coupon',applyCoupon)
 router.get('/order-confirmation',orderConfirm)
-router.delete('/remove-coupon')
+router.post('/remove-coupon',removeCoupon)
 //view-orderpage
 router.get('/orders',userAuth,orders)
 router.get('/user/view-order/:orderid',viewOrder)

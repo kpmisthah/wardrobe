@@ -12,7 +12,10 @@ const laodCoupon = async (req, res) => {
 const addcoupon = async (req, res) => {
   try {
     return res.render("admin/couponAdd");
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    
+  }
 };
 
 const createCoupon = async (req, res) => {
@@ -25,7 +28,6 @@ const createCoupon = async (req, res) => {
       endDate,
       isActive,
       discountType,
-      usageLimit,
       maxDiscount
     } = req.body;
     const couponExist = await Coupon.findOne({ code });
@@ -40,7 +42,6 @@ const createCoupon = async (req, res) => {
       endDate,
       isActive,
       discountType,
-      usageLimit,
       maxDiscount:Number(maxDiscount)
     });
     await newCoupon.save();

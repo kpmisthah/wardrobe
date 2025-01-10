@@ -55,10 +55,12 @@ async function applyCoupon(event) {
 }
 
 async function removeCoupon(couponid) {
+  const couponCode = document.getElementById("coupon-code-input").value.trim()||null;
   try {
-    const response = await fetch(`/remove-coupon/${couponid}`, {
-      method: "delete",
+    const response = await fetch('/remove-coupon', {
+      method: "post",
       headers: { "Content-Type": "application/json" },
+      body:JSON.stringify({couponCode})
     });
 
     if (response.ok) {
@@ -92,7 +94,6 @@ async function placeOrder(event) {
   const form = document.getElementById("payment-form");
   const payment = form["paymentMethod"].value.trim(); // Selected payment method
   const addressId = form["addressId"].value.trim(); // Selected address ID
-  const couponCode = document.getElementById("coupon-code-input").value; // Applied coupon code
   const subtotal = document
     .getElementById("subtotal")
     .textContent.replace("₹", "")
@@ -142,7 +143,6 @@ async function placeOrder(event) {
                 orderId: response.razorpay_order_id,
                 signature: response.razorpay_signature,
                 addressId,
-                couponCode,
                 amount: subtotal,
               }),
             });
@@ -176,7 +176,7 @@ async function placeOrder(event) {
       const response = await fetch("/place-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ payment, addressId, couponCode }),
+        body: JSON.stringify({ payment, addressId }),
       });
 
       if (response.ok) {

@@ -207,6 +207,7 @@
       });
     }
   }
+
   async function increment_quantity(productId, size, quantity) {
     try {
       const response = await fetch("/increment", {
@@ -239,7 +240,7 @@
         icon: "error",
         title: "Unexpected Error",
         text: "An error occurred while adding the item to your cart. Please try again later.",
-      });
+      })
     }
   }
 </script>

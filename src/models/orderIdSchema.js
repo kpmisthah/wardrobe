@@ -34,10 +34,10 @@ const orderIdSchema = new Schema({
             enum: ['Not Requested', 'Requested', 'Approved', 'Rejected'],
             default: 'Not Requested',
           },
-          couponCode:{
+          couponCode:[{
             type:String,
             required:false
-          },
+          }],
           cancelStatus:{
             type:String,
             enum:['completed','canceled'],
@@ -48,10 +48,6 @@ const orderIdSchema = new Schema({
     totalPrice:{
         type:Number,
         // required:true
-    },
-    discount:{
-        type:Number,
-        default:0
     },
     finalAmount:{
         type:Number,
