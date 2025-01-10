@@ -65,19 +65,19 @@ async function removeCoupon(couponid) {
 
     if (response.ok) {
       const result = await response.json();
-      // document.getElementById('discount-row').style.display = 'none';
-      // document.getElementById('discount-amount').textContent = '₹0';
-      // document.getElementById('final-amount').textContent = document.getElementById('subtotal').textContent;
+      document.getElementById('discount-row').style.display = 'none';
+      document.getElementById('discount-amount').textContent = '₹0';
+      document.getElementById('final-amount').textContent = document.getElementById('subtotal').textContent;
 
-      // document.getElementById('applied-coupon-info').style.display = 'none';
-      // document.getElementById('applied-coupon-code').textContent = '';
+      document.getElementById('applied-coupon-info').style.display = 'none';
+      document.getElementById('applied-coupon-code').textContent = '';
 
-      // document.getElementById('apply-coupon-btn').style.display = 'block';
-      // document.getElementById('remove-coupon-btn').style.display = 'none';
+      document.getElementById('apply-coupon-btn').style.display = 'block';
+      document.getElementById('remove-coupon-btn').style.display = 'none';
 
-      // const couponInput = document.getElementById('coupon-code-input');
-      // couponInput.disabled = false;
-      // couponInput.value = '';
+      const couponInput = document.getElementById('coupon-code-input');
+      couponInput.disabled = false;
+      couponInput.value = '';
 
       // currentCoupon = null;
 
