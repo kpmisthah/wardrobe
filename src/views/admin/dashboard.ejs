@@ -1,4 +1,3 @@
-
 <%- include("../../views/partials/adminPartials/headers") %> 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,9 +25,9 @@
                 <div class="filter-group">
                     <label>Quick Filter</label>
                     <select id="quickFilter">
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
+                        <option value="today">Daily</option>
+                        <option value="week">Weekly</option>
+                        <option value="month">Monthly</option>
                         <option value="year">This Year</option>
                     </select>
                 </div>
@@ -40,6 +39,7 @@
                     <label>End Date</label>
                     <input type="date" id="endDate">
                 </div>
+                <button id="applyFilter" style="margin-top: 1.5rem;">Apply Filter</button>
             </div>
         </div>
 
@@ -49,7 +49,7 @@
                     <i class="fas fa-chart-line fa-lg"></i>
                 </div>
                 <h3>Total Sales</h3>
-                <div class="value"><%=totalSales%></div>
+                <div class="value"><%= totalSales %></div>
                 <div class="trend up">
                     <i class="fas fa-arrow-up"></i>
                     <span>12.5% vs last period</span>
@@ -60,7 +60,7 @@
                     <i class="fas fa-shopping-cart fa-lg"></i>
                 </div>
                 <h3>Orders Count</h3>
-                <div class="value"><%=totalOrders%></div>
+                <div class="value"><%= totalOrders %></div>
                 <div class="trend up">
                     <i class="fas fa-arrow-up"></i>
                     <span>8.2% vs last period</span>
@@ -71,7 +71,7 @@
                     <i class="fas fa-tags fa-lg"></i>
                 </div>
                 <h3>Total Users</h3>
-                <div class="value"><%=totalUsers%></div>
+                <div class="value"><%= totalUsers %></div>
                 <div class="trend down">
                     <i class="fas fa-arrow-down"></i>
                     <span>4.3% vs last period</span>
@@ -81,8 +81,8 @@
                 <div class="stat-icon">
                     <i class="fas fa-dollar-sign fa-lg"></i>
                 </div>
-                <h3>Total products</h3>
-                <div class="value"><%=totalProducts%></div>
+                <h3>Total Products</h3>
+                <div class="value"><%= totalProducts %></div>
                 <div class="trend up">
                     <i class="fas fa-arrow-up"></i>
                     <span>3.7% vs last period</span>
@@ -92,7 +92,7 @@
 
         <div class="sales-table">
             <div class="table-header">
-                <h2 class="table-title">Recent Orders</h2>
+    
             </div>
             <table>
                 <thead>
@@ -106,55 +106,26 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="ordersTableBody">
+                    <% orders.forEach(order => { %>
                     <tr>
-                        <td>#ORD001</td>
-                        <td>Jan 10, 2025</td>
-                        <td>$245.50</td>
-                        <td>$24.55</td>
-                        <td>NEW10</td>
-                        <td>$220.95</td>
-                        <td><span class="status completed">Completed</span></td>
+                        <td><%= order._id %></td>
+                        <td><%= new Date(order.invoiceDate).toLocaleDateString('en-US') %></td>
+                        <td>₹<%= order.totalPrice %></td>
+                        <td>₹<%= order.discount %></td>
+                        <td><%= order.coupon || '-' %></td>
+                        <td>₹<%=order.finalAmount?order.finalAmount:order.totalPrice %></td>
+                        <td>
+                            <span class="status <%= order.status %>">
+                                <%= order.status %>
+                            </span>
+                        </td>
                     </tr>
-                    <tr>
-                        <td>#ORD002</td>
-                        <td>Jan 10, 2025</td>
-                        <td>$189.99</td>
-                        <td>$0.00</td>
-                        <td>-</td>
-                        <td>$189.99</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>#ORD003</td>
-                        <td>Jan 09, 2025</td>
-                        <td>$432.25</td>
-                        <td>$43.22</td>
-                        <td>SAVE10</td>
-                        <td>$389.03</td>
-                        <td><span class="status pending">Pending</span></td>
-                    </tr>
-                    <tr>
-                        <td>#ORD004</td>
-                        <td>Jan 09, 2025</td>
-                        <td>$178.50</td>
-                        <td>$17.85</td>
-                        <td>SAVE10</td>
-                        <td>$160.65</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>#ORD005</td>
-                        <td>Jan 08, 2025</td>
-                        <td>$567.75</td>
-                        <td>$56.77</td>
-                        <td>SAVE10</td>
-                        <td>$510.98</td>
-                        <td><span class="status completed">Completed</span></td>
-                    </tr>
+                    <% }); %>
                 </tbody>
             </table>
         </div>
     </div>
 </body>
 </html>
+<script src="/javascript/dashboard.js"></script>
