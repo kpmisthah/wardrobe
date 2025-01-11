@@ -4,7 +4,7 @@ import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartContro
 import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
-import { viewOrder,orders,orderCancel,returnOrder} from "../controllers/user/orderController.js"
+import { viewOrder,orders,orderCancel,returnOrder,cancelOrder} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
 import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
@@ -53,6 +53,7 @@ router.post('/remove-coupon',removeCoupon)
 router.get('/orders',userAuth,orders)
 router.get('/user/view-order/:orderid',viewOrder)
 router.post('/order-cancel',orderCancel)
+router.post('/order/cancel',cancelOrder)
 // router.get('/emptyOrder',emptyOrder)
 router.post('/return-order',returnOrder)
 //otp-page

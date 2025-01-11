@@ -6,15 +6,13 @@ import { User } from '../../models/userSchema.js';
 const orders = async(req,res)=>{
     try {
         const user = req.session.user
-        const order = await Order.find({userId:user})
-
-            return res.render('user/orders',{order})
-        
+        const orders = await Order.find({userId:user}).populate('orderedItems.product');
+        console.log("The orders are:", orders);
+        return res.render('user/orders', {orders}) // Note: passing orders, not order
     } catch (error) {
         console.log("The error is"+error)
     }
 }
-
 const viewOrder = async(req,res)=>{
     try {
         const user = req.session.user
@@ -37,13 +35,6 @@ const orderCancel = async(req, res) => {
 
         // Find the order containing this specific item._id
         const orderedProducts = await Order.findOne({orderId})
-        // const order = await Order.findByIdAndUpdate({orderId},{status:'Canceled'})
-
-        // if (!order) {
-        //     return res.status(404).json({ message: "Order not found" });
-        // } 
-
-        // Find the specific item using its _id
         const itemIndex = orderedProducts.orderedItems.findIndex(
             item => item._id.toString() === productId
         );
@@ -75,6 +66,35 @@ const orderCancel = async(req, res) => {
     }
 };
 
+const cancelOrder = async(req,res)=>{
+    try {
+       const{orderId,productId} = req.body
+       const cancelledProduct = await Order.findByIdAndUpdate(orderId,{status:"Canceled"},{new:true})
+       
+       const itemIndex = cancelledProduct.orderedItems.findIndex(
+        item => item._id.toString() === productId
+    );
+    
+    if (itemIndex === -1) {
+        return res.status(404).json({ message: "Item not found" });
+    }
+    const items = cancelledProduct.orderedItems[itemIndex];
+
+       if(cancelledProduct.status == 'Canceled'){
+        const size = await Size.findOne({product:items.product,size:items.size})
+        size.quantity+=items.quantity
+        await size.save()
+       }
+       await cancelledProduct.save()
+       return res.status(200).json({
+        success: true,
+        message: "Order canceled successfully"
+    });
+    } catch (error) {
+        console.log("error in"+error);
+        
+    }
+}
 const returnOrder = async(req,res)=> {
     try {
         const{productId} = req.body
@@ -97,11 +117,5 @@ const returnOrder = async(req,res)=> {
     }
 }
 
-// const emptyOrder = async(req,res)=>{
-//     try {
-//         return res.render('user/emptyOrder')
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
-export{orders,viewOrder,orderCancel,returnOrder}
+
+export{orders,viewOrder,orderCancel,returnOrder,cancelOrder}

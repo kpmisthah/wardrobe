@@ -26,10 +26,6 @@ const login = async(req,res)=>{
 
 }
 
-const dashboard = async(req,res)=>{
-    
-    res.render('admin/dashboard')
-}
 
 
-export{loginPage,login,dashboard}
+export{loginPage,login}

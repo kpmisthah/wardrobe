@@ -80,10 +80,6 @@ const orderIdSchema = new Schema({
        required:true,
        enum:['Pending','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
     },
-    cancellationReason:{
-        type:String,
-        // required:true
-    }
 },{timestamps:true})
 
 export const Order = mongoose.model('Order',orderIdSchema)

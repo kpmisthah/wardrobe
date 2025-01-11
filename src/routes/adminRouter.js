@@ -1,6 +1,6 @@
 import express from "express"
 const router = express.Router()
-import { loginPage,login,dashboard } from "../controllers/admin/adminController.js"
+import { loginPage,login } from "../controllers/admin/adminController.js"
 import { customer,blockUser,unblockUser } from "../controllers/admin/customerController.js"
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
@@ -9,10 +9,10 @@ import { orderList,orderStatus,handleReturn ,orderCancelled,viewOrders} from "..
 import { laodCoupon,addcoupon,createCoupon ,editCoupon,geteditCoupon,deleteCoupon} from "../controllers/admin/couponController.js"
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
+import { dashboard } from "../controllers/admin/dashboardController.js"
 const uploads = uploadMulter(storage)
 
 router.get('/login',isLogin,loginPage)
-router.get('/dashboard',isAuthenticated,dashboard)
 router.post('/login',login)
 //customer management
 router.get('/customer',customer)
@@ -61,6 +61,11 @@ router.post('/coupon',createCoupon)
 router.get('/editCoupon/:edit',geteditCoupon)
 router.put('/editCoupon/:edit',editCoupon)
 router.delete('/deleteCoupon/:id',deleteCoupon)
+
+//dashboard
+
+// isAuthenticated
+router.get('/dashboard',dashboard)
 
 export default router
 

@@ -20,73 +20,172 @@
 
         <main class="main-content">
             <h2>Your Orders</h2>
-            <% if (order.length > 0) { %>
-                <table class="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Orders</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Totals</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <% order.forEach((order) => { %>
-                    <tbody>
-                        <tr>
-                            <td><%= order.orderId %></td>
-                            <td><%= order.invoiceDate %></td>
-                            <td><%= order.status %></td>
-                            <td><%= order.totalPrice %></td>
-                            <td>
-                                <a href="/user/view-order/<%= order._id %>" class="view-link">View</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <% }) %>
-                </table>
+            
+            <% if (orders && orders.length > 0) { %>
+                <div class="orders-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% orders.forEach((order) => { %>
+                                <% if (order.orderedItems && order.orderedItems.length > 0) { %>
+                                    <% order.orderedItems.forEach((item) => { %>
+                                        <tr>
+                                            <td><%= order.orderId %></td>
+                                            <td><%= order.invoiceDate %></td>
+                                            <td>
+                                                <span class="status-badge <%= order.status.toLowerCase() %>">
+                                                    <%= order.status %>
+                                                </span>
+                                            </td>
+                                            <td>₹<%= order.totalPrice %></td>
+                                            <td>
+                                                <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
+                                                        <button type="button" 
+                                                                class="btn-cancel" 
+                                                                onclick="canceled('<%= order._id %>', '<%= item._id %>')">
+                                                            Cancel Order
+                                                        </button>
+                                                 
+                                                <% } else { %>
+                                                    <button type="button" class="btn-cancel disabled" disabled>
+                                                        Cannot Cancel
+                                                    </button>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <a href="/user/view-order/<%= order._id %>" class="view-link">
+                                                    View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } %>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
             <% } else { %>
-                <p>No orders to display.</p>
+                <div class="no-orders">
+                    <p>You haven't placed any orders yet.</p>
+                    <a href="/" class="shop-now-btn">Start Shopping</a>
+                </div>
             <% } %>
         </main>
-        
-
-        <section class="newsletter">
-            <div class="newsletter-container">
-                <h3>Sign in to Newsletter</h3>
-                <p>For updates and offers</p>
-                <input type="email" placeholder="Enter Your Email">
-                <button>Subscribe</button>
-            </div>
-        </section>
-
-        <footer>
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>CATEGORIES</h3>
-                    <a href="#">Women</a>
-                    <a href="#">Men</a>
-                    <a href="#">Shoes</a>
-                    <a href="#">Watches</a>
-                </div>
-                <div class="footer-section">
-                    <h3>HELP</h3>
-                    <a href="#">Track Order</a>
-                    <a href="#">Returns</a>
-                    <a href="#">Shipping</a>
-                    <a href="#">FAQs</a>
-                </div>
-                <div class="footer-section">
-                    <h3>GET IN TOUCH</h3>
-                    <p>Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879</p>
-                </div>
-                <div class="footer-section">
-                    <h3>NEWSLETTER</h3>
-                    <p>email@example.com</p>
-                    <button class="subscribe-btn">SUBSCRIBE</button>
-                </div>
-            </div>
-        </footer>
     </div>
+
+    <script>
+        function canceled(orderId, productId) {
+            if (confirm("Are you sure you want to cancel this order?")) {
+                fetch('/order/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderId, productId })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Order canceled successfully');
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Failed to cancel order');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while canceling the order');
+                });
+            }
+        }
+    </script>
+
+    <style>
+        .orders-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .status-badge.pending { background-color: #ffd700; }
+        .status-badge.shipped { background-color: #87ceeb; }
+        .status-badge.delivered { background-color: #90ee90; }
+
+        .badge.canceled {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-cancel {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancel.disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .view-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .view-link:hover {
+            text-decoration: underline;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .shop-now-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
 </body>
 </html>

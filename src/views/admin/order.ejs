@@ -21,7 +21,6 @@
                             <th>Payment Method</th>
                             <th>Status</th>
                             <th>view</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,18 +35,14 @@
                                         <form id="order-status">
                                             <select name="status" class="statusSelect" data-order-id="<%= order.orderId %>">
                                                 <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                                <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                                <option value="Canceled" <%= order.status === 'Canceled' ? 'selected' : '' %>>Canceled</option>
                                                 <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                                                 <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                                <option value="Completed" <%= order.status === 'Completed' ? 'selected' : '' %>>Completed</option>
                                             </select>
                                         </form>
                                     </td>
                                     <td>
                                         <a href="/admin/view-orders/<%= order._id %>" class="view-link">View</a>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-danger btn-sm" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
                                     </td>
                                 </tr>
                             <% }) %>
