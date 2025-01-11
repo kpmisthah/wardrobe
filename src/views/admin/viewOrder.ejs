@@ -1,18 +1,6 @@
-<%- include('../../views/partials/userPartials/header') %>
 
-<!-- breadcrumb -->
-<div class="container">
-    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-        <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
-            Home
-            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-        </a>
+<%- include("../../views/partials/adminPartials/headers") %>
 
-        <span class="stext-109 cl4">
-            Order Details
-        </span>
-    </div>
-</div>
 
 <div class="container">
     <h2>Order Details</h2>
@@ -30,7 +18,7 @@
                     <th>Price</th>
                     <th>Return Status</th>
                     <th>Action</th>
-                    <th>Action</th>
+    
                 </tr>
             </thead>
             <tbody>
@@ -58,14 +46,13 @@
                         <!-- Show return status -->
                         <td>
                             <% if (item.returnStatus === 'Requested') { %>
-                                <span class="badge bg-warning">Return Requested</span>
+                                <span class="badge bg-warning">Requested</span>
                             <% } else if (item.returnStatus === 'Approved') { %>
-                                <span class="badge bg-success">Return Approved</span>
+                                <span class="badge bg-success">Approved</span>
                             <% } else if (item.returnStatus === 'Rejected') { %>
-                                <span class="badge bg-danger">Return Rejected</span>
-                                
+                                <span class="badge bg-danger">Rejected</span>
                             <% } else { %>
-                                <span class="badge bg-secondary">No Return Requested</span>
+                                <span class="badge bg-secondary">Not Requested</span>
                             <% } %>
                         </td>
 
@@ -74,10 +61,9 @@
                             <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
                                 <% if (item.returnStatus !== "Approved") { %>
                                     <%if(item.cancelStatus == 'canceled') { %>
-                                        <span class="badge bg-danger">canceled</span>
-                                        <% console.log(item.cancelStatus); %>
+                                        <span class="badge bg-danger">canceled by user</span>
                                 <% }else{%>
-                                    <button type="button" class="btn-cancel" onclick="cancel('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
+                                    <button type="button" class="btn-cancel" onclick="cancelOrder('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
                                     <%}%>
 
                                 <% }else{%>
@@ -89,23 +75,22 @@
                         </td>
 
                         <!-- Return Item Button -->
-                        <td>
-                            <% if (item.cancelStatus === 'canceled') { %>
-                                <button class="btn-cancel" disabled>
-                                    Cannot Request Return (Canceled)
+                        <% if (item.returnStatus === 'Requested') { %>
+                        
+                                <button 
+                                    class="btn btn-success btn-sm mx-1" 
+                                    onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'approve')"
+                                >
+                                    Approve
                                 </button>
-                            <% } else if (item.returnStatus === 'Not Requested') { %>
-                                <button type="button" 
-                                        class="btn-cancel" 
-                                        onclick="returnOrder('<%= item._id %>')">
-                                    Request Return
+                                <button 
+                                    class="btn btn-danger btn-sm mx-1" 
+                                    onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'reject')"
+                                >
+                                    Reject
                                 </button>
-                            <% } else { %>
-                                <button class="btn-cancel" disabled>
-                                    Cannot Request Return
-                                </button>
-                            <% } %>
-                        </td>
+                       
+                        <% } %>
                     </tr>
                 <% }); %>
             </tbody>
@@ -118,5 +103,4 @@
 </div>
 
 <!-- Footer -->
-<script src="/javascript/viewOrder.js"></script>
-<%- include('../../views/partials/userPartials/footer') %>
+<script src="/javascript/order.js"></script>

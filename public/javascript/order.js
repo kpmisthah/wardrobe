@@ -32,7 +32,7 @@ async function handleReturn(orderId,productId,action){
         if(response.ok){
             alert("are you going to approve?")
 
-            location.reload(); // Refresh to show updated status
+            location.reload(); 
 
         }
     } catch (error) {
@@ -40,10 +40,16 @@ async function handleReturn(orderId,productId,action){
     }
 }
 
-async function cancelOrder(orderId){
+async function cancelOrder(orderId,productId){
     try {
-        const response = await fetch(`/admin/cancelorder/${orderId}`,{
-            method:"DELETE"
+        const response = await fetch('/admin/cancelorder',{
+            method:"POST",
+            headers:{
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                orderId,productId
+            })
         })
         if(response.ok){
             alert("order deleted successfully")

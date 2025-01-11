@@ -123,6 +123,7 @@ const placeOrder = async(req,res)=>{
         const userId = req.session.user
         let coupon_code = req.session.coupon
         let final_amount = req.session.finalAmount
+        const discount_amount = req.session.discount
         const cart = await Cart.findOne({userId})
         const  address = await Address.findOne({userId})
 
@@ -151,6 +152,7 @@ const placeOrder = async(req,res)=>{
             status: "Pending", 
             totalPrice:cart.bill,
             finalAmount:final_amount,
+            discount:discount_amount,
             invoiceDate: new Date()
         });
 
@@ -263,6 +265,7 @@ const applyCoupon = async(req, res) => {
         console.log("The final amount is"+finalAmount);
         req.session.coupon = coupon.code
         req.session.finalAmount = finalAmount
+        req.session.discount = discount
         return res.status(200).json({
             success: true,
             discount,

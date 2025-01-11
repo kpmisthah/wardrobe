@@ -10,107 +10,74 @@
     <div class="card">
         <div class="card-body">
 
-
             <!-- Order Table -->
- <!-- Order Table -->
-<div class="table-responsive">
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>User</th>
-                <th>Total Price</th>
-                <th>Payment Method</th>
-                <th>Status</th>
-                <th>Ordered Items</th> <!-- New Column -->
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% if (orders && orders.length > 0) { %>
-                <% orders.forEach((order) => { %>
-                    <tr>
-                        <td><%= order.orderId %></td>
-                        <td><%= order.orderedItems.name %></td>
-                        <td><%= order.totalPrice %></td>
-                        <td><%= order.paymentMethod %></td>
-                        <td>
-                            <form id="order-status">
-                                <select name="status" class="statusSelect" data-order-id="<%= order.orderId %>">
-                         <!-- Status dropdown with preselected status -->
-                         <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                         <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
-                         <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                         <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                         <option value="Completed" <%= order.status === 'Completed' ? 'selected' : '' %>>Completed</option>
-                                </select>
-                            </form>
-                        </td>
-                        <td>
-                            <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                <ul>
-                                    <% order.orderedItems.forEach((item) => { %>
-                                        <li>
-                                            <strong><%= item.name %></strong> <!-- Name of the product -->
-                                            - 
-                                            <% if (item.returnStatus === 'Requested') { %>
-                                                <span class="badge bg-warning">Requested</span>
-                                            <% } else if (item.returnStatus === 'Approved') { %>
-                                                <span class="badge bg-success">Approved</span>
-                                            <% } else if (item.returnStatus === 'Rejected') { %>
-                                                <span class="badge bg-danger">Rejected</span>
-                                            <% } else { %>
-                                                <span class="badge bg-secondary">Not Requested</span>
-                                            <% } %>
-                                        </li>
-                                    <% }) %>
-                                </ul>
-                            <% } else { %>
-                                <span class="badge bg-secondary">No Items</span>
-                            <% } %>
-                        </td>
-                        <td>
-                            <% if (order.orderedItems && order.orderedItems.some(item => item.returnStatus === 'Requested')) { %>
-                                <% order.orderedItems.forEach((item) => { %>
-                                    <% if (item.returnStatus === 'Requested') { %>
-                                        <button class="btn btn-success btn-sm" onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'approve')">Approve</button>
-                                        <button class="btn btn-danger btn-sm" onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'reject')">Reject</button>
-                                    <% } %>
-                                <% }) %>
-                            <% } else { %>
-                              
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="cancelOrder('<%=order._id%>')">Cancel Order</button>
-                            
-                            <% } %>
-                        </td>
-                    </tr>
-                <% }) %>
-            <% } else { %>
-                <tr>
-                    <td colspan="7" class="text-center">No orders found.</td>
-                </tr>
-            <% } %>
-        </tbody>
-    </table>
-</div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>User</th>
+                            <th>Total Price</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>view</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length > 0) { %>
+                            <% orders.forEach((order) => { %>
+                                <tr>
+                                    <td><%= order.orderId %></td>
+                                    <td><%= order.userId.name %></td>
+                                    <td><%= order.totalPrice %></td>
+                                    <td><%= order.paymentMethod %></td>
+                                    <td>
+                                        <form id="order-status">
+                                            <select name="status" class="statusSelect" data-order-id="<%= order.orderId %>">
+                                                <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                                <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                                <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                <option value="Completed" <%= order.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/view-orders/<%= order._id %>" class="view-link">View</a>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No orders found.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>
 </section>
+
 <div class="container mt-3">
     <nav aria-label="Page navigation" class="pagination-container">
-      <ul class="pagination  justify-content-center">
-        <% for (let i = 1; i <= totalpages; i++) { %>
-          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-          </li>
-        <% } %>
-      </ul>
+        <ul class="pagination justify-content-center">
+            <% for (let i = 1; i <= totalpages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
     </nav>
-  </div>
+</div>
 
 <!-- Add this before closing body tag -->
- <script src="/javascript/order.js"></script>
+<script src="/javascript/order.js"></script>
 <script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>
 <script src="/admin-assets/js/vendors/bootstrap.bundle.min.js"></script>
 <script src="/admin-assets/js/vendors/select2.min.js"></script>
@@ -121,3 +88,49 @@
 </main> <!-- Close main-wrap -->
 </body>
 </html>
+
+<!-- Custom CSS -->
+<style>
+    .content-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .badge {
+        font-size: 0.875rem;
+        padding: 0.4em 0.6em;
+    }
+
+    .statusSelect {
+        width: 100%;
+        padding: 0.3rem;
+        border-radius: 5px;
+    }
+
+    .btn-sm {
+        font-size: 0.875rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .table th,
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    /* Responsive for small screens */
+    @media (max-width: 767px) {
+        .table th,
+        .table td {
+            font-size: 0.875rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .content-title {
+            font-size: 1.25rem;
+        }
+    }
+</style>

@@ -5,7 +5,7 @@ import { customer,blockUser,unblockUser } from "../controllers/admin/customerCon
 import { categoryManagement ,category,addCategoryOffer,removeCategoryOffer,isListed,unListed,edit,editCategory} from "../controllers/admin/categoryManagement.js"
 import { subcategoryManagement ,subcategory,isList,unList,subedit,editSubcategory} from "../controllers/admin/subcategoryManagement.js"
 import {getProductAddPage,addProducts, getProductPage ,blockProduct,unblockProduct,getEditProduct,editProduct,sizeManagement,addSize} from "../controllers/admin/productController.js"
-import { orderList,orderStatus,handleReturn ,orderCancelled} from "../controllers/admin/orderController.js"
+import { orderList,orderStatus,handleReturn ,orderCancelled,viewOrders} from "../controllers/admin/orderController.js"
 import { laodCoupon,addcoupon,createCoupon ,editCoupon,geteditCoupon,deleteCoupon} from "../controllers/admin/couponController.js"
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
@@ -52,7 +52,8 @@ router.post('/editProducts/:id',uploads.array('images',4),editProduct)
 router.get('/orderList',orderList)
 router.post('/order-status',orderStatus)
 router.post('/handleReturn',handleReturn)
-router.delete('/cancelorder/:id',orderCancelled)
+router.post('/cancelorder/',orderCancelled)
+router.get('/view-orders/:orderid',viewOrders)
 //coupon management
 router.get('/coupon',laodCoupon)
 router.get('/addCoupon',addcoupon)

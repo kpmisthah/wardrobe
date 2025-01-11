@@ -33,7 +33,7 @@ const viewOrder = async(req,res)=>{
 
 const orderCancel = async(req, res) => {
     try {
-        const { orderId,productId} = req.body;  // This is actually the item._id
+        const { orderId,productId} = req.body;  
 
         // Find the order containing this specific item._id
         const orderedProducts = await Order.findOne({orderId})
@@ -84,11 +84,12 @@ const returnOrder = async(req,res)=> {
             return res.status(401).json({message:"Item not found"})
         }
         const returnOrder = orders.orderedItems[orderedIndex]
-        if(returnOrder.returnStatus !== 'Not Requested'){
+        if(returnOrder.returnStatus !== 'Not Requested'||returnOrder.cancelStatus == 'canceled'){
             return res.status(400).json({ message: 'Return already requested for this product' });
         }
-  
+
         returnOrder.returnStatus = 'Requested'
+
         await orders.save()
         res.status(200).json({ message: 'Return request submitted successfully'});
     } catch (error) {
