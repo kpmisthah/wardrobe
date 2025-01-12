@@ -89,7 +89,6 @@ const dashboard = async(req,res)=>{
         const totalSales = Sales.length>0?Sales[0].totalSales:0
 
         const orders = await Order.find(matchCondition)
-        console.log("The orders"+orders)
         res.json({ totalOrders, totalUsers, totalProducts, totalSales, orders });
 
     } catch (error) {

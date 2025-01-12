@@ -58,7 +58,7 @@ function userLogin(event) {
 
   // Simulate API call or form submission
   setTimeout(() => {
-      loader.style.display = 'none'; // Hide loader after a simulated API call
+      loader.style.display = 'none'; 
       document.getElementById('loginform').submit(); // Submit the form
-  }, 2000); // Simulate a delay for API call
+  }, 2000); 
 }

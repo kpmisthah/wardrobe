@@ -20,11 +20,17 @@
 
 async function updateProfile(event){
     event.preventDefault()
+
+    const loader = document.getElementById('loader'); // Reference the loader element
+    loader.style.display = 'flex'; // Show loader
+
     const form = document.getElementById('updateProfile')
     const password = form[0].value
     const email = form[1].value
     passwordValidateChecking(password);
+    const error1 = document.getElementById('error1');
     if(error1.innerHTML){
+        loader.style.display = 'none'; 
         return
     }
 
@@ -35,7 +41,7 @@ async function updateProfile(event){
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
         });
-
+        loader.style.display = 'none'; // Always hide loader after API call completes
         if (response.ok) {
             const result = await response.json();
             await Swal.fire({
@@ -62,5 +68,5 @@ async function updateProfile(event){
             icon: 'error',
             confirmButtonText: 'OK',
         });
-    }
+    } 
 }

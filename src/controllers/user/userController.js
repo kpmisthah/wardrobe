@@ -52,44 +52,71 @@ const loadShoppingPage =  async(req,res)=>{
     try {
             let page = parseInt(req.query.page ||1);
             const sortOption = req.query.sort||null
+            const searchQuery = req.query.search || null;
+            const price = req.query.price || null;
+            const availability= req.query.availability || null;
             let limit = 12
-            let filter = {isBlocked:false}
+            let query = {isBlocked:false}
+            let sort = {};
+        // Define sorting and filtering criteria based on the query parameters
+        // if (sortOption === 'priceLowtoHigh') {
+        //     sort = { salePrice: 1 };
+        // } else if (sortOption === 'priceHightoLow') {
+        //     sort = { salePrice: -1 };
+        // } else if (sortOption === 'below-1500') {
+        //     filter.salePrice = { $lte: 1500 };
+        // } else if (sortOption === '2000-2500') {
+        //     filter.salePrice = { $gte: 2000, $lte: 2500 };
+        // } else if (sortOption === '2500-3000') {
+        //     filter.salePrice = { $gte: 2500, $lte: 3000 };
+        // } else if (sortOption === '3000-4000') {
+        //     filter.salePrice = { $gte: 3000, $lte: 4000 };
+        // } else if (sortOption === 'Above4000') {
+        //     filter.salePrice = { $gte: 4000 };
+        // } else if (sortOption === '1500-2000') {
+        //     filter.salePrice = { $gte: 1500, $lte: 2000 };
+        // } else if (sortOption === 'new') {
+        //     sort = { createdAt: -1 };
+        // } else if (sortOption === 'Available') {
+        //     filter.isStock = true;
+        // } else if (sortOption === 'Unavailable') {
+        //     filter.isStock = false;
+        // } else if (sortOption === 'alphabetical') {
+        //     sort = { name: 1 };
+        // } else if (sortOption === 'reverseAlphabetical') {
+        //     sort = { name: -1 };
+        // }
 
-            //sort method
-            let sort = {}
-            //The empty object gets replaced with specific sort criteria when needed
-            //If no sort option matches, it remains empty, meaning no specific sorting
-            if(sortOption == 'priceLowtoHigh'){
-             sort = {salePrice:1}
-            }else if(sortOption === 'priceHightoLow'){
-             sort = {salePrice:-1}
-            }else if(sortOption === 'below-1500'){
-                filter.salePrice = {$lte:1500}
-            }else if(sortOption === '2000-2500' ){
-                filter.salePrice = {$gte:2000,$lte:2500}
-            }else if(sortOption === '2500-3000'){
-                filter.salePrice = {$gte:2500,$lte:3000}
-            }else if(sortOption === '3000-4000'){
-                filter.salePrice = {$gte:3000,$lte:4000}
-            }else if(sortOption === 'Above4000'){
-                filter.salePrice = {$gte:4000}
-            }else if(sortOption === '1500-2000'){
-                filter.salePrice = {$gte:1500,$lte:2000} //==product.find({isBlocked:false,salePrice:{$gte:1500,$lte:2000}})
-            }else if(sortOption === 'new'){
-                sort = {createdAt:-1}
-            }else if(sortOption == 'Available'){
-                filter.isStock = true
-            }else if(sortOption == 'Unavailable'){
-                filter.isStock = false
-            }else if(sortOption == 'alphabetical'){
-                sort = {name:1}
-            }else if(sortOption == 'reverseAlphabetical'){
-                sort = {name:-1}
+        if (searchQuery) {
+            query.$or = [
+                { name: { $regex: searchQuery, $options: 'i' } },
+                { description: { $regex: searchQuery, $options: 'i' } }
+            ];
+        }
+        if (price) {
+            if (price === 'below-1500') {
+                query = { ...query, salePrice: { $lt: 1500 } };
+            } else if (price === '1500-2000') {
+                query = { ...query, salePrice: { $gte: 1500, $lte: 2000 } };
+            } else if (price === '2000-2500') {
+                query = { ...query, salePrice: { $gte: 2000, $lte: 2500 } };
+            } else if (price === '2500-3000') {
+                query = { ...query, salePrice: { $gte: 2500, $lte: 3000 } };
+            } else if (price === '3000-4000') {
+                query = { ...query, salePrice: { $gte: 3000, $lte: 4000 } };
+            } else if (price === 'Above4000') {
+                query = { ...query, salePrice: { $gt: 4000 } };
             }
-            
-
-            let products =await Product.find(filter).sort(sort).skip((page-1)*limit).limit(limit).populate('sizeOptions')
-            const count =await Product.countDocuments(filter)
+        }
+        if(availability){
+            if(availability == 'Available'){
+                query = {...query,isStock : true}
+            }else if(availability == 'Unavailable'){
+                query = {...query,isStock:false}
+            }
+        }
+            let products =await Product.find(query).sort(sort).skip((page-1)*limit).limit(limit).populate('sizeOptions')
+            const count =await Product.countDocuments(query)
             const totalpage = Math.ceil(count/limit)
 
             for(let product of products) {
@@ -105,7 +132,7 @@ const loadShoppingPage =  async(req,res)=>{
             console.log("The user is "+user)
             if(user){
                 let userData = await User.findOne({_id:user})
-                return res.render('user/shop',{user:userData,products,totalpage, page })
+                return res.render('user/shop',{user:userData,products,totalpage, page,sortOption,searchQuery })
             }else{
                 return res.render('user/shop',{products,totalpage,page, sortOption })
             }
