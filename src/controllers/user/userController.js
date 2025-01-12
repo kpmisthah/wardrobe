@@ -47,52 +47,34 @@ const loadError = async(req,res)=>{
     }
 }
 
-const loadShoppingPage =  async(req,res)=>{
-  
+const loadShoppingPage = async(req, res) => {
     try {
-            let page = parseInt(req.query.page ||1);
-            const sortOption = req.query.sort||null
-            const searchQuery = req.query.search || null;
-            const price = req.query.price || null;
-            const availability= req.query.availability || null;
-            let limit = 12
-            let query = {isBlocked:false}
-            let sort = {};
-        // Define sorting and filtering criteria based on the query parameters
-        // if (sortOption === 'priceLowtoHigh') {
-        //     sort = { salePrice: 1 };
-        // } else if (sortOption === 'priceHightoLow') {
-        //     sort = { salePrice: -1 };
-        // } else if (sortOption === 'below-1500') {
-        //     filter.salePrice = { $lte: 1500 };
-        // } else if (sortOption === '2000-2500') {
-        //     filter.salePrice = { $gte: 2000, $lte: 2500 };
-        // } else if (sortOption === '2500-3000') {
-        //     filter.salePrice = { $gte: 2500, $lte: 3000 };
-        // } else if (sortOption === '3000-4000') {
-        //     filter.salePrice = { $gte: 3000, $lte: 4000 };
-        // } else if (sortOption === 'Above4000') {
-        //     filter.salePrice = { $gte: 4000 };
-        // } else if (sortOption === '1500-2000') {
-        //     filter.salePrice = { $gte: 1500, $lte: 2000 };
-        // } else if (sortOption === 'new') {
-        //     sort = { createdAt: -1 };
-        // } else if (sortOption === 'Available') {
-        //     filter.isStock = true;
-        // } else if (sortOption === 'Unavailable') {
-        //     filter.isStock = false;
-        // } else if (sortOption === 'alphabetical') {
-        //     sort = { name: 1 };
-        // } else if (sortOption === 'reverseAlphabetical') {
-        //     sort = { name: -1 };
-        // }
+        let page = parseInt(req.query.page || 1);
+        const sortOption = req.query.sort || null;
+        const searchQuery = req.query.search || null;
+        const price = req.query.price || null;
+        const availability = req.query.availability || null;
+        let limit = 12;
+        let query = { isBlocked: false };
+        let sort = {};
 
         if (searchQuery) {
+            // First find categories that match the search query
+            const categories = await Category.find({
+                name: { $regex: searchQuery, $options: 'i' }
+            });
+            
+            const categoryIds = categories.map(cat => cat._id);
+            
+            // Update query to search in both product details and categories
             query.$or = [
                 { name: { $regex: searchQuery, $options: 'i' } },
-                { description: { $regex: searchQuery, $options: 'i' } }
+                { description: { $regex: searchQuery, $options: 'i' } },
+                { category: { $in: categoryIds } }
             ];
         }
+
+        // Rest of your existing price and availability filters
         if (price) {
             if (price === 'below-1500') {
                 query = { ...query, salePrice: { $lt: 1500 } };
@@ -108,41 +90,61 @@ const loadShoppingPage =  async(req,res)=>{
                 query = { ...query, salePrice: { $gt: 4000 } };
             }
         }
-        if(availability){
-            if(availability == 'Available'){
-                query = {...query,isStock : true}
-            }else if(availability == 'Unavailable'){
-                query = {...query,isStock:false}
+
+        if(availability) {
+            if(availability == 'Available') {
+                query = {...query, isStock: true};
+            } else if(availability == 'Unavailable') {
+                query = {...query, isStock: false};
             }
         }
-            let products =await Product.find(query).sort(sort).skip((page-1)*limit).limit(limit).populate('sizeOptions')
-            const count =await Product.countDocuments(query)
-            const totalpage = Math.ceil(count/limit)
 
-            for(let product of products) {
-                const isStock = product.sizeOptions.some(option => option.quantity > 0);
-                if(isStock !== product.isStock) {
-                    product.isStock = isStock;
-                    await product.save();
-                }
+        // Add population for category
+        let products = await Product.find(query)
+            .sort(sort)
+            .skip((page-1) * limit)
+            .limit(limit)
+            .populate('sizeOptions')
+            .populate('category'); // Add this to get category information
+
+        const count = await Product.countDocuments(query);
+        const totalpage = Math.ceil(count/limit);
+
+        // Update stock status
+        for(let product of products) {
+            const isStock = product.sizeOptions.some(option => option.quantity > 0);
+            if(isStock !== product.isStock) {
+                product.isStock = isStock;
+                await product.save();
             }
-    // Calculate stock statuses using separate queries
+        }
 
-            let user = req.session.user
-            console.log("The user is "+user)
-            if(user){
-                let userData = await User.findOne({_id:user})
-                return res.render('user/shop',{user:userData,products,totalpage, page,sortOption,searchQuery })
-            }else{
-                return res.render('user/shop',{products,totalpage,page, sortOption })
-            }
+        let user = req.session.user;
+        if(user) {
+            let userData = await User.findOne({_id: user});
+            return res.render('user/shop', {
+                user: userData,
+                products,
+                totalpage,
+                page,
+                sortOption,
+                searchQuery
+            });
+        } else {
+            return res.render('user/shop', {
+                products,
+                totalpage,
+                page,
+                sortOption,
+                searchQuery
+            });
+        }
 
-
-            } catch (error) {
-             console.log(error)
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Internal Server Error");
     }
-
-}
+};
 
 //load user Profile page
 const loadProfile = async(req,res)=>{
