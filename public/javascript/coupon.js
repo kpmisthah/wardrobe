@@ -7,9 +7,7 @@ async function validateCouponForm(event) {
     const code = document.getElementById('code').value.trim();
     const discountValue = parseFloat(document.getElementById('discountValue').value);
     const minOrderValue = parseFloat(document.getElementById('minOrderValue').value);
-    const maxDiscount = parseFloat(document.getElementById('maxDiscount').value); 
-    const usageLimit = parseInt(document.getElementById('usageLimit').value); 
-    console.log("MININIM"+minOrderValue)
+    const maxDiscount = parseFloat(document.getElementById('maxDiscount').value);  
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     const status = document.getElementById('status').value;

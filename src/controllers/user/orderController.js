@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { Order } from "../../models/orderIdSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 import { User } from '../../models/userSchema.js';
+import { Wallet } from '../../models/walletSchema.js';
 //load Orders page
 const orders = async(req,res)=>{
     try {
@@ -43,7 +44,6 @@ const orderCancel = async(req, res) => {
             return res.status(404).json({ message: "Item not found" });
         }
 
-        //items that want to be removed stored here .it has size and quantity so compare it with our size schema
         const items = orderedProducts.orderedItems[itemIndex];
 
         //so now we want to increase the stock count for specific product
@@ -54,8 +54,31 @@ const orderCancel = async(req, res) => {
             await size.save()
         }
         // Update total price
-        orderedProducts.totalPrice -= items.price * items.quantity;
-
+        orderedProducts.finalAmount -= items.price * items.quantity;
+        if(items.cancelStatus == 'canceled'){
+            const wallet = await Wallet.findOne({userId:orderedProducts.userId})
+            const refundAmount = items.price*items.quantity
+            if(wallet){
+                wallet.balance+=refundAmount
+                wallet.transactionHistory.push({
+                    transactionType: 'refund',
+                    transactionAmount: refundAmount,
+                    description: `Refund for canceled item from order ${orderedProducts._id}`
+                });
+                await wallet.save();
+            }else{
+                const newWallet = new Wallet({
+                    userId: orderedProducts.userId,
+                    balance: refundAmount,
+                    transactionHistory: [{
+                        transactionType: 'refund',
+                        transactionAmount: refundAmount,
+                        description: `Refund for canceled item from order ${orderedProducts._id}`
+                    }]
+                });
+                await newWallet.save();
+            }
+        }
         await orderedProducts.save();
        
         return res.status(200).json({ message: "Item canceled successfully" });
@@ -66,35 +89,67 @@ const orderCancel = async(req, res) => {
     }
 };
 
-const cancelOrder = async(req,res)=>{
+const cancelOrder = async (req, res) => {
     try {
-       const{orderId,productId} = req.body
-       const cancelledProduct = await Order.findByIdAndUpdate(orderId,{status:"Canceled"},{new:true})
-       
-       const itemIndex = cancelledProduct.orderedItems.findIndex(
-        item => item._id.toString() === productId
-    );
-    
-    if (itemIndex === -1) {
-        return res.status(404).json({ message: "Item not found" });
-    }
-    const items = cancelledProduct.orderedItems[itemIndex];
+        const { orderId, productId } = req.body;
+        const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: "Canceled" }, { new: true });
 
-       if(cancelledProduct.status == 'Canceled'){
-        const size = await Size.findOne({product:items.product,size:items.size})
-        size.quantity+=items.quantity
-        await size.save()
-       }
-       await cancelledProduct.save()
-       return res.status(200).json({
-        success: true,
-        message: "Order canceled successfully"
-    });
+        const itemIndex = cancelledOrder.orderedItems.findIndex(
+            item => item._id.toString() === productId
+        );
+
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+        const items = cancelledOrder.orderedItems[itemIndex];
+
+        if (cancelledOrder.status === 'Canceled') {
+            const size = await Size.findOne({ product: items.product, size: items.size });
+            if (size) {
+                size.quantity += items.quantity;
+                await size.save();
+            }
+        }
+
+
+        // Refund to wallet if payment method is not COD
+        if (cancelledOrder.paymentMethod !== 'COD') {
+            const wallet = await Wallet.findOne({ userId: cancelledOrder.userId });
+            const totalAmount = cancelledOrder.finalAmount;
+            if (wallet) {
+                wallet.balance += totalAmount;
+                wallet.transactionHistory.push({
+                    transactionType: 'refund',
+                    transactionAmount: totalAmount,
+                    description: `Refund for cancelled order ${cancelledOrder._id}`
+                });
+                await wallet.save();
+            } else {
+                const newWallet = new Wallet({
+                    userId: cancelledOrder.userId,
+                    balance: totalAmount,
+                    transactionHistory: [{
+                        transactionType: 'refund',
+                        transactionAmount: totalAmount,
+                        description: `Refund for cancelled order ${cancelledOrder._id}`
+                    }]
+                });
+                await newWallet.save();
+            }
+        }
+
+        await cancelledOrder.save();
+        return res.status(200).json({
+            success: true,
+            message: "Order canceled successfully"
+        });
+
     } catch (error) {
-        console.log("error in"+error);
-        
+        console.log("error in " + error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-}
+};
+
 const returnOrder = async(req,res)=> {
     try {
         const{productId} = req.body

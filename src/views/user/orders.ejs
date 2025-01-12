@@ -83,35 +83,33 @@
     </div>
 
     <script>
-        function canceled(orderId, productId) {
-            if (confirm("Are you sure you want to cancel this order?")) {
-                fetch('/order/cancel', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ orderId, productId })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert('Order canceled successfully');
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Failed to cancel order');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while canceling the order');
-                });
+   async function canceled(orderId, productId) {
+    if (confirm("Are you sure you want to cancel this order?")) {
+        try {
+            const response = await fetch('/order/cancel', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, productId })
+            });
+
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert('Order canceled successfully');
+                location.reload();
+            } else {
+                alert(data.message || 'Failed to cancel order');
             }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while canceling the order');
         }
+    }
+}
+
     </script>
 
     <style>

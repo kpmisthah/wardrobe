@@ -143,15 +143,15 @@ const placeOrder = async(req,res)=>{
 
         }
      
-        
+        let totalPrice = cart.bill
         const newOrder = new Order({
             orderedItems,
             address: addressId,
             userId,
             paymentMethod: payment,
             status: "Pending", 
-            totalPrice:cart.bill,
-            finalAmount:final_amount,
+            totalPrice,
+            finalAmount:final_amount||totalPrice,
             discount:discount_amount,
             invoiceDate: new Date()
         });
@@ -187,15 +187,15 @@ const saveOrder = async (req, res) => {
             });
 
         }
-    
+        let totalPrice = cart.bill
         const newOrder = new Order({
             orderedItems,
             address: addressId,
             userId,
             paymentMethod: 'razorpay',
             status: "Pending",
-            finalAmount:final_amount, 
-            totalPrice:cart.bill,
+            totalPrice,
+            finalAmount:final_amount||totalPrice, 
             invoiceDate: new Date()
         });
 

@@ -14,7 +14,8 @@ router.get('/',loadHome)
 router.get('/notfound',loadError)
 
 //shopping page
-router.get('/shop',userAuth,loadShoppingPage)
+//userAuth
+router.get('/shop',loadShoppingPage)
 
 //product detail page
 router.get('/productDetails',productDetails)
