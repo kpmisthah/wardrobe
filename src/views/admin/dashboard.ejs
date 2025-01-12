@@ -16,9 +16,13 @@
                     <h1>Sales Analytics</h1>
                     <p>Monitor your business performance in real-time</p>
                 </div>
-                <button class="download-btn">
-                    <i class="fas fa-download"></i>
-                    Export Report
+                <button class="download-btn" id="downloadPdfBtn">
+                    <i class="fas fa-file-pdf"></i>
+                    Export PDF
+                </button>
+                <button class="download-btn" id="downloadExcelBtn">
+                    <i class="fas fa-file-excel"></i>
+                    Export Excel
                 </button>
             </div>
             <div class="filter-section">
@@ -86,6 +90,17 @@
                 <div class="trend up">
                     <i class="fas fa-arrow-up"></i>
                     <span>3.7% vs last period</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line fa-lg"></i>
+                </div>
+                <h3>Total Discount</h3>
+                <div class="value"><%= totalDiscount %></div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12.5% vs last period</span>
                 </div>
             </div>
         </div>

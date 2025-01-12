@@ -2,6 +2,8 @@ import { Order } from "../../models/orderIdSchema.js";
 import { Product } from "../../models/productSchema.js";
 import { User } from "../../models/userSchema.js";
 import moment from "moment";
+import PDFDocument from 'pdfkit';
+import ExcelJS from 'exceljs';
 
 const loadDashboard = async(req,res)=>{
     try {
@@ -17,9 +19,17 @@ const loadDashboard = async(req,res)=>{
             }}}
         ])
         const totalSales = Sales.length>0?Sales[0].totalSales:0
-
+        const discount = await Order.aggregate([
+            {$match:{status:'Delivered'}},
+            {$group:
+                {_id:null,discount:
+                    {$sum:'$discount'}
+                }
+            }
+        ])
+        const totalDiscount = discount.length>0?discount[0].discount:0
         const orders = await Order.find({})
-        res.render('admin/dashboard', { totalOrders, totalUsers, totalProducts, totalSales, orders });
+        res.render('admin/dashboard', { totalOrders, totalUsers, totalProducts, totalSales,totalDiscount, orders });
     } catch (error) {
         console.log("The error is"+error);
         
@@ -88,4 +98,71 @@ const dashboard = async(req,res)=>{
     }
     
 }
-export{dashboard,loadDashboard}
+
+const generatePdfReport = async (req,res)=>{
+    try {
+        const orders = await Order.find({status:"Delivered"})
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+        doc.pipe(res);
+        doc.fontSize(25).text('Sales Report',{align:'center'})
+        doc.moveDown()
+        orders.forEach(order=>{
+            doc.fontSize(12).text(`Order ID: ${order._id}`);
+            doc.text(`Date: ${new Date(order.invoiceDate).toLocaleDateString('en-US')}`);
+            doc.text(`Amount: ₹${order.totalPrice}`);
+            doc.text(`Discount: ₹${order.discount}`);
+            doc.text(`Coupon: ${order.coupon || '-'}`);
+            doc.text(`Final Amount: ₹${order.finalAmount || order.totalPrice}`);
+            doc.text(`Status: ${order.status}`);
+            doc.moveDown();
+        })
+        doc.end()
+    } catch (error) {
+        console.log("The error is"+error);
+        
+    }
+}
+
+const generateExcelReport = async (req, res) => {
+    const orders = await Order.find({ status: 'Delivered' });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    worksheet.columns = [
+        { header: 'Order ID', key: 'orderId', width: 25 },
+        { header: 'Date', key: 'date', width: 15 },
+        { header: 'Amount', key: 'amount', width: 15 },
+        { header: 'Discount', key: 'discount', width: 15 },
+        { header: 'Coupon', key: 'coupon', width: 15 },
+        { header: 'Final Amount', key: 'finalAmount', width: 15 },
+        { header: 'Status', key: 'status', width: 15 },
+    ];
+
+    orders.forEach(order => {
+        worksheet.addRow({
+            orderId: order._id,
+            date: new Date(order.invoiceDate).toLocaleDateString('en-US'),
+            amount: order.totalPrice,
+            discount: order.discount,
+            coupon: order.coupon || '-',
+            finalAmount: order.finalAmount || order.totalPrice,
+            status: order.status,
+        });
+    });
+
+    res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=' + 'sales_report.xlsx'
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+};
+export{dashboard,loadDashboard,generatePdfReport,generateExcelReport}

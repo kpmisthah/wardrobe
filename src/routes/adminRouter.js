@@ -9,7 +9,7 @@ import { orderList,orderStatus,handleReturn ,orderCancelled,viewOrders} from "..
 import { laodCoupon,addcoupon,createCoupon ,editCoupon,geteditCoupon,deleteCoupon} from "../controllers/admin/couponController.js"
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
-import { loadDashboard,dashboard } from "../controllers/admin/dashboardController.js"
+import { loadDashboard,dashboard ,generatePdfReport,generateExcelReport} from "../controllers/admin/dashboardController.js"
 const uploads = uploadMulter(storage)
 
 router.get('/login',isLogin,loginPage)
@@ -67,6 +67,9 @@ router.delete('/deleteCoupon/:id',deleteCoupon)
 // isAuthenticated
 router.get('/dashboard',loadDashboard)
 router.post('/dashboard',dashboard)
+router.get('/dashboard/download/pdf', generatePdfReport);
+router.get('/dashboard/download/excel', generateExcelReport);
+
 
 export default router
 

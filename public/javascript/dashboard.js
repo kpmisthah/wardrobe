@@ -2,6 +2,7 @@ document.getElementById('applyFilter').addEventListener('click',async()=>{
     const quickFilter = document.getElementById('quickFilter').value
     const startDate = document.getElementById('startDate').value
     const endDate = document.getElementById('endDate').value
+    
 
     const response = await fetch('/admin/dashboard',{
         method:"POST",
@@ -24,3 +25,11 @@ document.getElementById('applyFilter').addEventListener('click',async()=>{
         ordersTableBody.insertAdjacentHTML('beforeend', row);
     });
 })
+
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+    window.location.href = '/admin/dashboard/download/pdf';
+});
+
+document.getElementById('downloadExcelBtn').addEventListener('click', () => {
+    window.location.href = '/admin/dashboard/download/excel';
+});
