@@ -1,0 +1,75 @@
+<%- include('../../views/partials/userPartials/header') %>
+
+<div class="container py-5" style="margin-top: 2rem;">
+    <!-- Header -->
+    <h4 class="mb-4" style="color: #333;">Wallet</h4>
+
+    <!-- Wallet Card -->
+    <div class="card mb-4" style="background: #27374D; border-radius: 15px; border: none;">
+        <div class="card-body p-4">
+            <h5 class="text-white mb-3">Wardrobe</h5>
+            <div class="d-flex flex-column">
+                <div class="mb-3">
+                    <span class="text-white" style="letter-spacing: 3px; font-size: 1.2rem;">**** **** **** 1234</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="text-white mb-0">₹<%= wallet.balance.toFixed(2) %></h2>
+                    <small class="text-white">Refund Wallet</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Transaction History</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (wallet.transactionHistory && wallet.transactionHistory.length > 0) { %>
+                            <% wallet.transactionHistory.forEach(transaction => { %>
+                                <tr>
+                                    <td><%= new Date(transaction.transactionDate).toLocaleDateString() %></td>
+                                    <td><%= transaction.transactionType.charAt(0).toUpperCase() + transaction.transactionType.slice(1) %></td>
+                                    <td>₹<%= transaction.transactionAmount.toFixed(2) %></td>
+                                    <td><%= transaction.description || 'N/A' %></td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" class="text-center">No transactions yet</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+        background: #ffffff;
+    }
+
+    .table th {
+        font-weight: 500;
+        color: #666;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+
+<%- include('../../views/partials/userPartials/footer') %>

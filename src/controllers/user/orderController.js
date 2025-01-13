@@ -55,10 +55,10 @@ const orderCancel = async(req, res) => {
         }
         // Update total price
         orderedProducts.finalAmount -= items.price * items.quantity;
-        if(items.cancelStatus == 'canceled'){
+        if(items.cancelStatus == 'canceled' && orderedProducts.paymentMethod !='COD'){
             const wallet = await Wallet.findOne({userId:orderedProducts.userId})
             const refundAmount = items.price*items.quantity
-            if(wallet){
+            if(wallet ){
                 wallet.balance+=refundAmount
                 wallet.transactionHistory.push({
                     transactionType: 'refund',

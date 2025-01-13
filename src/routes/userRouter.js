@@ -8,14 +8,15 @@ import { viewOrder,orders,orderCancel,returnOrder,cancelOrder} from "../controll
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
 import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
+import { loadWallet } from "../controllers/user/walletController.js"
 const router = express.Router()
 //home page
 router.get('/',loadHome)
 router.get('/notfound',loadError)
 
 //shopping page
-//userAuth
-router.get('/shop',loadShoppingPage)
+
+router.get('/shop',userAuth,loadShoppingPage)
 
 //product detail page
 router.get('/productDetails',productDetails)
@@ -69,4 +70,6 @@ router.delete('/remove-wishlist/:productId',removeWishlist)
 //razorpay
 router.post('/create-order', rzpOrder)
 router.post('/save-order',saveOrder)
+//wallet
+router.get('/wallet',loadWallet)
 export default router

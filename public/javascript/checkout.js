@@ -20,9 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
 //coupon logic
 async function applyCoupon(event) {
   event.preventDefault();
-  const couponCode = document.getElementById("coupon-code-input").value.trim()||null;
+  const couponCode = document.getElementById("coupon-code-input").value.trim() || null;
   if (!couponCode) {
-    alert("Please enter a coupon code");
+    swal("Error", "Please enter a coupon code", "error");
     return;
   }
 
@@ -35,19 +35,15 @@ async function applyCoupon(event) {
     const result = await response.json();
     if (response.ok) {
       document.getElementById("discount-row").style.display = "flex";
-      document.getElementById(
-        "discount-amount"
-      ).textContent = `₹${result.discount}`;
-      document.getElementById(
-        "final-amount"
-      ).textContent = `₹${result.finalAmount}`;
+      document.getElementById("discount-amount").textContent = `₹${result.discount}`;
+      document.getElementById("final-amount").textContent = `₹${result.finalAmount}`;
 
       document.getElementById("applied-coupon-info").style.display = "block";
       document.getElementById("applied-coupon-code").textContent = couponCode;
       document.getElementById("coupon-code-input").disabled = true;
-      alert(result.message);
+      swal("Success", result.message, "success");
     } else {
-      alert(result.message);
+      swal("Success", result.message, "SUCCESS");
     }
   } catch (error) {
     console.log("The error is " + error);
@@ -55,12 +51,12 @@ async function applyCoupon(event) {
 }
 
 async function removeCoupon(couponid) {
-  const couponCode = document.getElementById("coupon-code-input").value.trim()||null;
+  const couponCode = document.getElementById("coupon-code-input").value.trim() || null;
   try {
     const response = await fetch('/remove-coupon', {
       method: "post",
       headers: { "Content-Type": "application/json" },
-      body:JSON.stringify({couponCode})
+      body: JSON.stringify({ couponCode })
     });
 
     if (response.ok) {
@@ -79,13 +75,11 @@ async function removeCoupon(couponid) {
       couponInput.disabled = false;
       couponInput.value = '';
 
-      // currentCoupon = null;
-
-      alert("Coupon removed successfully");
+      swal("Success", "Coupon removed successfully", "success");
     }
   } catch (error) {
     console.error("Error removing coupon:", error);
-    alert("Failed to remove coupon");
+    swal("Success", result.message, "SUCCESS");
   }
 }
 
@@ -100,18 +94,17 @@ async function placeOrder(event) {
     .trim(); // Order subtotal
 
   if (!addressId) {
-    alert("Please select a delivery address");
+    swal("Error", "Please select a delivery address", "error");
     return;
   }
 
   if (!payment) {
-    alert("Please select a payment method");
+    swal("Error", "Please select a payment method", "error");
     return;
   }
 
   try {
     if (payment === "razorpay") {
-      // Request backend to create Razorpay order
       const response = await fetch("/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -119,22 +112,20 @@ async function placeOrder(event) {
       });
 
       if (response.ok) {
-        const { orderId, razorpayKey, amount } = await response.json(); // Get order details from backend
+        const { orderId, razorpayKey, amount } = await response.json();
         const userName = document.getElementById("user-name").value;
         const userEmail = document.getElementById("user-email").value;
         const userContact = document.getElementById("user-contact").value;
-        console.log("User Contact:", userContact); // Add this line to debug
+
         const options = {
-          key: razorpayKey, // Razorpay API key
-          amount: amount * 100, // Amount in paise
+          key: razorpayKey,
+          amount: amount * 100,
           currency: "INR",
           name: "wadrob",
           description: "Order Payment",
-          image: "/path-to-logo.png", // Optional logo
-          order_id: orderId, // Razorpay order ID
+          image: "/path-to-logo.png",
+          order_id: orderId,
           handler: async function (response) {
-            // Payment successful
-            // Send payment details to backend
             const saveResponse = await fetch("/save-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -149,14 +140,15 @@ async function placeOrder(event) {
 
             if (saveResponse.ok) {
               const result = await saveResponse.json();
-              alert("Order placed successfully!");
-              window.location.href = result.redirectUrl;
+              swal("Success", "Order placed successfully!", "success").then(() => {
+                window.location.href = result.redirectUrl;
+              });
             } else {
-              alert("Failed to save the order. Please try again.");
+              swal("Error", "Failed to save the order. Please try again.", "error");
             }
           },
           prefill: {
-            name: userName, // Prefill customer details
+            name: userName,
             email: userEmail,
             contact: userContact,
           },
@@ -167,12 +159,11 @@ async function placeOrder(event) {
         rzp.open();
 
         rzp.on("payment.failed", function (response) {
-          alert("Payment failed. Please try again.");
+          swal("Error", "Payment failed. Please try again.", "error");
           console.error(response.error);
         });
       }
     } else if (payment === "COD") {
-      // Handle Cash on Delivery
       const response = await fetch("/place-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -181,12 +172,14 @@ async function placeOrder(event) {
 
       if (response.ok) {
         const result = await response.json();
-        window.location.href = result.redirectUrl;
+        swal("Success", "Order placed successfully!", "success").then(() => {
+          window.location.href = result.redirectUrl;
+        });
       } else {
-        alert("Failed to place order. Please try again.");
+        swal("Error", "Failed to place order. Please try again.", "error");
       }
     } else {
-      alert("Unsupported payment method");
+      swal("Error", "Unsupported payment method", "error");
     }
   } catch (error) {
     console.log("The error is " + error);

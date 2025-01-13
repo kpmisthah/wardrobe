@@ -71,25 +71,25 @@ async function validateEditCouponForm(event) {
       const result = await response.json();
 
       if (response.ok) {
-        alert("Coupon updated successfully!");
+        await swal("Success", "Coupon updated successfully!", "success");
         window.location.href = "/admin/coupon";
       } else {
-        alert(result.message || "Error updating coupon");
+        await swal("Error", result.message || "Error updating coupon", "error");
       }
       return true;
     } catch (error) {
       console.error("Error:", error);
-      alert("Error updating coupon");
+      await swal("Error", "Error updating coupon", "error");
     }
   } else {
     return false;
   }
 }
+
 // Clear all error messages
 function clearErrorMessages() {
-    const errorElements = document.querySelectorAll('.text-danger');
-    errorElements.forEach(element => {
-        element.textContent = '';  
-    });
+  const errorElements = document.querySelectorAll('.text-danger');
+  errorElements.forEach(element => {
+    element.textContent = '';  
+  });
 }
-

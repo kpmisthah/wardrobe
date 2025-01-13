@@ -98,7 +98,23 @@ const loadShoppingPage = async(req, res) => {
                 query = {...query, isStock: false};
             }
         }
-
+        
+        // Sort options using if-else blocks
+        if (sortOption === 'default') {
+            sort = {};
+        } else if (sortOption === 'new') {
+            sort = { createdAt: -1 }; 
+        } else if (sortOption === 'priceLowtoHigh') {
+            sort = { salePrice: 1 }; 
+        } else if (sortOption === 'priceHightoLow') {
+            sort = { salePrice: -1 }; 
+        } else if (sortOption === 'alphabetical') {
+            sort = { name: 1 };
+        } else if (sortOption === 'reverseAlphabetical') {
+            sort = { name: -1 }; 
+        } else {
+            sort = {}; // Default sort, no specific order
+        }
         // Add population for category
         let products = await Product.find(query)
             .sort(sort)

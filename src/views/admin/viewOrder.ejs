@@ -61,9 +61,10 @@
                             <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
                                 <% if (item.returnStatus !== "Approved") { %>
                                     <%if(item.cancelStatus == 'canceled') { %>
-                                        <span class="badge bg-danger">canceled by user</span>
+                                        <span class="badge bg-danger">canceled</span>
                                 <% }else{%>
                                     <button type="button" class="btn-cancel" onclick="cancelOrder('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
+                                    <span class="badge bg-danger">canceled</span>
                                     <%}%>
 
                                 <% }else{%>

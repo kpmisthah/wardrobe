@@ -94,13 +94,7 @@ const orderCancelled = async(req,res)=>{
      try {
             const { orderId,productId} = req.body;  
     
-            // Find the order containing this specific item._id
             const orderedProducts = await Order.findOne({orderId})
-            // const order = await Order.findByIdAndUpdate({orderId},{status:'Canceled'})
-    
-            // if (!order) {
-            //     return res.status(404).json({ message: "Order not found" });
-            // } 
     
             // Find the specific item using its _id
             const itemIndex = orderedProducts.orderedItems.findIndex(
@@ -120,6 +114,14 @@ const orderCancelled = async(req,res)=>{
                 const size = await Size.findOne({product:items.product,size:items.size})
                 size.quantity+=items.quantity
                 await size.save()
+            }
+            const allItemsCancelled = orderedProducts.orderedItems.every(
+                item => item.cancelStatus === 'canceled'
+            );
+    
+            // If all items are cancelled, update the main order status
+            if (allItemsCancelled) {
+                orderedProducts.status = 'Canceled';
             }
             // Update total price
             orderedProducts.totalPrice -= items.price * items.quantity;

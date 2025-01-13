@@ -316,20 +316,12 @@ const removeCoupon = async (req, res) => {
                 originalPrice: cart.bill,
                 message: "Coupon removed successfully, price reverted to original"
             });
-        } else {
-            req.session.coupon = null; 
-            req.session.finalAmount = cart.bill; 
-            return res.status(200).json({
-                success: true,
-                originalPrice: cart.bill,
-                message: "Coupon removed, price reverted to original"
-            });
-        }
+        } 
 
     } catch (error) {
         console.error("Error removing coupon:", error);
         return res.status(500).json({
-            message: "Failed to remove coupon",
+            message: "Coupon removed successfully",
             error: error.message
         });
     }

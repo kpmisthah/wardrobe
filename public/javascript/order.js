@@ -52,7 +52,8 @@ async function cancelOrder(orderId,productId){
             })
         })
         if(response.ok){
-            alert("order deleted successfully")
+            alert("order canceled successfully")
+            buttonElement.outerHTML = '<span class="badge bg-danger">Cancelled</span>';
             
         }
     } catch (error) {

@@ -1,10 +1,18 @@
-
-async function cancel(orderId,productId) {
+async function cancel(orderId, productId) {
     try {
-        // Add confirmation dialog
-        const confirmDelete = confirm('Are you sure you want to cancel this item?');
-        
-        if (!confirmDelete) {
+        // Replace confirm with Swal
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to cancel this item?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        });
+
+        if (!result.isConfirmed) {
             return;
         }
 
@@ -14,33 +22,81 @@ async function cancel(orderId,productId) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                orderId,productId
+                orderId, productId
             })
         });
-     
+
         if (response.ok) {
-            window.location.reload()
-        }else{
-            console.log("error")
+            await Swal.fire({
+                title: 'Cancelled!',
+                text: 'The item has been cancelled successfully.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            window.location.reload();
+        } else {
+            await Swal.fire({
+                title: 'Error!',
+                text: 'Failed to cancel the item.',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
         }
     } catch (error) {
         console.error("Error removing item:", error);
-        alert('Failed to remove item. Something went wrong');
+        await Swal.fire({
+            title: 'Error!',
+            text: 'Failed to remove item. Something went wrong',
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        });
     }
 }
-// window.history.replaceState(null, null, '/emptyOrder');
 
-async function returnOrder(productId){
+async function returnOrder(productId) {
     try {
-        const response = await fetch('/return-order',{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({productId})
-        })
-        if(response.ok){
-            alert("Do you want to return this product")
+        // First show confirmation dialog
+        const result = await Swal.fire({
+            title: 'Return Product',
+            text: 'Do you want to return this product?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, return it!',
+            cancelButtonText: 'No, keep it'
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        const response = await fetch('/return-order', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId })
+        });
+
+        if (response.ok) {
+            await Swal.fire({
+                title: 'Success!',
+                text: 'Return request submitted successfully',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            window.location.reload();
+        } else {
+            throw new Error('Failed to process return request');
         }
     } catch (error) {
-        console.log("The error is "+error)
+        console.log("The error is " + error);
+        await Swal.fire({
+            title: 'Error!',
+            text: 'Failed to process return request',
+            icon: 'error',
+            confirmButtonText: 'Ok'
+        });
     }
 }

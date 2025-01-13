@@ -7,12 +7,6 @@
 </div>
 
 <header class="card-header text-center mb-20">
-    <form action="/admin/coupons" method="get" class="d-inline">
-        <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-            <input type="text" class="form-control border-0 rounded-pill" placeholder="Search coupons" name="search" id="search">
-            <button class="btn border-0" type="submit">Search</button>
-        </div>
-    </form>
     <!-- Add Coupon Button -->
     <div class="text-center mt-3">
         <a href="/admin/addCoupon" class="btn btn-primary" style="width: 150px;">Add Coupon</a>
@@ -30,8 +24,6 @@
                 <th scope="col"><b>Start Date</b></th>
                 <th scope="col"><b>End Date</b></th>
                 <th scope="col"><b>Maximum Discount</b></th>
-                <th scope="col"><b>Usage limit</b></th>
-                <th scope="col"><b>Status</b></th>
                 <th scope="col"><b>Action</b></th>
             </tr>
         </thead>
@@ -45,8 +37,6 @@
                     <td><%= coupon.startDate %></td>
                     <td><%= coupon.endDate %></td>
                     <td><%= coupon.maxDiscount %></td>
-                    <td><%= coupon.usageLimit %></td>
-                    <td><%= coupon.status === 'true' ? 'Active' : 'Inactive' %></td>
                     <td>
                         <a href="/admin/editCoupon/<%= coupon._id %>" class="btn btn-info" style="width: 80px;">
                             Edit
@@ -60,5 +50,6 @@
         </tbody>
     </table>   
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/javascript/deleteCoupon.js"></script>
