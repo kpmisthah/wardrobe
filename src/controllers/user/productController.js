@@ -12,11 +12,19 @@ let productDetails = async(req,res)=>{
             const productId = req.query.id
             //here i use so many methods all failed last populate helped us
             const products = await Product.find({_id:productId}).populate('category').populate('sizeOptions')
+
+
             const review = await Review.find({productId}).populate('userId').sort({createdAt:-1})
-            console.log("The review is "+review);
+            //matteth array aan return cheyyunne so cateogory id kittunnilla
+            const categoryInProduct = await Product.findOne({_id:productId})
+            console.log("the categoryInProduct"+categoryInProduct);
+            
+            const relatedProducts = await Product.find({
+            category:categoryInProduct.category,_id:{$ne:productId},isBlocked:false})
+            console.log("The related products"+relatedProducts);
             
            if(user){
-            return res.render('user/productDetails',{user:userData,products,review}) 
+            return res.render('user/productDetails',{user:userData,products,review,relatedProducts}) 
 
            }
             
