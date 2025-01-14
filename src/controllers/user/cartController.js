@@ -3,22 +3,7 @@ import { Cart } from "../../models/cartSchema.js";
 import { Size } from "../../models/sizeSchema.js";
 import { Product } from "../../models/productSchema.js";
 import { removeWishlist } from "./wishlistController.js";
-// const loadCart = async(req,res)=>{
-//     try {
-//         let userId = req.session.user
-//         let cart = await Cart.findOne({userId}).populate('items.product')
-//         if(cart && cart.items.length>0){
-//             const userData = await User.findOne({_id:userId})
-//             return res.render('user/cart',{user:userData,cart})
-//         }else{
-//             return res.status(400).json({message:"Cart is empty"})
-//         }
 
-//     } catch (error) {
-//         console.log("the error is"+error)
-//         return res.redirect('/notfound')
-//     }
-// }
 const loadCart = async (req, res) => {
   try {
     let userId = req.session.user;
@@ -215,7 +200,8 @@ const inc = async (req, res) => {
     await cart.save();
     return res
       .status(200)
-      .json({ message: "Item added to the cart successfully" });
+      .json({ message: "Item added to the cart successfully" ,newTotalPrice: cart.items[cartIndex].totalPrice,
+        newCartTotal: cart.bill,});
   } catch (error) {
     console.log("The error is " + error);
   }

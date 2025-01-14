@@ -178,7 +178,16 @@ async function placeOrder(event) {
       } else {
         swal("Error", "Failed to place order. Please try again.", "error");
       }
-    } else {
+    }else if(payment == 'Wallet'){
+      const response = await fetch('/place-order/wallet',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({payment,addressId})
+      })
+      if(response.ok){
+        
+      }
+    }else {
       swal("Error", "Unsupported payment method", "error");
     }
   } catch (error) {
