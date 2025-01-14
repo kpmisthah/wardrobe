@@ -185,7 +185,12 @@ async function placeOrder(event) {
         body:JSON.stringify({payment,addressId})
       })
       if(response.ok){
-        
+        const result = await response.json();
+        swal("Success", "Order placed successfully!", "success").then(() => {
+          window.location.href = result.redirectUrl;
+        });
+      }else {
+        swal("Error", "Failed to place order. Please try again.", "error");
       }
     }else {
       swal("Error", "Unsupported payment method", "error");

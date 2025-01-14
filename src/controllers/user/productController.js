@@ -17,11 +17,9 @@ let productDetails = async(req,res)=>{
             const review = await Review.find({productId}).populate('userId').sort({createdAt:-1})
             //matteth array aan return cheyyunne so cateogory id kittunnilla
             const categoryInProduct = await Product.findOne({_id:productId})
-            console.log("the categoryInProduct"+categoryInProduct);
             
             const relatedProducts = await Product.find({
             category:categoryInProduct.category,_id:{$ne:productId},isBlocked:false})
-            console.log("The related products"+relatedProducts);
             
            if(user){
             return res.render('user/productDetails',{user:userData,products,review,relatedProducts}) 
