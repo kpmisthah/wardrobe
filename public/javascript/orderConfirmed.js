@@ -1,4 +1,5 @@
-alert('hellllllo')
 document.getElementById('downloadInvoice').addEventListener('click', () => {
-    window.location.href = '/order/download/pdf';
+ const orderId = document.querySelector('input[name="orderId"]').value;
+ console.log("The id is"+orderId)
+    window.location.href = `/order/download/pdf/${orderId}`;
 });

@@ -75,5 +75,5 @@ router.get('/wallet',loadWallet)
 router.post('/place-order/wallet',wallet)
 
 //Invoice download
-router.get('/order/download/pdf',generatePdf)
+router.get('/order/download/pdf/:orderId',generatePdf)
 export default router
