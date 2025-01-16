@@ -40,9 +40,9 @@
                             <input type="text" name="productName" value="<%=product.name%>"class="form-control border" id="product_name">
                             <div id="productName-error" class="error-message"></div>
                         </div>
-                        <div class="col-lg-4 mb-4">
+                        <!-- <div class="col-lg-4 mb-4">
                             <div id="brand-error" class="error-message"></div>
-                        </div>
+                        </div> -->
                         <div class="mb-4">
                             <label class="form-label">Full description</label>
                             <input name="descriptionData" value="<%=product.description%>"  class="form-control border"rows="4" id="descriptionid">
@@ -91,6 +91,7 @@
                                                    </option>
                                                    <%})%>
                                            </select>
+                                           <label class="form-label">Sub Category</label>
                                            <select class="form-select border" style="width: 150px;" name="subcategory">
                                             <%subcategory.forEach((subcategory)=>{%>
                                                    <option value="<%=subcategory.name%>">
@@ -114,7 +115,9 @@
                                                <div class="col-12">
                                                    <td>
                                                        <input type="hidden" value="<%=product.productImage[i]%>" id="imageDatas">
-                                                       <img class="rounded" style="width: 50px; height: 60px;"src="/uploads/product-images/<%=product.productImage[i]%>"alt="">
+                                                       <!-- <img class="rounded" style="width: 50px; height: 60px;"src="/uploads/product-images/<%=product.productImage[i]%>"alt=""> -->
+                                                       <img class="thumbnail" src="/uploads/product-images/<%= product.productImage[i] %>" alt="">
+                                                       <i class="fas fa-times remove-icon" onclick="deleteSingleImage('<%= product.productImage[i] %>', '<%= product._id %>')"></i>
                                                        
                                                       
                                                    </td>
@@ -241,7 +244,7 @@
                 await croppedCanvas.toBlob(blob=>{
                     let input = document.getElementById('input'+index)
                     let imgFile = new File([blob],fileName,blob)
-                    const fileList = new DataTransfer()
+                    let fileList = new DataTransfer()
                     fileList.items.add(imgFile)
                     input.files = fileList.files
                 })
@@ -265,7 +268,7 @@
         for(let i = 0 ; i<files.length;i++){
             const file = files[i]
             selectedImages.push(file)
-            const thumbnail = document.createElement('div')
+            let thumbnail = document.createElement('div')
             thumbnail.classList.add('thumbnail')
 
             const img = document.createElement('img')
@@ -273,11 +276,11 @@
             img.alt = "thumbnail"
             img.style.width = "50px"
             img.style.height = "auto"
-            const removeIcon = document.createElement('span')
+           let removeIcon = document.createElement('span')
             removeIcon.classList.add('remove-icon')
             removeIcon.innerHTML = "&times;"
             removeIcon.addEventListener('click',function(){
-                const index = selectedImages.indexOf(file)
+                let index = selectedImages.indexOf(file)
                 if(index!==-1){
                     selectedImages.splice(index,1);
                 }
@@ -293,21 +296,13 @@
     function validateForm() {
               clearErrorMessages();
               const name = document.getElementsByName('productName')[0].value;
-              console.log("The name is "+name)
               const description = document.getElementById('descriptionid').value;
-              console.log("The desctiption is "+description)
               const price = document.getElementsByName('regularPrice')[0].value;
-              console.log("The price is"+price)
               const saleprice = document.getElementsByName('salePrice')[0].value;
-              console.log("The sale "+saleprice)
               const color = document.getElementsByName('color')[0].value;
-              console.log("The color is"+color)
               const category = document.getElementsByName('category')[0].value;
-              console.log("The cat"+category)
               const images = document.getElementById('input1')
-              console.log("the image is"+images)
               const subcategory = document.getElementsByName('subcategory')[0].value;
-              console.log("The cat"+category)
               let isValid = true
               if (name.trim() === "") {
                 displayErrorMessage('productName-error', 'Please enter a product name.');

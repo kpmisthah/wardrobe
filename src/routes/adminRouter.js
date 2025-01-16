@@ -64,8 +64,8 @@ router.delete('/deleteCoupon/:id',deleteCoupon)
 
 //dashboard
 
-// 
-router.get('/dashboard',isAuthenticated,loadDashboard)
+//,isAuthenticated 
+router.get('/dashboard',loadDashboard)
 router.post('/dashboard',dashboard)
 router.get('/dashboard/download/pdf', generatePdfReport);
 router.get('/dashboard/download/excel', generateExcelReport);

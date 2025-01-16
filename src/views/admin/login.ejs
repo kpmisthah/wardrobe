@@ -18,11 +18,11 @@
             ADMIN PANEL
         </div>
         <form action="/admin/login" method="post">
-            <div class="login-btm login-text">
-                <%if(locals.message){%>
-                <%=message%>
-                <%}%>
+            <%if(locals.message){%>
+            <div class="login-btm login-text" style="color: red;">
+                <%=locals.message%>
                </div>
+               <%}%>
             <div class="form-group">
                 <label class="form-control-label">Email</label>
                 <input type="text" class="form-control" placeholder="Enter username" id="name" name="email">

@@ -88,6 +88,7 @@ async function placeOrder(event) {
   const form = document.getElementById("payment-form");
   const payment = form["paymentMethod"].value.trim(); // Selected payment method
   const addressId = form["addressId"].value.trim(); // Selected address ID
+  
   const subtotal = document
     .getElementById("subtotal")
     .textContent.replace("₹", "")

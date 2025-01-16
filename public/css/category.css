@@ -1,0 +1,107 @@
+body {
+  background-color: #ecedef;
+  color: #ffffff;
+}
+.container {
+  margin-top: 10rem;
+  margin-right: 0.01rem;
+}
+.form-container, .table-container {
+  background-color: #dacfcf;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+.form-container h4, .form-label {
+  color: #ffffff;
+}
+.form-control {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border: 1px solid #444;
+}
+.form-control::placeholder {
+  color: #cccccc;
+}
+.form-control:focus {
+  background-color: #fffbfb;
+  color: #ffffff;
+  border-color: #555;
+  box-shadow: none;
+}
+.btn-primary {
+  background-color: #ffffff;
+  border-color: #565758;
+}
+.btn-primary:hover {
+  background-color: #8b9095;
+}
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(87, 88, 89, 0.5);
+}
+.table-container {
+  color: #ffffff;
+}
+.table {
+color: #ffffff; /* White text color */
+background-color: #ffffff; /* Dark background */
+}
+
+.table-bordered {
+border-color: #ffffff; /* Darker border for consistency */
+}
+
+.table-dark {
+background-color: #ffffff; /* Match your dark background theme */
+color: #ffffff; /* Ensure text remains white */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+background-color: #dbdfe2; /* Slightly darker rows */
+}
+
+
+
+.table-hover tbody tr:hover {
+background-color: rgb(255, 254, 254); /* Subtle hover effect */
+color: #ffffff; /* White text on hover */
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: #f8f8f8;
+}
+.table-dark {
+  background-color: #d7d2d2;
+}
+.pagination-container {
+display: flex;
+justify-content: center; 
+align-items: center;     
+padding: 20px 0;       
+}
+
+.pagination {
+display: flex;
+list-style: none;       
+padding: 0;
+margin: 0;
+}
+
+.page-item {
+margin: 0 5px;           
+}
+
+.page-link {
+display: inline-block;
+padding: 5px 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
+text-decoration: none;
+color: #007bff;         
+}
+
+.page-item.active .page-link {
+background-color: #007bff; 
+color: white;
+}

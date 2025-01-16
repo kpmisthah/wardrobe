@@ -12,4 +12,6 @@ const userLogin = (req,res,next)=>{
         return next();
     }
 }
+
+
 export{userAuth,userLogin}  

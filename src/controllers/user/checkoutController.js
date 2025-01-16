@@ -119,14 +119,16 @@ const addcheckoutAddress = async(req,res)=>{
 
 const placeOrder = async(req,res)=>{
     try {
-        const{payment,addressId} = req.body
+        const{payment,addressId} = req.body        
         const userId = req.session.user
         let coupon_code = req.session.coupon
         let final_amount = req.session.finalAmount
         const discount_amount = req.session.discount
         const cart = await Cart.findOne({userId})
-        const  address = await Address.findOne({userId})
-
+        const  address = await Address.findOne({userId,"address._id":addressId})
+        const addressIndex= address.address.findIndex((addr)=>addr._id.toString() == addressId)
+        const selectedAddress = address.address[addressIndex]
+        
         let orderedItems = []
         //to 
         // Add the size of particular product and manage the stock
@@ -146,7 +148,16 @@ const placeOrder = async(req,res)=>{
         let totalPrice = cart.bill
         const newOrder = new Order({
             orderedItems,
-            address: addressId,
+            address:{
+                name:selectedAddress.name,
+                email:selectedAddress.email,
+                phone:selectedAddress.phone,
+                city:selectedAddress.city,
+                zipCode:selectedAddress.zipCode,
+                houseNumber:selectedAddress.houseNumber,
+                district:selectedAddress.district,
+                state:selectedAddress.state,
+            },
             userId,
             paymentMethod: payment,
             status: "Pending", 
@@ -335,4 +346,28 @@ const orderConfirm = async(req,res)=>{
         
     }
 }
-export{loadCheckout,getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon}
+
+const generatePdf = async(req,res)=>{
+    try {
+        const orders = await Order.find()
+        const doc = new PDFDocument();
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+        doc.pipe(res);
+        doc.fontSize(25).text('Sales Report',{align:'center'})
+        doc.moveDown()
+        orders.forEach(order=>{
+            doc.fontSize(12).text(`Order ID: ${order._id}`);
+            doc.text(`Date: ${new Date(order.invoiceDate).toLocaleDateString('en-US')}`);
+            doc.text(`Amount: ₹${order.totalPrice}`);
+            doc.text(`Discount: ₹${order.discount}`);
+            doc.text(`Coupon: ${order.coupon || '-'}`);
+            doc.text(`Final Amount: ₹${order.finalAmount}`);
+            doc.text(`Status: ${order.status}`);
+            doc.moveDown();
+        })
+    } catch (error) {
+        
+    }
+}
+export{loadCheckout,getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf}

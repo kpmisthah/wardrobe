@@ -12,13 +12,19 @@ import randomString from "randomstring"
 const loadHome = async(req,res)=>{
     try {
     //separate category
-         const menCategory = await Category.findOne({name:"Men",isListed:true})
-         const womenCategory = await Category.findOne({name:"Women",isListed:true})
-         const kidsCategory = await Category.findOne({name:"Kids",isListed:true})
+        const[menCategory,womenCategory,kidsCategory] = await Promise.all([
+            Category.findOne({name:"men",isListed:true}),
+            Category.findOne({name:"women",isListed:true}),
+            Category.findOne({name:"kids",isListed:true})
+        ])
 
-         const menProducts = await Product.find({ category: menCategory._id ,isBlocked:false}).limit(1);
-         const womenProducts = await Product.find({category:womenCategory._id,isBlocked:false}).limit(1)
-         const kidsProducts = await Product.find({category:kidsCategory._id,isBlocked:false}).limit(1)
+        const[menProducts,womenProducts ,kidsProducts] = await Promise.all([
+            menCategory ? Product.find({ category: menCategory._id, isBlocked: false }).limit(1) : [],
+            womenCategory ? Product.find({ category: womenCategory._id, isBlocked: false }).limit(1) : [],
+            kidsCategory ? Product.find({ category: kidsCategory._id, isBlocked: false }).limit(1) : []
+        ])
+
+
 
          //product overview
 
@@ -66,7 +72,6 @@ const loadShoppingPage = async(req, res) => {
             
             const categoryIds = categories.map(cat => cat._id);
             
-            // Update query to search in both product details and categories
             query.$or = [
                 { name: { $regex: searchQuery, $options: 'i' } },
                 { description: { $regex: searchQuery, $options: 'i' } },
@@ -113,7 +118,7 @@ const loadShoppingPage = async(req, res) => {
         } else if (sortOption === 'reverseAlphabetical') {
             sort = { name: -1 }; 
         } else {
-            sort = {}; // Default sort, no specific order
+            sort = {}; 
         }
         // Add population for category
         let products = await Product.find(query)
@@ -121,7 +126,7 @@ const loadShoppingPage = async(req, res) => {
             .skip((page-1) * limit)
             .limit(limit)
             .populate('sizeOptions')
-            .populate('category'); // Add this to get category information
+            .populate('category'); 
 
         const count = await Product.countDocuments(query);
         const totalpage = Math.ceil(count/limit);
@@ -307,7 +312,6 @@ const profileUpdate = async (req,res)=>{
         const previousMail = await User.findOne({_id:userId})
         const oldEmail = previousMail.email
         const{email,password} = req.body
-        console.log("The email is"+email+" and the password is "+password)
          const otp = randomString.generate({ length: 6, charset: "numeric" });
          console.log("The new otp is"+otp)
          await Otp.create({ email:oldEmail, otp });

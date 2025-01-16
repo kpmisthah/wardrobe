@@ -22,6 +22,8 @@ const wallet = async (req, res) => {
     console.log("wallet"+payment+'  '+'addressId'+addressId);
     const userId = req.session.user;
     const wallet =await Wallet.findOne({userId})
+    console.log("noe the balance"+wallet.balance);
+    
     const order = await Order.findOne({userId})
     let coupon_code = req.session.coupon;
     let final_amount = req.session.finalAmount;
@@ -66,6 +68,7 @@ const wallet = async (req, res) => {
         })
         await newOrder.save()
         wallet.balance -=order.finalAmount
+        await wallet.save()
         console.log("wallet balance is"+wallet.balance);
         return res.status(200).json({message:'order placed successfully',redirectUrl:'/order-confirmation'})
         

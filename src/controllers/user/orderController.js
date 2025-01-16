@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { Order } from "../../models/orderIdSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 import { User } from '../../models/userSchema.js';
@@ -9,7 +8,7 @@ const orders = async(req,res)=>{
         const user = req.session.user
         const orders = await Order.find({userId:user}).populate('orderedItems.product');
         console.log("The orders are:", orders);
-        return res.render('user/orders', {orders}) // Note: passing orders, not order
+        return res.render('user/orders', {orders}) 
     } catch (error) {
         console.log("The error is"+error)
     }

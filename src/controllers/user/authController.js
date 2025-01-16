@@ -134,34 +134,50 @@ const loginpage = async(req,res)=>{
 }
 
 
-const login = async(req,res)=>{
-  const{email,password} = req.body
-  console.log(password);
+const login = async (req, res) => {
+  const { email, password } = req.body;
   
   try {
-    let savedUser = await User.findOne({isAdmin:0,email})
-    //already exist user
-    if(!savedUser){
-      return res.render("user/login",{message:"User not found"})
-    }
-    //if user is blocked by admin
-
-    if(savedUser.isBlocked){
-      return res.render('user/login',{message:"The user is blocked by admin"})
-    }
-   
-    const matchPassword =  await bcrypt.compare(password,savedUser.password)
+    let savedUser = await User.findOne({ isAdmin: 0, email });
     
-     if(!matchPassword){
-      return res.render('user/login',{message:"Incorrect password"})
-     }
-     req.session.user = savedUser._id
-     return res.redirect('/')
+    // User not found
+    if (!savedUser) {
+      return res.json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    // User is blocked
+    if (savedUser.isBlocked) {
+      return res.json({
+        success: false,
+        message: "Your account has been blocked by admin"
+      });
+    }
+    
+    const matchPassword = await bcrypt.compare(password, savedUser.password);
+    if (!matchPassword) {
+      return res.json({
+        success: false,
+        message: "Incorrect password"
+      });
+    }
+  
+    req.session.user = savedUser._id;
+    return res.json({
+      success: true,
+      message: "Login successful"
+    });
+    
   } catch (error) {
     console.log(error);
-    return res.render('user/login',{message:"An error occur during login"})
+    return res.json({
+      success: false,
+      message: "An error occurred during login"
+    });
   }
-}
+};
 
 const forgotPassword = async(req,res)=>{
   try {

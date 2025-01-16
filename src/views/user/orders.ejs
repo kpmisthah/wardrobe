@@ -38,7 +38,6 @@
                         <tbody>
                             <% orders.forEach((order) => { %>
                                 <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                    <% order.orderedItems.forEach((item) => { %>
                                         <tr>
                                             <td><%= order.orderId %></td>
                                             <td><%= order.invoiceDate %></td>
@@ -49,6 +48,7 @@
                                             </td>
                                             <td>₹<%= order.totalPrice %></td>
                                             <td>
+                                                <% order.orderedItems.forEach((item) => { %>
                                                 <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
                                                         <button type="button" 
                                                                 class="btn-cancel" 

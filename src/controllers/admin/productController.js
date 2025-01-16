@@ -210,13 +210,15 @@ const editProduct = async (req, res) => {
     console.log(req.files);
 
     const { id } = req.params;
-    const product = await Product.findOne({ _id: id });
+     //co//n//st// //product// //= //await //Product//.//findOne//({ //_id: //id //}//)//
     const data = req.body;
+    console.log("The body is ",data);
+    
     const existingProduct = await Product.findOne({
       name: data.productName,
       _id: { $ne: id },
     });
-
+    
     if (existingProduct) {
       return res
         .status(400)
@@ -226,27 +228,29 @@ const editProduct = async (req, res) => {
         });
     }
 
-    const images = [];
+    let images = [];
 
     if (req.files && req.files.length > 0) {
-      for (let i = 0; i < req.files.length; i++) {
-        images.push(req.files[i].filename);
-      }
+      images = req.files.map((file) => file.filename); 
     }
-
+    const category = await Category.findOne({ name: data.category });
+    const subcategory = await Subcategory.findOne({ name: data.subcategory });
     const updateFields = {
       name: data.productName,
-      description: data.description,
-      category: data.category,
-      subcategory: data.subcategory,
+      description: data.descriptionData,
+      category: category._id,
+      subcategory: subcategory._id,
       regularPrice: data.regularPrice,
       salePrice: data.salePrice,
       color: data.color,
+        productImage: images,
+
     };
-    if (req.files.length > 0) {
+    if (images.length > 0) {
       // updateFields.$push = {productImage:{$each:images}};
       updateFields.productImage = images;
     }
+
     await Product.findByIdAndUpdate(id, updateFields, { new: true });
     res.redirect("/admin/products");
   } catch (error) {
