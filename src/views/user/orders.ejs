@@ -111,7 +111,7 @@
                         <tbody>
                             <% orders.forEach((order) => { %>
                                 <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                    <tr>
+                                    <tr  data-order-id="<%= order._id %>">
                                         <td><%= order.orderId %></td>
                                         <td><%= order.invoiceDate %></td>
                                         <td>
@@ -226,23 +226,23 @@
         }
       }
 
-      async function retryPayment(paymentMethod, amount,orderId)  {
+      async function retryPayment(paymentMethod, amount,originalOrderId)  {
         try {
           const response = await fetch(`/retry-payment`,{
             method:"POST",
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({paymentMethod,amount,orderId})
+            body:JSON.stringify({paymentMethod,amount,originalOrderId})
           });
   
           if (response.ok) {
-            const { orderId, razorpayKey, amount } = await response.json();
+            const { razorpayOrderId, razorpayKey, amount } = await response.json();
           const options = {
             key: razorpayKey,
             amount: amount * 100,
             currency: "INR",
             name: "wadrob",
             description: "Order Payment Retry",
-            order_id: orderId,
+            order_id: razorpayOrderId,
             handler: async function (response) {
               try {
                 const saveResponse = await fetch("/complete-retry-payment", {
@@ -250,22 +250,20 @@
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     paymentId: response.razorpay_payment_id,
-                    orderId,
+                    razorpayOrderId: razorpayOrderId,
                     signature: response.razorpay_signature,
-                    originalOrderId: orderId,
+                    originalOrderId: originalOrderId,
                     amount: amount,
                   }),
                 });
                 if(saveResponse.ok){
-
-               
                 const result = await saveResponse.json();
-                await swal(
-                  "Success",
-                  "Payment completed successfully!",
-                  "success"
-                );
-                window.location.href = result.redirectUrl || "/order";
+                // await swal(
+                //   "Success",
+                //   "Payment completed successfully!",
+                //   "success"
+                // );
+                window.location.href = result.redirectUrl || "/order-confirmation";
               }
               } catch (error) {
                 console.error("Error saving payment:", error);
@@ -277,9 +275,9 @@
               }
             },
             prefill: {
-              name: userName,
-              email: userEmail,
-              contact: userContact,
+              name: 'user',
+              email: 'email',
+              contact: 'contact',
             },
             theme: { color: "#3399cc" },
             modal: {
@@ -288,10 +286,9 @@
               },
             },
           };
-
           const rzp = new Razorpay(options);
           rzp.open();
-
+          // window.location.reload()
           rzp.on("payment.failed", function (response) {
             swal("Error", "Payment failed. Please try again.", "error");
           });

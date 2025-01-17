@@ -67,15 +67,17 @@ router.get('/wishlist',userAuth,loadWishlist)
 router.post('/add-to-wishlist',addToWishlist)
 router.post('/add-cart',wishlistToCart)
 router.delete('/remove-wishlist/:productId',removeWishlist)
-//razorpay
-router.post('/create-order', rzpOrder)
-router.post('/save-order',saveOrder)
+
 //wallet
 router.get('/wallet',loadWallet)
 router.post('/place-order/wallet',wallet)
 
 //Invoice download
 router.get('/order/download/pdf/:orderId',generatePdf)
+
+//razorpay
+router.post('/create-order', rzpOrder)
+router.post('/save-order',saveOrder)
 //retry-payment
 router.post('/retry-payment',retryPayment)
 router.post('/complete-retry-payment', completeRetryPayment);

@@ -4,6 +4,7 @@ import { rzp } from "../../db/razorpay.js";
 const rzpOrder = async(req,res)=>{
     try {
         const{ amount, addressId, payment} = req.body
+        
         const rzpOrder = await rzp.orders.create({
             amount: amount * 100,  
             currency: 'INR',

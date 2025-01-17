@@ -215,11 +215,8 @@ const saveOrder = async (req, res) => {
   try {
     let userId = req.session.user;
     const { addressId, amount } = req.body;
-    console.log("teh addressId"+addressId);
-    console.log("The amount "+amount);
     const cart = await Cart.findOne({ userId });
     const address = await Address.findOne({userId})
-    console.log("The address is"+address);
     const addressIndex=  address.address.findIndex((adr)=>adr._id.toString()==addressId)
     const selectedAddress =  address.address[addressIndex]
     let coupon_code = req.session.coupon;
@@ -253,7 +250,7 @@ const saveOrder = async (req, res) => {
       paymentMethod: "razorpay",
       status: "Pending",
       totalPrice,
-      paymentStatus: "Pending",
+      paymentStatus: "Success",
       finalAmount: final_amount || totalPrice,
       invoiceDate: new Date(),
     });
@@ -266,6 +263,7 @@ const saveOrder = async (req, res) => {
     res.json({
       status: 200,
       message: "Order saved successfully",
+      mongoOrderId: newOrder._id ,
       redirectUrl: "/order-confirmation",
     });
   } catch (error) {
@@ -277,9 +275,11 @@ const saveOrder = async (req, res) => {
 //retrieve order
 const retryPayment = async (req, res) => {
   try {
-    const { paymentMethod , amount,orderId} = req.body;
-    const orders = await Order.findById(orderId)
-    if (orders.paymentStatus !== 'Pending' || orders.paymentMethod !== 'razorpay') {
+    const { paymentMethod , amount,originalOrderId} = req.body;
+    
+    const orders = await Order.findById(originalOrderId)
+  
+    if (orders.status !== 'Pending' || orders.paymentMethod !== 'razorpay') {
       return res.status(400).json({ success: false, message: 'Invalid order for retry payment.' });
     }
 
@@ -294,7 +294,7 @@ const retryPayment = async (req, res) => {
       },
     });
 
-    res.json({ orderId: rzpOrder.id, razorpayKey: process.env.RAZORPAY_KEY_ID, amount: orders.finalAmount });
+    res.json({  razorpayOrderId: rzpOrder.id, razorpayKey: process.env.RAZORPAY_KEY_ID, amount: orders.finalAmount });
   } catch (error) {
     console.error("Error creating retry payment:", error);
     res.status(500).json({ message: "Failed to create retry payment" });
@@ -303,14 +303,11 @@ const retryPayment = async (req, res) => {
 
 const completeRetryPayment = async(req,res)=>{
   try {
-    const{orderId,amount} = req.body
-    console.log("order id completed"+orderId);
-    console.log("The amount is"+amount);
+    const{originalOrderId,amount} = req.body
     const userId = req.session.user
-    const order = await Order.findOneAndUpdate({_id:orderId},{$set:{
+    const order = await Order.findOneAndUpdate({_id:originalOrderId},{$set:{
       paymentStatus:'Success'
     }})
-    console.log("The order si"+order);
     
     if (!order) {
       throw new Error('Order not found');
@@ -319,7 +316,7 @@ const completeRetryPayment = async(req,res)=>{
     cart.items = [];
     cart.bill = 0;
     await cart.save()
-    res.json({success: true,message: "Payment completed successfully",redirectUrl: `/order`});
+    res.json({success: true,message: "Payment completed successfully",redirectUrl: `/order-confirmation`});
   } catch (error) {
     console.error("Error completing retry payment:", error);
     res.status(500).json({

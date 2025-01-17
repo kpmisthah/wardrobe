@@ -125,10 +125,26 @@ async function placeOrder(event) {
       });
 
       if (response.ok) {
-        const { orderId, razorpayKey, amount } = await response.json();
+        const {orderId, razorpayKey, amount } = await response.json();
         const userName = document.getElementById("user-name").value;
         const userEmail = document.getElementById("user-email").value;
         const userContact = document.getElementById("user-contact").value;
+
+        const saveOrderResponse = await fetch("/save-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            addressId,
+            amount: subtotal,
+          }),
+        });
+
+        if (!saveOrderResponse.ok) {
+          swal("Error", "Failed to save the order. Please try again.", "error");
+          return;
+        }
+
+        const { mongoOrderId } = await saveOrderResponse.json();
 
         const options = {
           key: razorpayKey,
@@ -136,7 +152,7 @@ async function placeOrder(event) {
           currency: "INR",
           name: "wadrob",
           description: "Order Payment",
-          image: "/path-to-logo.png",
+          // image: "/path-to-logo.png",
           order_id: orderId,
           handler: async function (response) {
             const saveResponse = await fetch("/save-order", {
@@ -183,7 +199,7 @@ async function placeOrder(event) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            orderId,
+              orderId: mongoOrderId, 
             status: "Pending",
           }),
         });
