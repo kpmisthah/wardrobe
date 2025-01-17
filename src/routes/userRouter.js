@@ -2,9 +2,9 @@ import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
 import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
-import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf} from '../controllers/user/checkoutController.js'
+import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf,retryPayment,completeRetryPayment} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
-import { viewOrder,orders,orderCancel,returnOrder,cancelOrder} from "../controllers/user/orderController.js"
+import { viewOrder,orders,orderCancel,returnOrder,cancelOrder,updateOrderStatus} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
 import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
@@ -76,4 +76,9 @@ router.post('/place-order/wallet',wallet)
 
 //Invoice download
 router.get('/order/download/pdf/:orderId',generatePdf)
+//retry-payment
+router.post('/retry-payment',retryPayment)
+router.post('/complete-retry-payment', completeRetryPayment);
+router.post('/update-order-status', updateOrderStatus);
+
 export default router

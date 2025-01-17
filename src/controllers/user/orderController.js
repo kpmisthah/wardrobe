@@ -171,5 +171,27 @@ const returnOrder = async(req,res)=> {
     }
 }
 
+//update order status cancel payment 
 
-export{orders,viewOrder,orderCancel,returnOrder,cancelOrder}
+
+const updateOrderStatus = async (req, res) => {
+    try {
+      const { orderId, status } = req.body;
+      console.log("otders id"+orderId," status"+status);
+      
+      const order = await Order.findOne({ orderId });
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+  
+      order.paymentStatus = status;
+      await order.save();
+  
+      res.json({ message: "Order status updated successfully" });
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      res.status(500).json({ message: "Failed to update order status" });
+    }
+  };
+  
+export{orders,viewOrder,orderCancel,returnOrder,cancelOrder, updateOrderStatus}

@@ -6,7 +6,7 @@ import { Review } from "../../models/reviewSchema.js"
 let productDetails = async(req,res)=>{
     try {
        
-        //findById return a single document.while find() return an array of documents
+        
         const user = req.session.user
         const userData = await User.find({_id:user})
             const productId = req.query.id

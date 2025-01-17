@@ -112,6 +112,12 @@ const orderIdSchema = new Schema({
        required:true,
        enum:['Pending','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
     },
+    paymentStatus: {
+      type: String,
+      enum: ['Pending', 'Failed', 'Success'],
+      default: 'PENDING'
+    },
+
 },{timestamps:true})
 
 export const Order = mongoose.model('Order',orderIdSchema)

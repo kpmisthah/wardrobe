@@ -5,9 +5,9 @@ const rzpOrder = async(req,res)=>{
     try {
         const{ amount, addressId, payment} = req.body
         const rzpOrder = await rzp.orders.create({
-            amount: amount * 100,  // Convert to paise (1 INR = 100 paise)
+            amount: amount * 100,  
             currency: 'INR',
-            receipt: `receipt#${addressId}`,  // Use a unique receipt ID
+            receipt: `receipt#${addressId}`, 
             payment_capture: true,
             notes: {
                 orderType: "Pre",
@@ -24,4 +24,8 @@ const rzpOrder = async(req,res)=>{
     }
     
 }
-export{rzpOrder}
+
+
+
+
+export{rzpOrder }

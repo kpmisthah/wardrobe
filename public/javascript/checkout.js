@@ -20,7 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
 //coupon logic
 async function applyCoupon(event) {
   event.preventDefault();
-  const couponCode = document.getElementById("coupon-code-input").value.trim() || null;
+  const couponCode =
+    document.getElementById("coupon-code-input").value.trim() || null;
   if (!couponCode) {
     swal("Error", "Please enter a coupon code", "error");
     return;
@@ -35,13 +36,22 @@ async function applyCoupon(event) {
     const result = await response.json();
     if (response.ok) {
       document.getElementById("discount-row").style.display = "flex";
-      document.getElementById("discount-amount").textContent = `₹${result.discount}`;
-      document.getElementById("final-amount").textContent = `₹${result.finalAmount}`;
+      document.getElementById(
+        "discount-amount"
+      ).textContent = `₹${result.discount}`;
+      document.getElementById(
+        "final-amount"
+      ).textContent = `₹${result.finalAmount}`;
 
       document.getElementById("applied-coupon-info").style.display = "block";
       document.getElementById("applied-coupon-code").textContent = couponCode;
       document.getElementById("coupon-code-input").disabled = true;
       swal("Success", result.message, "success");
+    } else if (
+      response.message ==
+      "Cash on Delivery is not allowed for orders above Rs. 1000."
+    ) {
+      Swal.fire("Error", result.message, "OOPS");
     } else {
       swal("Success", result.message, "SUCCESS");
     }
@@ -51,29 +61,31 @@ async function applyCoupon(event) {
 }
 
 async function removeCoupon(couponid) {
-  const couponCode = document.getElementById("coupon-code-input").value.trim() || null;
+  const couponCode =
+    document.getElementById("coupon-code-input").value.trim() || null;
   try {
-    const response = await fetch('/remove-coupon', {
+    const response = await fetch("/remove-coupon", {
       method: "post",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ couponCode })
+      body: JSON.stringify({ couponCode }),
     });
 
     if (response.ok) {
       const result = await response.json();
-      document.getElementById('discount-row').style.display = 'none';
-      document.getElementById('discount-amount').textContent = '₹0';
-      document.getElementById('final-amount').textContent = document.getElementById('subtotal').textContent;
+      document.getElementById("discount-row").style.display = "none";
+      document.getElementById("discount-amount").textContent = "₹0";
+      document.getElementById("final-amount").textContent =
+        document.getElementById("subtotal").textContent;
 
-      document.getElementById('applied-coupon-info').style.display = 'none';
-      document.getElementById('applied-coupon-code').textContent = '';
+      document.getElementById("applied-coupon-info").style.display = "none";
+      document.getElementById("applied-coupon-code").textContent = "";
 
-      document.getElementById('apply-coupon-btn').style.display = 'block';
-      document.getElementById('remove-coupon-btn').style.display = 'none';
+      document.getElementById("apply-coupon-btn").style.display = "block";
+      document.getElementById("remove-coupon-btn").style.display = "none";
 
-      const couponInput = document.getElementById('coupon-code-input');
+      const couponInput = document.getElementById("coupon-code-input");
       couponInput.disabled = false;
-      couponInput.value = '';
+      couponInput.value = "";
 
       swal("Success", "Coupon removed successfully", "success");
     }
@@ -88,7 +100,7 @@ async function placeOrder(event) {
   const form = document.getElementById("payment-form");
   const payment = form["paymentMethod"].value.trim(); // Selected payment method
   const addressId = form["addressId"].value.trim(); // Selected address ID
-  
+
   const subtotal = document
     .getElementById("subtotal")
     .textContent.replace("₹", "")
@@ -141,11 +153,17 @@ async function placeOrder(event) {
 
             if (saveResponse.ok) {
               const result = await saveResponse.json();
-              swal("Success", "Order placed successfully!", "success").then(() => {
-                window.location.href = result.redirectUrl;
-              });
+              swal("Success", "Order placed successfully!", "success").then(
+                () => {
+                  window.location.href = result.redirectUrl;
+                }
+              );
             } else {
-              swal("Error", "Failed to save the order. Please try again.", "error");
+              swal(
+                "Error",
+                "Failed to save the order. Please try again.",
+                "error"
+              );
             }
           },
           prefill: {
@@ -159,18 +177,58 @@ async function placeOrder(event) {
         const rzp = new Razorpay(options);
         rzp.open();
 
-        rzp.on("payment.failed", function (response) {
-          swal("Error", "Payment failed. Please try again.", "error");
-          console.error(response.error);
+        rzp.on("payment.failed",async function (response) {
+        // Update order status to "Pending" on payment failure
+        const updateResponse = await fetch("/update-order-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId,
+            status: "Pending",
+          }),
         });
-      }
+
+        if (!updateResponse.ok) {
+          console.error("Failed to update order status");
+        }
+        swal("Error", "Payment failed. Please try again.", "error");
+        setTimeout(()=>{
+          window.location.href = '/orders'
+        },2000)
+      });
+    }
     } else if (payment === "COD") {
-      const response = await fetch("/place-order", {
+      try {
+        const response = await fetch('/place-order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ payment,  addressId }),
+        });
+    
+        const result = await response.json();
+    
+        if (response.ok) {
+            swal("Success", "Order placed successfully!", "success").then(() => {
+                window.location.href = result.redirectUrl;
+            });
+        } else if (result.message === 'Cash on Delivery is not allowed for orders above Rs 1000.') {
+            swal("Error", "Cash on Delivery is not allowed for orders above Rs 1000. Please select another payment method.", "error");
+        } else {
+            swal("Error", result.message || "Failed to place order. Please try again.", "error");
+        }
+    } catch (error) {
+        swal("Error", "Something went wrong. Please try again later.", "error");
+        console.error("Error placing order:", error);
+    }
+    
+    } else if (payment == "Wallet") {
+      const response = await fetch("/place-order/wallet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ payment, addressId }),
       });
-
       if (response.ok) {
         const result = await response.json();
         swal("Success", "Order placed successfully!", "success").then(() => {
@@ -179,21 +237,7 @@ async function placeOrder(event) {
       } else {
         swal("Error", "Failed to place order. Please try again.", "error");
       }
-    }else if(payment == 'Wallet'){
-      const response = await fetch('/place-order/wallet',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({payment,addressId})
-      })
-      if(response.ok){
-        const result = await response.json();
-        swal("Success", "Order placed successfully!", "success").then(() => {
-          window.location.href = result.redirectUrl;
-        });
-      }else {
-        swal("Error", "Failed to place order. Please try again.", "error");
-      }
-    }else {
+    } else {
       swal("Error", "Unsupported payment method", "error");
     }
   } catch (error) {
