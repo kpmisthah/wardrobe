@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+  
+    <style>
+    .charts-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    @media (min-width: 1024px) {
+        .charts-container {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+    
+    .chart-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-card h3 {
+        margin: 0 0 1rem 0;
+        color: #333;
+        font-size: 1.2rem;
+    }
+    </style>
+<body>
+    
+    <div class="container">
+        <div class="dashboard-header">
+            <div class="header-top">
+                <div class="header-title">
+                    <h1>Sales Analytics</h1>
+                    <p>Monitor your business performance in real-time</p>
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label>Quick Filter</label>
+                    <select id="quickFilter">
+                        <option value="today">Daily</option>
+                        <option value="week">Weekly</option>
+                        <option value="month">Monthly</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-group">
+                    <label>End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button id="applyFilter" style="margin-top: 1.5rem;">Apply Filter</button>
+            </div>
+        </div>
+    
+        <div class="stats-grid">
+            <!-- Your existing stats cards -->
+        </div>
+    
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>Sales Trend</h3>
+                <div id="salesChart" style="width:100%; height:400px;"></div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Payment Methods</h3>
+                <div id="paymentChart" style="width:100%; height:400px;"></div>
+            </div>
+        </div>
+    
+        <div class="sales-table">
+            <!-- Your existing table content -->
+        </div>
+    </div>
+    <script>
+        // Add this to your sales.js file
+    
+    async function updateCharts(quickFilter = null, startDate = null, endDate = null) {
+        try {
+            const response = await fetch('/admin/sales', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quickFilter, startDate, endDate })
+            });
+            
+            const data = await response.json();
+            
+            // Sales Trend Chart
+            const salesTrendData = [{
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Sales Amount',
+                x: data.salesData.map(item => item.date),
+                y: data.salesData.map(item => item.sales),
+                line: { color: '#2ecc71' }
+            }, {
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Order Count',
+                x: data.salesData.map(item => item.date),
+                y: data.salesData.map(item => item.orders),
+                yaxis: 'y2',
+                line: { color: '#3498db' }
+            }];
+    
+            const salesLayout = {
+                title: 'Sales and Orders Trend',
+                yaxis: { title: 'Sales Amount (₹)' },
+                yaxis2: {
+                    title: 'Number of Orders',
+                    overlaying: 'y',
+                    side: 'right'
+                },
+                showlegend: true,
+                legend: { x: 0, y: 1.2 },
+                hovermode: 'x unified'
+            };
+    
+            Plotly.newPlot('salesChart', salesTrendData, salesLayout);
+    
+            // Payment Methods Chart
+            const paymentChartData = [{
+                values: data.paymentData.map(item => item.totalAmount),
+                labels: data.paymentData.map(item => item._id),
+                type: 'pie',
+                hole: 0.4,
+                marker: {
+                    colors: ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f']
+                }
+            }];
+    
+            const paymentLayout = {
+                title: 'Payment Methods Distribution',
+                annotations: [{
+                    font: { size: 20 },
+                    showarrow: false,
+                    text: 'Sales by<br>Payment',
+                    x: 0.5,
+                    y: 0.5
+                }],
+                showlegend: true,
+                legend: { x: 0.9, y: 1 }
+            };
+    
+            Plotly.newPlot('paymentChart', paymentChartData, paymentLayout);
+    
+        } catch (error) {
+            console.error('Error updating charts:', error);
+        }
+    }
+    
+    // Event Listeners
+    document.getElementById('applyFilter').addEventListener('click', () => {
+        const quickFilter = document.getElementById('quickFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        updateCharts(quickFilter, startDate, endDate);
+    });
+    
+    // Initial load
+    updateCharts('month');
+    </script>
+</body>
+</html>
+
+<!-- ivide -->
+ 
+
+document.getElementById('applyFilter').addEventListener('click',async()=>{
+    const quickFilter = document.getElementById('quickFilter').value
+    const startDate = document.getElementById('startDate').value
+    const endDate = document.getElementById('endDate').value
+    
+
+    const response = await fetch('/admin/sales',{
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({quickFilter,startDate,endDate})
+    })
+    const data = await response.json();
+    const ordersTableBody = document.getElementById('ordersTableBody');
+    ordersTableBody.innerHTML = '';
+    data.orders.forEach(order => {
+        const row = `<tr>
+            <td>${order._id}</td>
+            <td>${new Date(order.invoiceDate).toLocaleDateString('en-US')}</td>
+            <td>₹${order.totalPrice}</td>
+            <td>₹${order.discount}</td>
+            <td>${order.coupon || '-'}</td>
+            <td>₹${order.finalAmount ? order.finalAmount : order.totalPrice}</td>
+            <td><span class="status ${order.status}">${order.status}</span></td>
+        </tr>`;
+        ordersTableBody.insertAdjacentHTML('beforeend', row);
+    });
+})
+
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+    window.location.href = '/admin/dashboard/download/pdf';
+});
+
+document.getElementById('downloadExcelBtn').addEventListener('click', () => {
+    window.location.href = '/admin/dashboard/download/excel';
+});

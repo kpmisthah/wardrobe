@@ -9,7 +9,8 @@ import { orderList,orderStatus,handleReturn ,orderCancelled,viewOrders} from "..
 import { laodCoupon,addcoupon,createCoupon ,editCoupon,geteditCoupon,deleteCoupon} from "../controllers/admin/couponController.js"
 import { uploadMulter,storage } from "../utils/multer.js" //intialise multer with a custom storage engine
 import { isAuthenticated,isLogin } from "../middlewares/adminAuth.js"
-import { loadDashboard,dashboard ,generatePdfReport,generateExcelReport} from "../controllers/admin/dashboardController.js"
+import { loadsalesReport,salesReport ,generatePdfReport,generateExcelReport} from "../controllers/admin/salesController.js"
+import { loadDashboard,getSalesAnalytics } from "../controllers/admin/dashboardController.js"
 const uploads = uploadMulter(storage)
 
 router.get('/login',isLogin,loginPage)
@@ -62,14 +63,13 @@ router.get('/editCoupon/:edit',geteditCoupon)
 router.put('/editCoupon/:edit',editCoupon)
 router.delete('/deleteCoupon/:id',deleteCoupon)
 
-//dashboard
+//sales-report
+router.get('/sales',isAuthenticated ,loadsalesReport)
+router.post('/sales',salesReport)
+router.get('/sales/download/pdf', generatePdfReport);
+router.get('/sales/download/excel', generateExcelReport);
 
-//,isAuthenticated 
-router.get('/dashboard',loadDashboard)
-router.post('/dashboard',dashboard)
-router.get('/dashboard/download/pdf', generatePdfReport);
-router.get('/dashboard/download/excel', generateExcelReport);
-
-
+// router.get('/dashboard',isAuthenticated,loadDashboard)
+// router.post('/sales', getSalesAnalytics);
 export default router
 
