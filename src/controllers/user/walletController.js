@@ -40,7 +40,7 @@ const wallet = async (req, res) => {
         let orderedItems = [];
         for(let item of cart.items){
             orderedItems.push({
-                Product:item.product,
+                product:item.product,
                 name:item.name,
                 size:item.size,
                 quantity:item.quantity,

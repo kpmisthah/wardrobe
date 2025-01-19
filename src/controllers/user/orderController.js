@@ -109,7 +109,7 @@ const cancelOrder = async (req, res) => {
 
 
         // Refund to wallet if payment method is not COD
-        if (cancelledOrder.paymentMethod !== 'COD') {
+        if (cancelledOrder.paymentMethod !== 'COD' && cancelOrder.paymentStatus != 'Pending') {
             const wallet = await Wallet.findOne({ userId: cancelledOrder.userId });
             const refundAmount = cancelledOrder.finalAmount;
             if (wallet) {
