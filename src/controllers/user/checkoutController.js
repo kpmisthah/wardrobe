@@ -176,6 +176,13 @@ const placeOrder = async (req, res) => {
     }
 
     let totalPrice = cart.bill;
+    if (payment == "COD" &&  final_amount||totalPrice > 1000) {
+      return res
+        .status(400)
+        .json({
+          message: "Cash on Delivery is not allowed for orders above Rs 1000.",
+        });
+    }
     const newOrder = new Order({
       orderedItems,
       address: {
@@ -198,13 +205,7 @@ const placeOrder = async (req, res) => {
       invoiceDate: new Date(),
     });
     await newOrder.save();
-    if (payment == "COD" && newOrder.finalAmount > 1000) {
-      return res
-        .status(400)
-        .json({
-          message: "Cash on Delivery is not allowed for orders above Rs 1000.",
-        });
-    }
+
     cart.items = [];
     cart.bill = 0;
     await cart.save();

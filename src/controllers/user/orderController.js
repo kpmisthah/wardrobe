@@ -100,20 +100,6 @@ const cancelOrder = async (req, res) => {
         const { orderId } = req.body;
         const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: "Canceled" }, { new: true });
 
-        // const itemIndex = cancelledOrder.orderedItems.findIndex(
-        //     item => item._id.toString() === productId
-        // );
-
-        // if (itemIndex === -1) {
-        //     return res.status(404).json({ message: "Item not found" });
-        // }
-        // const items = cancelledOrder.orderedItems[itemIndex];
-
-        //     const size = await Size.findOne({ product: items.product, size: items.size });
-        //     if (size) {
-        //         size.quantity += items.quantity;
-        //         await size.save();
-        //     }
         for(let item of cancelledOrder.orderedItems){
                 const size = await Size.findOne({product:item.product,size:item.size})
                 size.quantity+=item.quantity
