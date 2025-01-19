@@ -194,7 +194,7 @@ const placeOrder = async (req, res) => {
       totalPrice,
       finalAmount: final_amount || totalPrice,
       discount: discount_amount,
-      paymentStatus: 'Success',
+      paymentStatus: 'Pending',
       invoiceDate: new Date(),
     });
     await newOrder.save();

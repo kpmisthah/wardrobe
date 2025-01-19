@@ -7,7 +7,6 @@ const orders = async(req,res)=>{
     try {
         const user = req.session.user
         const orders = await Order.find({userId:user}).populate('orderedItems.product');
-        console.log("The orders are:", orders);
         return res.render('user/orders', {orders}) 
     } catch (error) {
         console.log("The error is"+error)

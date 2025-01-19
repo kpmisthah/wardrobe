@@ -103,7 +103,7 @@ async function placeOrder(event) {
   const subtotal = document
     .getElementById("subtotal")
     .textContent.replace("₹", "")
-    .trim(); // Order subtotal
+    .trim(); 
 
   if (!addressId) {
     swal("Error", "Please select a delivery address", "error");

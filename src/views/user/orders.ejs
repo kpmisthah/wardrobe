@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Orders</title>
@@ -8,170 +8,191 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-        
-        .status-badge.pending {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
-        }
-        
-        .payment-pending {
-            background-color: #ffe5e5;
-            color: #dc3545;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .retry-payment-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .retry-payment-btn:hover {
-            background-color: #218838;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-cancel {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .btn-cancel:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-        
-        .order-details {
-            margin: 10px 0;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-        }
-        
-        .payment-info {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-top: 5px;
-        }
+      .status-badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        font-weight: 500;
+      }
+
+      .status-badge.pending {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+      }
+
+      .payment-pending {
+        background-color: #ffe5e5;
+        color: #dc3545;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .retry-payment-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .retry-payment-btn:hover {
+        background-color: #218838;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn-cancel {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .btn-cancel:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .order-details {
+        margin: 10px 0;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+      }
+
+      .payment-info {
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-top: 5px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <nav class="sidebar">
-            <a href="/" class="sidebar-item">Home</a>
-            <a href="/myaccount" class="sidebar-item">Dashboard</a>
-            <a href="/order" class="sidebar-item active">Orders</a>
-            <a href="/updateProfile" class="sidebar-item">Update Profile</a>
-            <a href="#" class="sidebar-item">Wallet</a>
-            <a href="/getAddress" class="sidebar-item">My Address</a>
-            <a href="/" class="sidebar-item">Logout</a>
-        </nav>
+      <nav class="sidebar">
+        <a href="/" class="sidebar-item">Home</a>
+        <a href="/myaccount" class="sidebar-item">Dashboard</a>
+        <a href="/order" class="sidebar-item active">Orders</a>
+        <a href="/updateProfile" class="sidebar-item">Update Profile</a>
+        <a href="#" class="sidebar-item">Wallet</a>
+        <a href="/getAddress" class="sidebar-item">My Address</a>
+        <a href="/" class="sidebar-item">Logout</a>
+      </nav>
 
-        <main class="main-content">
-            <h2>Your Orders</h2>
+      <main class="main-content">
+        <h2>Your Orders</h2>
 
-            <% if (orders && orders.length > 0) { %>
-                <div class="orders-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Payment Status</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% orders.forEach((order) => { %>
-                                <% if (order.orderedItems && order.orderedItems.length > 0) { %>
-                                    <tr  data-order-id="<%= order._id %>">
-                                        <td><%= order.orderId %></td>
-                                        <td><%= order.invoiceDate %></td>
-                                        <td>
-                                            <span class="status-badge <%= order.status.toLowerCase() %>">
-                                                <%= order.status %>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <% if (order.paymentStatus === 'Pending') { %>
-                                                <div class="payment-pending">
-                                                    Payment Pending
-                                                    <button 
-                                                        class="retry-payment-btn"
-                                                        onclick="retryPayment('<%= order.paymentMethod%>', '<%= order.finalAmount %>','<%=order._id%>')"
-                                                    >
-                                                        Complete Payment
-                                                    </button>
-                                                </div>
-                                            <% } else { %>
-                                                <span class="status-badge <%= order.paymentStatus.toLowerCase() %>">
-                                                    <%= order.paymentStatus %>
-                                                </span>
-                                            <% } %>
-                                        </td>
-                                        <td>₹<%= order.totalPrice %></td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
-                                                    <button
-                                                        type="button"
-                                                        class="btn-cancel"
-                                                        onclick="canceled('<%= order._id %>', '<%= order.orderedItems[0]._id %>')"
-                                                    >
-                                                        Cancel Order
-                                                    </button>
-                                                <% } else { %>
-                                                    <button type="button" class="btn-cancel disabled" disabled>
-                                                        Cannot Cancel
-                                                    </button>
-                                                <% } %>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <a href="/user/view-order/<%= order._id %>" class="view-link">
-                                                View Details
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <% } %>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            <% } else { %>
-                <div class="no-orders">
-                    <p>You haven't placed any orders yet.</p>
-                    <a href="/" class="shop-now-btn">Start Shopping</a>
-                </div>
+        <% if (orders && orders.length > 0) { %>
+        <div class="orders-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Payment Method</th>
+                <th>Payment Status</th>
+                <th>Total</th>
+                <th>Action</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach((order) => { %> <% if (order.orderedItems &&
+              order.orderedItems.length > 0) { %>
+              <tr data-order-id="<%= order._id %>">
+                <td><%= order.orderId %></td>
+                <td><%= order.invoiceDate.toLocaleDateString('en-IN') %></td>
+                <td>
+                  <span class="status-badge <%= order.status.toLowerCase() %>">
+                    <%= order.status %>
+                  </span>
+                </td>
+                <td><%=order.paymentMethod%></td>
+                <td>
+                  <% if (order.paymentStatus === 'Pending'&& order.paymentMethod
+                  !== 'COD') { %>
+                  <div class="payment-pending">
+                    Payment Pending
+                    <button
+                      class="retry-payment-btn"
+                      onclick="retryPayment('<%= order.paymentMethod%>', '<%= order.finalAmount %>','<%=order._id%>')"
+                    >
+                      Complete Payment
+                    </button>
+                  </div>
+                  <%}else if(order.paymentMethod == 'COD'){%>
+                  <span
+                    class="status-badge <%= order.paymentStatus.toLowerCase() %>"
+                  >
+                    <%= order.paymentStatus %>
+                  </span>
+                  <% } else { %>
+                  <span
+                    class="status-badge <%= order.paymentStatus.toLowerCase() %>"
+                  >
+                    <%= order.paymentStatus %>
+                  </span>
+                  <% } %>
+                </td>
+                <td>₹<%= order.totalPrice %></td>
+                <td>
+                  <div class="action-buttons">
+                    <% if (order.status === 'Pending' || order.status ===
+                    'Shipped') { %>
+                    <button
+                      type="button"
+                      class="btn-cancel"
+                      onclick="canceled('<%= order._id %>', '<%= order.orderedItems[0]._id %>')"
+                    >
+                      Cancel Order
+                    </button>
+                    <% } else { %>
+                    <button type="button" class="btn-cancel disabled" disabled>
+                      Cannot Cancel
+                    </button>
+                    <% } %>
+                  </div>
+                </td>
+                <td>
+                  <a href="/user/view-order/<%= order._id %>" class="view-link">
+                    View Details
+                  </a>
+                </td>
+              </tr>
+              <% } %> <% }) %>
+            </tbody>
+          </table>
+        </div>
+        //  Pagination
+        <nav aria-label="Page navigation" class="pagination-container">
+          <ul class="pagination justify-content-center">
+            <% for (let i = 1; i <= totalpage; i++) { %>
+            <li class="page-item <%= page === i ? 'active' : '' %>">
+              <a class="page-link" href="/orders?page=<%= i %>"><%= i %></a>
+            </li>
             <% } %>
-        </main>
+          </ul>
+        </nav>
+        <% } else { %>
+        <div class="no-orders">
+          <p>You haven't placed any orders yet.</p>
+          <a href="/shop" class="shop-now-btn">Start Shopping</a>
+        </div>
+        <% } %>
+      </main>
     </div>
     <script>
       async function canceled(orderId, productId) {
@@ -226,73 +247,75 @@
         }
       }
 
-      async function retryPayment(paymentMethod, amount,originalOrderId)  {
+      async function retryPayment(paymentMethod, amount, originalOrderId) {
         try {
-          const response = await fetch(`/retry-payment`,{
-            method:"POST",
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({paymentMethod,amount,originalOrderId})
+          const response = await fetch(`/retry-payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentMethod, amount, originalOrderId }),
           });
-  
+
           if (response.ok) {
-            const { razorpayOrderId, razorpayKey, amount } = await response.json();
-          const options = {
-            key: razorpayKey,
-            amount: amount * 100,
-            currency: "INR",
-            name: "wadrob",
-            description: "Order Payment Retry",
-            order_id: razorpayOrderId,
-            handler: async function (response) {
-              try {
-                const saveResponse = await fetch("/complete-retry-payment", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    paymentId: response.razorpay_payment_id,
-                    razorpayOrderId: razorpayOrderId,
-                    signature: response.razorpay_signature,
-                    originalOrderId: originalOrderId,
-                    amount: amount,
-                  }),
-                });
-                if(saveResponse.ok){
-                const result = await saveResponse.json();
-                // await swal(
-                //   "Success",
-                //   "Payment completed successfully!",
-                //   "success"
-                // );
-                window.location.href = result.redirectUrl || "/order-confirmation";
-              }
-              } catch (error) {
-                console.error("Error saving payment:", error);
-                swal(
-                  "Error",
-                  "Failed to complete payment. Please contact support.",
-                  "error"
-                );
-              }
-            },
-            prefill: {
-              name: 'user',
-              email: 'email',
-              contact: 'contact',
-            },
-            theme: { color: "#3399cc" },
-            modal: {
-              ondismiss: function () {
-                console.log("Payment modal closed without completion");
+            const { razorpayOrderId, razorpayKey, amount } =
+              await response.json();
+            const options = {
+              key: razorpayKey,
+              amount: amount * 100,
+              currency: "INR",
+              name: "wadrob",
+              description: "Order Payment Retry",
+              order_id: razorpayOrderId,
+              handler: async function (response) {
+                try {
+                  const saveResponse = await fetch("/complete-retry-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      paymentId: response.razorpay_payment_id,
+                      razorpayOrderId: razorpayOrderId,
+                      signature: response.razorpay_signature,
+                      originalOrderId: originalOrderId,
+                      amount: amount,
+                    }),
+                  });
+                  if (saveResponse.ok) {
+                    const result = await saveResponse.json();
+                    // await swal(
+                    //   "Success",
+                    //   "Payment completed successfully!",
+                    //   "success"
+                    // );
+                    window.location.href =
+                      result.redirectUrl || "/order-confirmation";
+                  }
+                } catch (error) {
+                  console.error("Error saving payment:", error);
+                  swal(
+                    "Error",
+                    "Failed to complete payment. Please contact support.",
+                    "error"
+                  );
+                }
               },
-            },
-          };
-          const rzp = new Razorpay(options);
-          rzp.open();
-          // window.location.reload()
-          rzp.on("payment.failed", function (response) {
-            swal("Error", "Payment failed. Please try again.", "error");
-          });
-        }
+              prefill: {
+                name: "user",
+                email: "email",
+                contact: "contact",
+              },
+              theme: { color: "#3399cc" },
+              modal: {
+                ondismiss: function () {
+                  console.log("Payment modal closed without completion");
+                },
+              },
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+            // window.location.reload()
+            rzp.on("payment.failed", function (response) {
+              swal("Error", "Payment failed. Please try again.", "error");
+            });
+          }
         } catch (error) {
           console.error("Error initiating retry payment:", error);
           swal(
@@ -301,7 +324,7 @@
             "error"
           );
         }
-      };
+      }
     </script>
 
     <style>
