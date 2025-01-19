@@ -3,6 +3,7 @@ import { User } from "../../models/userSchema.js";
 import { Cart } from "../../models/cartSchema.js";
 import { Order } from "../../models/orderIdSchema.js";
 import { Product } from "../../models/productSchema.js";
+import { Address } from "../../models/addressSchema.js";
 const loadWallet = async (req, res) => {
   try {
     const user = req.session.user;
@@ -18,26 +19,22 @@ const loadWallet = async (req, res) => {
 
 const wallet = async (req, res) => {
   try {
-    const { payment, addressId } = req.body;
-    console.log("wallet"+payment+'  '+'addressId'+addressId);
+    const { payment, addressId } = req.body;  
     const userId = req.session.user;
     const wallet =await Wallet.findOne({userId})
-    console.log("noe the balance"+wallet.balance);
-    
     const order = await Order.findOne({userId})
+    const cart = await Cart.findOne({ userId });
+    
+    const address = await Address.findOne({userId,'address._id':addressId})
+    const addressIndex = address.address.findIndex((addr)=>addr._id.toString()==addressId)
+    const selectedAddress = address.address[addressIndex]
     let coupon_code = req.session.coupon;
     let final_amount = req.session.finalAmount;
     const discount_amount = req.session.discount;
-    console.log("The wallet is"+wallet);
-    console.log("The order is "+order);
-    console.log("The coupon is"+coupon_code);
-    console.log("The final amount is"+final_amount);
-    console.log("the discount "+discount_amount);
-    
-    const cart = await Cart.findOne({ userId });
-    console.log("The cart is"+cart);
-    
-    if(wallet.balance<order.finalAmount){
+    //aadhym order final amount vechittan nokeene so userid oru issue aayathond logic completely maati
+    const amountToDeduct = final_amount || cart.bill;
+
+    if(wallet.balance<amountToDeduct){
         return res.status(400).json({message:"Balance is insufficient"})
     }else{
         let orderedItems = [];
@@ -52,24 +49,36 @@ const wallet = async (req, res) => {
                 returnStatus:'Not Requested'
             })
         }
-        let totalPrice = cart.bill
-        console.log("Teh total price"+totalPrice);
-        
+       
+
         const newOrder = new Order({
             orderedItems,
-            address:addressId,
+            address:{
+              name:selectedAddress.name,
+              email:selectedAddress.email ,
+              phone:selectedAddress.phone,
+              city:selectedAddress.city,
+              zipCode:selectedAddress.zipCode,
+              houseNumber:selectedAddress.houseNumber,
+              district:selectedAddress.district,
+              state:selectedAddress.state,           
+            },
             userId,
             paymentMethod:payment,
             status:'Pending',
-            totalPrice,
-            finalAmount:final_amount||totalPrice,
+            totalPrice:cart.bill,
+            finalAmount:amountToDeduct,
             discount:discount_amount,
+            paymentStatus:'Success',
             invoiceDate:new Date()
         })
         await newOrder.save()
-        wallet.balance -=order.finalAmount
+        wallet.balance -=amountToDeduct
         await wallet.save()
         console.log("wallet balance is"+wallet.balance);
+        cart.items = []
+        cart.bill = 0
+        await cart.save()
         return res.status(200).json({message:'order placed successfully',redirectUrl:'/order-confirmation'})
         
     }

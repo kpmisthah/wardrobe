@@ -233,7 +233,6 @@ const getAddress = async(req,res)=>{
         if(!existingAddress){
             return res.render('user/getAddress',{address:[]})
         }
-        console.log("The address is "+existingAddress)
         return res.render('user/getAddress',{address:existingAddress.address})
     } catch (error) {
         console.log("The error is"+error)

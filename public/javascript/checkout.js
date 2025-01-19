@@ -75,7 +75,7 @@ async function removeCoupon(couponid) {
       document.getElementById("discount-row").style.display = "none";
       document.getElementById("discount-amount").textContent = "₹0";
       document.getElementById("final-amount").textContent =
-        document.getElementById("subtotal").textContent;
+      document.getElementById("subtotal").textContent;
 
       document.getElementById("applied-coupon-info").style.display = "none";
       document.getElementById("applied-coupon-code").textContent = "";
@@ -100,7 +100,6 @@ async function placeOrder(event) {
   const form = document.getElementById("payment-form");
   const payment = form["paymentMethod"].value.trim(); // Selected payment method
   const addressId = form["addressId"].value.trim(); // Selected address ID
-
   const subtotal = document
     .getElementById("subtotal")
     .textContent.replace("₹", "")
@@ -246,12 +245,14 @@ async function placeOrder(event) {
         body: JSON.stringify({ payment, addressId }),
       });
       if (response.ok) {
+        console.log("The response is"+ response)
         const result = await response.json();
         swal("Success", "Order placed successfully!", "success").then(() => {
           window.location.href = result.redirectUrl;
         });
       } else {
-        swal("Error", "Failed to place order. Please try again.", "error");
+        console.log("The response is"+ response)
+        swal("Error", "Failed to place order.Insufficient blance in wallet", "error");
       }
     } else {
       swal("Error", "Unsupported payment method", "error");

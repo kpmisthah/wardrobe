@@ -13,6 +13,7 @@ const loadCheckout = async (req, res) => {
     let userAddress = await Address.findOne({ userId: user });
     const cart = await Cart.findOne({ userId: user }).populate("items.product");
     const coupon = await Coupon.find();
+    
     if (!userAddress) {
       return res.redirect("/getAddress");
     }
@@ -216,7 +217,9 @@ const saveOrder = async (req, res) => {
     let userId = req.session.user;
     const { addressId, amount } = req.body;
     const cart = await Cart.findOne({ userId });
+    console.log("The cart is"+cart);
     const address = await Address.findOne({userId})
+    console.log("The address is"+address);
     const addressIndex=  address.address.findIndex((adr)=>adr._id.toString()==addressId)
     const selectedAddress =  address.address[addressIndex]
     let coupon_code = req.session.coupon;
@@ -228,12 +231,13 @@ const saveOrder = async (req, res) => {
         name: item.name,
         size: item.size,
         quantity: item.quantity,
-        price: item.price,
+        price: item.totalPrice,
         couponCode: coupon_code,
         returnStatus: "Not Requested",
       });
     }
     let totalPrice = cart.bill;
+    console.log("The total price is"+totalPrice); 
     const newOrder = new Order({
       orderedItems,
       address: {
@@ -255,7 +259,9 @@ const saveOrder = async (req, res) => {
       invoiceDate: new Date(),
     });
 
-    await newOrder.save();
+    const fi  = await newOrder.save();
+    console.log("new order is"+fi);
+    
     //dont clear cart yet wait ofr succrssfull payment
     cart.items = [];
     cart.bill = 0;
@@ -445,9 +451,8 @@ const removeCoupon = async (req, res) => {
 const orderConfirm = async (req, res) => {
   try {
     const user = req.session.user;
-    console.log("The user is" + user);
-    const orders = await Order.findOne({ userId: user });
-    console.log("The orders is" + orders);
+    const orders = await Order.findOne({ userId: user }).sort({createdAt:-1});
+    console.log("The order is confirm is"+orders)
     return res.render("user/orderconfirmed", { orders });
   } catch (error) {
     console.log("the error for orders is" + orders);
@@ -513,8 +518,8 @@ const generatePdf = async (req, res) => {
         .fontSize(10)
         .text(item.name, 50, position)
         .text(item.quantity.toString(), 200, position)
-        .text(`$${item.price.toFixed(2)}`, 300, position)
-        .text(`$${(item.quantity * item.price).toFixed(2)}`, 400, position);
+        .text(`₹${item.price.toFixed(2)}`, 300, position)
+        .text(`₹${(item.quantity * item.price).toFixed(2)}`, 400, position);
       position += 20;
     });
     // Add totals
@@ -524,16 +529,16 @@ const generatePdf = async (req, res) => {
     doc
       .fontSize(10)
       .text("Subtotal:", 300, position)
-      .text(`$${order.totalPrice.toFixed(2)}`, 400, position);
+      .text(`₹${order.totalPrice.toFixed(2)}`, 400, position);
     position += 20;
     doc
       .text("Discount:", 300, position)
-      .text(`$${order.discount.toFixed(2)}`, 400, position);
+      .text(`₹${order.discount.toFixed(2)}`, 400, position);
     position += 20;
     doc
       .fontSize(12)
       .text("Total:", 300, position)
-      .text(`$${order.finalAmount.toFixed(2)}`, 400, position);
+      .text(`₹${order.finalAmount.toFixed(2)}`, 400, position);
     // Add payment method
     position += 40;
     doc
@@ -543,18 +548,7 @@ const generatePdf = async (req, res) => {
     position += 20;
     doc.text("Note: Thank you for your business!", 50, position);
     doc.end();
-    // doc.fontSize(25).text('Sales Report',{align:'center'})
-    // doc.moveDown()
-    // order.forEach(order=>{
-    //     doc.fontSize(12).text(`Order ID: ${order._id}`);
-    //     doc.text(`Date: ${new Date(order.invoiceDate).toLocaleDateString('en-US')}`);
-    //     doc.text(`Amount: ₹${order.totalPrice}`);
-    //     doc.text(`Discount: ₹${order.discount}`);
-    //     doc.text(`Coupon: ${order.coupon || '-'}`);
-    //     doc.text(`Final Amount: ₹${order.finalAmount}`);
-    //     doc.text(`Status: ${order.status}`);
-    //     doc.moveDown();
-    // })
+
   } catch (error) {
     console.error("Error generating invoice:", error);
     res.status(500).send("Error generating invoice");
