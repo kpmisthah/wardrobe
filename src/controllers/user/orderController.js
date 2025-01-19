@@ -97,46 +97,50 @@ const orderCancel = async(req, res) => {
 
 const cancelOrder = async (req, res) => {
     try {
-        const { orderId, productId } = req.body;
+        const { orderId } = req.body;
         const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: "Canceled" }, { new: true });
 
-        const itemIndex = cancelledOrder.orderedItems.findIndex(
-            item => item._id.toString() === productId
-        );
+        // const itemIndex = cancelledOrder.orderedItems.findIndex(
+        //     item => item._id.toString() === productId
+        // );
 
-        if (itemIndex === -1) {
-            return res.status(404).json({ message: "Item not found" });
-        }
-        const items = cancelledOrder.orderedItems[itemIndex];
+        // if (itemIndex === -1) {
+        //     return res.status(404).json({ message: "Item not found" });
+        // }
+        // const items = cancelledOrder.orderedItems[itemIndex];
 
-        if (cancelledOrder.status === 'Canceled') {
-            const size = await Size.findOne({ product: items.product, size: items.size });
-            if (size) {
-                size.quantity += items.quantity;
-                await size.save();
-            }
+        //     const size = await Size.findOne({ product: items.product, size: items.size });
+        //     if (size) {
+        //         size.quantity += items.quantity;
+        //         await size.save();
+        //     }
+        for(let item of cancelledOrder.orderedItems){
+                const size = await Size.findOne({product:item.product,size:item.size})
+                size.quantity+=item.quantity
+                await size.save()
+                item.cancelStatus = 'canceled'
         }
 
 
         // Refund to wallet if payment method is not COD
         if (cancelledOrder.paymentMethod !== 'COD') {
             const wallet = await Wallet.findOne({ userId: cancelledOrder.userId });
-            const totalAmount = cancelledOrder.finalAmount;
+            const refundAmount = cancelledOrder.finalAmount;
             if (wallet) {
-                wallet.balance += totalAmount;
+                wallet.balance += refundAmount;
                 wallet.transactionHistory.push({
                     transactionType: 'refund',
-                    transactionAmount: totalAmount,
+                    transactionAmount: refundAmount,
                     description: `Refund for cancelled order ${cancelledOrder._id}`
                 });
                 await wallet.save();
             } else {
                 const newWallet = new Wallet({
                     userId: cancelledOrder.userId,
-                    balance: totalAmount,
+                    balance: refundAmount,
                     transactionHistory: [{
                         transactionType: 'refund',
-                        transactionAmount: totalAmount,
+                        transactionAmount: refundAmount,
                         description: `Refund for cancelled order ${cancelledOrder._id}`
                     }]
                 });
