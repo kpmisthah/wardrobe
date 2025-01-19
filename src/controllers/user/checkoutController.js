@@ -283,7 +283,6 @@ const orderConfirm = async (req, res) => {
   try {
     const user = req.session.user;
     const orders = await Order.findOne({ userId: user }).sort({createdAt:-1});
-    console.log("The order is confirm is"+orders)
     return res.render("user/orderconfirmed", { orders });
   } catch (error) {
     console.log("the error for orders is" + orders);
@@ -297,7 +296,6 @@ const saveOrder = async (req, res) => {
     if (!order) {
       throw new Error("Order not found");
     }
-    order.status = 'Completed'
     order.paymentStatus = 'Success'
     await order.save()
     const cart = await Cart.findOne({ userId: order.userId });

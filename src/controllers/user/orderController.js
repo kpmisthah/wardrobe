@@ -6,13 +6,21 @@ import { Wallet } from '../../models/walletSchema.js';
 const orders = async(req,res)=>{
     try {
         const user = req.session.user
-        const orders = await Order.find({userId:user}).populate('orderedItems.product');
-        return res.render('user/orders', {orders}) 
+        let page = parseInt(req.query.page)||1
+        let limit = 10
+        const orders = await Order.find({userId:user}).skip((page-1)*limit).limit(limit).populate('orderedItems.product');
+        let count = await Order.find({userId:user}).countDocuments()
+        console.log("the count is"+count);
+        let totalpages = Math.ceil(count/limit)
+        console.log("The total pages"+totalpages);
+        
+        return res.render('user/orders', {orders,page,totalpages}) 
     } catch (error) {
         console.log("The error is"+error)
     }
 }
-const viewOrder = async(req,res)=>{
+
+ const viewOrder = async(req,res)=>{
     try {
         const user = req.session.user
         const{orderid} = req.params
