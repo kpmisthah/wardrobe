@@ -12,11 +12,18 @@ const loadCheckout = async (req, res) => {
     let user = req.session.user;
     let userAddress = await Address.findOne({ userId: user });
     const cart = await Cart.findOne({ userId: user }).populate("items.product");
+    console.log("The cart is"+cart);
+    
     const coupon = await Coupon.find();
     
+    if (!cart || cart.items.length === 0) {
+      return res.redirect("/cart"); 
+    }
+
     if (!userAddress) {
       return res.redirect("/getAddress");
     }
+
     if (user) {
       let userData = await User.findOne({ _id: user });
       return res.render("user/checkout", {
