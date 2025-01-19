@@ -211,35 +211,37 @@ const placeOrder = async (req, res) => {
     console.log("The error is" + error);
   }
 };
-
-const saveOrder = async (req, res) => {
+const createPendingOrder = async (req, res) => {
   try {
-    let userId = req.session.user;
     const { addressId, amount } = req.body;
+    const userId = req.session.user;
+    
     const cart = await Cart.findOne({ userId });
-    console.log("The cart is"+cart);
-    const address = await Address.findOne({userId})
-    console.log("The address is"+address);
-    const addressIndex=  address.address.findIndex((adr)=>adr._id.toString()==addressId)
-    const selectedAddress =  address.address[addressIndex]
-    let coupon_code = req.session.coupon;
-    let final_amount = req.session.finalAmount;
-    let orderedItems = [];                                                                                                                                                                                                                                
-    for (let item of cart.items) {
-      orderedItems.push({
-        product: item.product,
-        name: item.name,
-        size: item.size,
-        quantity: item.quantity,
-        price: item.totalPrice,
-        couponCode: coupon_code,
-        returnStatus: "Not Requested",
-      });
-    }
-    let totalPrice = cart.bill;
-    console.log("The total price is"+totalPrice); 
+    const address = await Address.findOne({ userId });
+    const addressIndex = address.address.findIndex(
+      (adr) => adr._id.toString() === addressId
+    );
+    const selectedAddress = address.address[addressIndex];
+
+    const coupon_code = req.session.coupon;
+    const final_amount = req.session.finalAmount;
+
+    const orderedItems = cart.items.map(item => ({
+      product: item.product,
+      name: item.name,
+      size: item.size,
+      quantity: item.quantity,
+      price: item.totalPrice,
+      couponCode: coupon_code,
+      returnStatus: "Not Requested",
+    
+    }));
+
     const newOrder = new Order({
       orderedItems,
+      totalPrice: cart.bill,
+      discount: cart.bill - (final_amount || cart.bill),
+      finalAmount: final_amount || cart.bill,
       address: {
         name: selectedAddress.name,
         email: selectedAddress.email,
@@ -253,23 +255,54 @@ const saveOrder = async (req, res) => {
       userId,
       paymentMethod: "razorpay",
       status: "Pending",
-      totalPrice,
-      paymentStatus: "Success",
-      finalAmount: final_amount || totalPrice,
+      paymentStatus: "Pending",
       invoiceDate: new Date(),
     });
 
-    const fi  = await newOrder.save();
-    console.log("new order is"+fi);
-    
-    //dont clear cart yet wait ofr succrssfull payment
+    await newOrder.save();
+
+    res.json({
+      status: 200,
+      message: "Pending order created",
+      mongoOrderId: newOrder._id
+    });
+  } catch (error) {
+    console.error("Error creating pending order:", error);
+    res.status(500).json({ message: "Failed to create pending order" });
+  }
+};
+
+const orderConfirm = async (req, res) => {
+  try {
+    const user = req.session.user;
+    const orders = await Order.findOne({ userId: user }).sort({createdAt:-1});
+    console.log("The order is confirm is"+orders)
+    return res.render("user/orderconfirmed", { orders });
+  } catch (error) {
+    console.log("the error for orders is" + orders);
+  }
+};
+const saveOrder = async (req, res) => {
+  try {
+    let userId = req.session.user;
+    const { mongoOrderId,addressId, amount } = req.body;
+    const order = await Order.findById(mongoOrderId)
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    order.status = 'Completed'
+    order.paymentStatus = 'Success'
+    await order.save()
+    const cart = await Cart.findOne({ userId: order.userId });
     cart.items = [];
     cart.bill = 0;
-    await cart.save();
+    await cart.save()
+    delete req.session.coupon;
+    delete req.session.finalAmount;
+   
     res.json({
       status: 200,
       message: "Order saved successfully",
-      mongoOrderId: newOrder._id ,
       redirectUrl: "/order-confirmation",
     });
   } catch (error) {
@@ -448,16 +481,7 @@ const removeCoupon = async (req, res) => {
     });
   }
 };
-const orderConfirm = async (req, res) => {
-  try {
-    const user = req.session.user;
-    const orders = await Order.findOne({ userId: user }).sort({createdAt:-1});
-    console.log("The order is confirm is"+orders)
-    return res.render("user/orderconfirmed", { orders });
-  } catch (error) {
-    console.log("the error for orders is" + orders);
-  }
-};
+
 
 const generatePdf = async (req, res) => {
   try {
@@ -563,6 +587,7 @@ export {
   placeOrder,
   orderConfirm,
   applyCoupon,
+  createPendingOrder,
   saveOrder,
   removeCoupon,
   generatePdf,

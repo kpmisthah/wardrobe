@@ -129,21 +129,22 @@ async function placeOrder(event) {
         const userEmail = document.getElementById("user-email").value;
         const userContact = document.getElementById("user-contact").value;
 
-        const saveOrderResponse = await fetch("/save-order", {
+        const pendingOrder = await fetch("/create-pending-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             addressId,
             amount: subtotal,
+            razorpayOrderId: orderId
           }),
         });
 
-        if (!saveOrderResponse.ok) {
+        if (!pendingOrder.ok) {
           swal("Error", "Failed to save the order. Please try again.", "error");
           return;
         }
 
-        const { mongoOrderId } = await saveOrderResponse.json();
+        const { mongoOrderId } = await pendingOrder.json();
 
         const options = {
           key: razorpayKey,
@@ -154,10 +155,11 @@ async function placeOrder(event) {
           // image: "/path-to-logo.png",
           order_id: orderId,
           handler: async function (response) {
-            const saveResponse = await fetch("/save-order", {
+            const confirmOrder = await fetch("/confirm-order", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
+                mongoOrderId,
                 paymentId: response.razorpay_payment_id,
                 orderId: response.razorpay_order_id,
                 signature: response.razorpay_signature,
@@ -166,8 +168,8 @@ async function placeOrder(event) {
               }),
             });
 
-            if (saveResponse.ok) {
-              const result = await saveResponse.json();
+            if (confirmOrder.ok) {
+              const result = await confirmOrder.json();
               swal("Success", "Order placed successfully!", "success").then(
                 () => {
                   window.location.href = result.redirectUrl;

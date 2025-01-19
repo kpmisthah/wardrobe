@@ -2,7 +2,7 @@ import express from "express"
 import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
 import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
-import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf,retryPayment,completeRetryPayment} from '../controllers/user/checkoutController.js'
+import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf,retryPayment,completeRetryPayment,createPendingOrder} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
 import { viewOrder,orders,orderCancel,returnOrder,cancelOrder,updateOrderStatus} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
@@ -77,7 +77,8 @@ router.get('/order/download/pdf/:orderId',generatePdf)
 
 //razorpay
 router.post('/create-order', rzpOrder)
-router.post('/save-order',saveOrder)
+router.post('/create-pending-order', createPendingOrder)
+router.post('/confirm-order',saveOrder)
 //retry-payment
 router.post('/retry-payment',retryPayment)
 router.post('/complete-retry-payment', completeRetryPayment);
