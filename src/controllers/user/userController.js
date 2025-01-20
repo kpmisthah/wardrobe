@@ -330,7 +330,7 @@ const otpVerification = async(req,res)=>{
     }
 }
 
-const verifyOtp = async (req,res)=>{
+const verifyOtps = async (req,res)=>{
     try {    
       const userId = req.session.user
       const previousMail = await User.findOne({_id:userId})
@@ -387,6 +387,6 @@ export {
     deleteAddress,
     profileUpdate,
     otpVerification,
-    verifyOtp,
+    verifyOtps,
     resendOtp
 }

@@ -32,24 +32,15 @@ const signup = async(req,res)=>{
     if(existUser){
      return res.redirect('/signup')
     }
-
+    let hashedPassword = await bcrypt.hash(password,10)
+    req.session.userDetails = {name,email,password:hashedPassword,phone}
+    console.log("The session details: ", JSON.stringify(req.session.userDetails, null, 2));
     
     // Generate and save OTP
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     const result = await Otp.create({ email, otp });
-    console.log("The otp generated"+result);
-    
-    let hashedPassword = await bcrypt.hash(password,10)
-
-    //new user
-
-     
-     req.session.userDetails = {name,email,password:hashedPassword,phone}
-     console.log("The session details: ", JSON.stringify(req.session.userDetails, null, 2));
-
-     
-    
-    return res.render('user/otpVerification',{email})
+    console.log("The otp generated"+result); 
+     return res.render('user/otpVerification', { email: req.session.userDetails.email })
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({success:false,error:error.message})
@@ -58,38 +49,120 @@ const signup = async(req,res)=>{
 }
 
 
-const verifyOtp = async (req,res)=>{
-  try {    
-    const{otps,email} = req.body 
-    if (!email || !otps) {
-      return res.status(400).json({ success: false, message: "Invalid request data. OTP or email missing." });
-  }
-  console.log("Email and OTP received in backend:", email, otps);
-    console.log("otps"+otps+" and"+email);
+// const verifyOtp = async (req,res)=>{
+//   try {    
+//     const{otps,email} = req.body 
+//     if (!email || !otps) {
+//       return res.status(400).json({ success: false, message: "Invalid request data. OTP or email missing." });
+//   }
+//   console.log("Email and OTP received in backend:", email, otps);
+//     console.log("otps"+otps+" and"+email);
     
-    const otpRecord = await Otp.findOne({email}) 
-    if (!otpRecord) {
-      return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
-    }
-    if(otpRecord.otp!=otps){
-      return res.status(400).json({ success: false, message: "Invalid OTP." });
-    }
-    const users = req.session.userDetails
-    const newUser = new User(users);
-    await newUser.save()
-    req.session.user = newUser._id
-    console.log(typeof users,"otp side")
-    // return res.redirect("/")
-    return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/" });  // Example redirect URL
-  } catch (error) {
-    console.error("Error in verifyOtp:", error.stack || error);
+//     const otpRecord = await Otp.findOne({email}) 
+//     if (!otpRecord) {
+//       return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
+//     }
+//     if(otpRecord.otp!=otps){
+//       return res.status(400).json({ success: false, message: "Invalid OTP." });
+//     }
+//     const users = req.session.userDetails
+//     const newUser = new User(users);
+//     await newUser.save()
+//     req.session.user = newUser._id
+//     console.log(typeof users,"otp side")
+//     // return res.redirect("/")
+//     return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/" });  
+//   } catch (error) {
+//     console.error("Error in verifyOtp:", error);
 
-    return res.status(500).json({success:false,message:"An error occured"})
-  }
+//     return res.status(500).json({success:false,message:"An error occured"})
+//   }
  
 
-}
+// }
+const verifyOtp = async (req, res) => {
+  try {
+    const { otps, email } = req.body;
+    
+    console.log("Received OTP:", otps);
+    console.log("Received Email:", email);
+    console.log("Session Details:", req.session.userDetails);
 
+    // Validate input
+    if (!email || !otps) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid request data. OTP or email missing." 
+      });
+    }
+
+    // Find the most recent OTP record for this email
+    const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 });
+    
+    console.log("Found OTP Record:", otpRecord);
+
+    if (!otpRecord) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "OTP record not found." 
+      });
+    }
+
+    // Verify OTP matches
+    if (otpRecord.otp !== otps) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid OTP." 
+      });
+    }
+
+    // Get user details from session
+    const userDetails = req.session.userDetails;
+    
+    console.log("User Details from Session:", userDetails);
+
+    if (!userDetails) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Session expired. Please try again." 
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists"
+      });
+    }
+
+    // Create new user
+    const newUser = new User(userDetails);
+    await newUser.save();
+
+    // Set session
+    req.session.user = newUser._id;
+
+    // Delete used OTP
+    await Otp.deleteOne({ _id: otpRecord._id });
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "OTP verified successfully.", 
+      redirectUrl: "/" 
+    });
+
+  } catch (error) {
+    console.error("Error in verifyOtp:", error);
+    
+    // Send more specific error message
+    return res.status(500).json({
+      success: false,
+      message: error.message || "An error occurred during verification"
+    });
+  }
+};
 const resendOtp = async(req,res)=>{
   try {
     const{email} = req.body

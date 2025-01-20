@@ -40,32 +40,7 @@ const userSchema = new Schema({
     isBlocked:{
         type:Boolean,
         default:false
-    },
-   
-    //What is this
-    referalCode:{
-        type:String
-    },
-    redeemed:{
-        type:Boolean
-    },
-    redeemedUsers:{
-        type:Schema.Types.ObjectId,
-        ref:"User"
-    },
-    searchHistory:[{
-        category:{
-            type:Schema.Types.ObjectId,
-            ref:"Category"
-        },
-        brand:{
-            type:String,    
-        },
-        searchOn:{
-            type:Date,
-            default:Date.now()
-        }
-    }]
+    }
 },{timestamps:true})
 
 export const User = mongoose.model("User",userSchema)

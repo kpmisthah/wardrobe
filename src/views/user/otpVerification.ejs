@@ -82,9 +82,9 @@
                 });
                 inputs[0].focus();
                 
-                clearInterval(timerId); // Clear the previous timer
-                timerDisplay.classList.remove('expired'); // Remove expired class
-                startTimer(); // Start a new timer
+                clearInterval(timerId);
+                timerDisplay.classList.remove('expired');
+                startTimer(); 
                 Swal.fire("New OTP sent!", "", "success");
                
             } else {

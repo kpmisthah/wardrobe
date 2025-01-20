@@ -1,5 +1,5 @@
 import express from "express"
-import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtp, resendOtp} from "../controllers/user/userController.js"
+import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddress,addAddress,address,getEditPage,edit,deleteAddress,profileUpdate,otpVerification,verifyOtps, resendOtp} from "../controllers/user/userController.js"
 import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf,retryPayment,completeRetryPayment,createPendingOrder} from '../controllers/user/checkoutController.js'
@@ -60,7 +60,7 @@ router.post('/order/cancel',cancelOrder)
 router.post('/return-order',returnOrder)
 //otp-page
 router.get('/otp',otpVerification)
-router.post('/verify-otp',verifyOtp)
+router.post('/verify-otp',verifyOtps)
 router.post('/resend-otp',resendOtp)
 //wishlist
 router.get('/wishlist',userAuth,loadWishlist)

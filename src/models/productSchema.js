@@ -39,10 +39,6 @@ const productSchema = new Schema({
         type:Boolean,
         default:true
     },
-    colorOption:{
-        type:[String],
-        required:true
-    },
     isBlocked:{
         type:Boolean,
         default:false
