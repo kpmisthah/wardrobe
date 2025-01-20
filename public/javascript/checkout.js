@@ -47,27 +47,21 @@ async function applyCoupon(event) {
       document.getElementById("applied-coupon-code").textContent = couponCode;
       document.getElementById("coupon-code-input").disabled = true;
       swal("Success", result.message, "success");
-    } else if (
-      response.message ==
-      "Cash on Delivery is not allowed for orders above Rs. 1000."
-    ) {
-      Swal.fire("Error", result.message, "OOPS");
+    
     } else {
-      swal("Success", result.message, "SUCCESS");
+      swal("Error", result.message, "error");
     }
   } catch (error) {
     console.log("The error is " + error);
   }
 }
 
-async function removeCoupon(couponid) {
-  const couponCode =
-    document.getElementById("coupon-code-input").value.trim() || null;
+async function removeCoupon() {
+
   try {
     const response = await fetch("/remove-coupon", {
-      method: "post",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ couponCode }),
     });
 
     if (response.ok) {

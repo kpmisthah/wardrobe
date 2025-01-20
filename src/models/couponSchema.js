@@ -20,6 +20,7 @@ const couponSchema = new Schema({
     maxDiscount: {
       type: Number, 
       default: null,
+      
     },
     minPurchase: {
       type: Number, 
@@ -32,11 +33,7 @@ const couponSchema = new Schema({
     endDate: {
       type: Date,
       required: true,
-    },
-    isActive: {
-      type: Boolean, 
-      default: true,
-    },
+    }
   }, {
     timestamps: true, 
   });

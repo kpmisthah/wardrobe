@@ -12,7 +12,6 @@ async function validateEditCouponForm(event) {
   );
   const startDate = document.getElementById("startDate").value;
   const endDate = document.getElementById("endDate").value;
-  const status = document.getElementById("status").value;
   const discountType = document.getElementById("discountType").value;
   const couponId = document.getElementById("couponId").value;
 
@@ -43,11 +42,7 @@ async function validateEditCouponForm(event) {
     isValid = false;
   }
 
-  if (!status) {
-    document.getElementById("statusError").textContent =
-      "Please select the status.";
-    isValid = false;
-  }
+
 
   if (isValid) {
     try {

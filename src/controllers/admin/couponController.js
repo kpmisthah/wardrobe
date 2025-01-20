@@ -40,7 +40,6 @@ const createCoupon = async (req, res) => {
       minPurchase: Number(minPurchase),
       startDate,
       endDate,
-      isActive,
       discountType,
       maxDiscount:Number(maxDiscount)
     });
@@ -64,11 +63,8 @@ const geteditCoupon = async (req, res) => {
 const editCoupon = async (req, res) => {
   try {
     const { edit } = req.params;
-    const {code,discountValue,minPurchase,startDate,endDate,isActive,discountType} = req.body;
-    const existingCoupon = await Coupon.findOne({ code });
-    if (existingCoupon) {
-      return res.status(400).json({ message: "coupon already exist" });
-    }
+    const {code,discountValue,minPurchase,startDate,endDate,discountType} = req.body;
+
     const updateCoupon = await Coupon.findByIdAndUpdate(
       edit,
       {
@@ -77,7 +73,6 @@ const editCoupon = async (req, res) => {
         minPurchase,
         startDate,
         endDate,
-        isActive,
         discountType,
       },
       { new: true }

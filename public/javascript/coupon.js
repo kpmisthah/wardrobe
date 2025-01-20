@@ -10,7 +10,6 @@ async function validateCouponForm(event) {
     const maxDiscount = parseFloat(document.getElementById('maxDiscount').value);  
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
-    const status = document.getElementById('status').value;
     const discountType = document.getElementById('discountType').value
 
     let isValid = true;
@@ -40,10 +39,7 @@ async function validateCouponForm(event) {
         isValid = false;
     }
 
-    if (!status) {
-        document.getElementById('statusError').textContent = "Please select the status.";
-        isValid = false;
-    }
+ 
     if (!discountType) {
         document.getElementById('discountTypeError').textContent = "Please select a discount type.";
         isValid = false;
@@ -62,7 +58,6 @@ async function validateCouponForm(event) {
             startDate,
             endDate,
             maxDiscount,
-            isActive: status === 'true' 
         };
         
         const response = await fetch('/admin/coupon',{

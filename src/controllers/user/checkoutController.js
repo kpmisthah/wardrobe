@@ -384,7 +384,7 @@ const applyCoupon = async (req, res) => {
       return res.status(400).json({ message: "Cart not found" });
     }
 
-    const coupon = await Coupon.findOne({ code: couponCode, isActive: true });
+    const coupon = await Coupon.findOne({ code: couponCode, startDate: { $lte: new Date() }, endDate: { $gte: new Date() }});
 
     if (!coupon) {
       return res.status(400).json({ message: "Invalid or expired coupon" });
@@ -448,29 +448,15 @@ const applyCoupon = async (req, res) => {
 
 const removeCoupon = async (req, res) => {
   try {
-    const { couponCode } = req.body;
     const userId = req.session.user;
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
       return res.status(400).json({ message: "Cart not found" });
     }
-
-    // Fetch the coupon to calculate the discount, if needed (optional, can be skipped if you just want to reset the price)
-    const coupon = await Coupon.findOne({ code: couponCode, isActive: true });
-
-    if (coupon) {
-      let discount = 0;
-      if (coupon.discountType === "percentage") {
-        discount = (cart.bill * coupon.discountValue) / 100;
-      } else {
-        discount = coupon.discountValue;
-      }
-
-      const finalAmount = cart.bill + discount;
-
-      req.session.coupon = null;
-      req.session.finalAmount = cart.bill; // Reset the final amount to the original price
+    req.session.coupon = null
+    req.session.finalAmount = cart.bill
+    req.session.discount = 0
 
       // Return the response
       return res.status(200).json({
@@ -478,7 +464,7 @@ const removeCoupon = async (req, res) => {
         originalPrice: cart.bill,
         message: "Coupon removed successfully, price reverted to original",
       });
-    }
+    
   } catch (error) {
     console.error("Error removing coupon:", error);
     return res.status(500).json({
