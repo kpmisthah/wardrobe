@@ -4,6 +4,7 @@ import { Cart } from "../../models/cartSchema.js";
 import { Order } from "../../models/orderIdSchema.js";
 import { Coupon } from "../../models/couponSchema.js";
 import PDFDocument from "pdfkit";
+import { Size } from "../../models/sizeSchema.js";
 import { orders } from "./orderController.js";
 import { rzp } from "../../db/razorpay.js";
 
@@ -147,6 +148,24 @@ const placeOrder = async (req, res) => {
     let final_amount = req.session.finalAmount;
     const discount_amount = req.session.discount;
     const cart = await Cart.findOne({ userId });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+      for (let item of cart.items) {
+        const size = await Size.findOne({ product: item.product, size: item.size });
+        if (size.quantity < item.quantity) {
+          return res.status(400).json({
+            message: `Insufficient stock`,
+          });
+        }
+      }
+  
+      for (let item of cart.items) {
+        const size = await Size.findOne({ product: item.product, size: item.size });
+        size.quantity -= item.quantity;
+        await size.save();
+      }  
     const address = await Address.findOne({ userId, "address._id": addressId });
     if (!address) {
       return res.status(404).json({ message: "Address not found." });
@@ -297,9 +316,34 @@ const saveOrder = async (req, res) => {
     if (!order) {
       throw new Error("Order not found");
     }
+    const cart = await Cart.findOne({ userId: order.userId });
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+      for (let item of cart.items) {
+        const size = await Size.findOne({ product: item.product, size: item.size });
+  
+        if (!size) {
+          return res.status(400).json({
+            message: `Size ${item.size} for product ${item.name} is not available.`,
+          });
+        }
+  
+        if (size.quantity < item.quantity) {
+          return res.status(400).json({
+            message: `Insufficient stock for ${item.name} (Size: ${item.size}). Please remove it from the cart.`,
+          });
+        }
+      }
+  
+      for (let item of cart.items) {
+        const size = await Size.findOne({ product: item.product, size: item.size });
+        size.quantity -= item.quantity;
+        await size.save();
+      }  
     order.paymentStatus = 'Success'
     await order.save()
-    const cart = await Cart.findOne({ userId: order.userId });
     cart.items = [];
     cart.bill = 0;
     await cart.save()

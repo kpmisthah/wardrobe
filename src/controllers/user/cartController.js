@@ -82,11 +82,11 @@ const cart = async (req, res) => {
       });
     }
     //change the quantity of stock in size schema
-    productSize.quantity -= requestedQuantity;
+    // productSize.quantity -= requestedQuantity;
     if (productSize.quantity < 0) {
       return res.status(400).json({ message: `Not enough stock` });
     }
-    await productSize.save();
+    // await productSize.save();
 
     cart.bill = cart.items.reduce(
       (acc, curr) => acc + curr.quantity * curr.price,
@@ -122,33 +122,20 @@ const deleteItem = async (req, res) => {
         .json({ success: false, error: "Item not found in cart" });
     }
 
-    // Extract size and quantity from the item
-    const itemToDelete = cart.items[itemIndex];
-    const { size, quantity, product } = itemToDelete;
-
-    // Update the stock in the Size schema
-    const productSize = await Size.findOne({ product, size });
-
-    if (productSize) {
-      productSize.quantity += quantity;
-      await productSize.save();
-    } else {
-      console.log(
-        `Size entry not found for product: ${product}, size: ${size}`
-      );
-    }
+    // Extract size and quantity 
+    // const itemToDelete = cart.items[itemIndex];
 
     // Remove the item
     cart.items.splice(itemIndex, 1);
 
-    // Recalculate the total bill
+    // cart bill veendum calculate cheyya
     cart.bill = cart.items.reduce((total, item) => total + item.totalPrice, 0);
     await cart.save();
 
     return res.json({ success: true });
   } catch (error) {
     console.error("Error removing item from cart:", error);
-    res.status(500).json({ success: false, error: "Failed to remove item" });
+    return res.status(500).json({ success: false, error: "Failed to remove item" });
   }
 };
 
@@ -176,7 +163,7 @@ const inc = async (req, res) => {
         message: `Cannot add more than 10 units per person.`,
       });
     }
-    if (newQuantity > productSize.quantity + currrentQuantity) {
+    if (newQuantity > productSize.quantity) {
       return res
         .status(400)
         .json({
@@ -187,12 +174,12 @@ const inc = async (req, res) => {
 
     cart.items[cartIndex].quantity = newQuantity;
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
-    productSize.quantity -= 1;
+    // productSize.quantity -= 1;
     await productSize.save();
     if (productSize.quantity < 0) {
       return res.status(400).json({ message: `Not enough stock` });
     }
-    cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+    // cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
     cart.bill = cart.items.reduce(
       (acc, curr) => acc + curr.quantity * curr.price,
       0
@@ -225,10 +212,10 @@ const dec = async (req, res) => {
 
     cart.items[cartIndex].quantity = newQuantity;
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
-    productSize.quantity += 1;
-    await productSize.save();
+    // productSize.quantity += 1;
+    // await productSize.save();
 
-    cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+    // cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
     cart.bill = cart.items.reduce(
       (acc, curr) => acc + curr.quantity * curr.price,
       0
