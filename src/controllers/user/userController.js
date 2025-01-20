@@ -331,6 +331,7 @@ const otpVerification = async(req,res)=>{
 }
 
 const verifyOtps = async (req,res)=>{
+    console.log("hello from verifyotps")
     try {    
       const userId = req.session.user
       const previousMail = await User.findOne({_id:userId})

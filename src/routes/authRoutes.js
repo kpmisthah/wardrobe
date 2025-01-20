@@ -1,5 +1,5 @@
 import express from "express"
-import  { signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout,forgotPassword ,handleForgotPassword,verify,otpVerified,resetPassword,postNewPassword} from '../controllers/user/authController.js'
+import  { signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout,forgotPassword ,handleForgotPassword,verify,otpVerified,resetPassword,postNewPassword,otpPage} from '../controllers/user/authController.js'
 import {passport} from "../db/passport.js"
 import {userLogin } from "../middlewares/userAuth.js"
 const router = express.Router()
@@ -7,7 +7,8 @@ const router = express.Router()
 
 router.get('/signup',userLogin,signupPage)
 router.post('/signup',signup)
-router.post('/verify-otp',verifyOtp)
+router.get('/verify-otp',otpPage)
+router.post('/verify/otp',verifyOtp)
 router.post('/resend-otp',resendOtp)
 //google auth
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
