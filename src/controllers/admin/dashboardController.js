@@ -268,6 +268,8 @@ const loadDashboard = async (req, res) => {
 const dashboard = async(req,res)=>{
     try {
        const{quickFilter,startDate,endDate} = req.body
+       console.log("start"+startDate+" "+'end'+endDate);
+       
        let matchCondition = {status:"Delivered"}
        if(quickFilter){
         const now = new Date()
@@ -296,15 +298,23 @@ const dashboard = async(req,res)=>{
                                 $lt: moment(now).endOf('year').toDate()
                             };
                             break;
+
+                            case 'custom':
+                                matchCondition.invoiceDate = {
+                                    $gte: new Date(startDate),
+                                    $lt: new Date(endDate)
+                                };
+                                break
                             default:
                                 break;
         }
-       }else if(startDate && endDate){
-        matchCondition.invoiceDate = {
-            $gte: new Date(startDate),
-            $lt: new Date(endDate)
-        };
-       }
+    }
+    //    }else if(startDate && endDate){
+    //     matchCondition.invoiceDate = {
+    //         $gte: new Date(startDate),
+    //         $lt: new Date(endDate)
+    //     };
+    //    }
         let totalUsers = await User.countDocuments()
         let totalProducts = await Product.countDocuments()
         let totalOrders = await Order.countDocuments()

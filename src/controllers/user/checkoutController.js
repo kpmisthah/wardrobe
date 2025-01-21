@@ -608,7 +608,9 @@ const generatePdf = async (req, res) => {
     position += 20;
     doc.text("Note: Thank you for your business!", 50, position);
     doc.end();
-
+console.log("Subtotal:", order.totalPrice);
+console.log("Discount:", order.discount);
+console.log("Final Amount:", order.finalAmount);
   } catch (error) {
     console.error("Error generating invoice:", error);
     res.status(500).send("Error generating invoice");

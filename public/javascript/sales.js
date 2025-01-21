@@ -36,6 +36,7 @@ document.getElementById('applyFilter').addEventListener('click', async () => {
     });
     
     const data = await response.json();
+    console.log(data);
     
     // Update table
     const ordersTableBody = document.getElementById('ordersTableBody');
