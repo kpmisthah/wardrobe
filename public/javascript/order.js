@@ -39,24 +39,63 @@ async function handleReturn(orderId,productId,action){
         console.log("The error is"+error)
     }
 }
-
-async function cancelOrder(orderId,productId){
-    try {
-        const response = await fetch('/admin/cancelorder',{
-            method:"POST",
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                orderId,productId
-            })
-        })
-        if(response.ok){
-            alert("order canceled successfully")
-            buttonElement.outerHTML = '<span class="badge bg-danger">Cancelled</span>';
-            
+    async function cancelOrder(orderId, productId) {
+        try {
+         
+            const confirmation = await Swal.fire({
+                title: "Are you sure?",
+                text: "Do you really want to cancel this order?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, cancel it!",
+                cancelButtonText: "No, keep it",
+            });
+    
+            if (confirmation.isConfirmed) {
+                const response = await fetch('/admin/cancelorder', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orderId,
+                        productId
+                    })
+                });
+    
+                if (response.ok) {
+                    await Swal.fire({
+                        title: "Canceled!",
+                        text: "The order has been canceled successfully.",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                    });
+                    location.reload(); 
+                } else {
+                    await Swal.fire({
+                        title: "Error",
+                        text: "Failed to cancel the order. Please try again.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
+                }
+            } else {
+                await Swal.fire({
+                    title: "Cancelled",
+                    text: "Your order is safe and has not been canceled.",
+                    icon: "info",
+                    confirmButtonText: "OK",
+                });
+            }
+        } catch (error) {
+            await Swal.fire({
+                title: "Error",
+                text: "An unexpected error occurred.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            console.error("Error:", error);
         }
-    } catch (error) {
-        console.log("error"+error)
     }
-}
+    
+    

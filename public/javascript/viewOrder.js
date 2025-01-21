@@ -1,6 +1,6 @@
 async function cancel(orderId, productId) {
     try {
-        // Replace confirm with Swal
+       
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: "You want to cancel this item?",

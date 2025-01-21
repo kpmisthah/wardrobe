@@ -1,5 +1,6 @@
 
 <%- include("../../views/partials/adminPartials/headers") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
 <div class="container">
@@ -82,7 +83,7 @@
                                         <span class="badge bg-danger">canceled</span>
                                 <% }else{%>
                                     <button type="button" class="btn-cancel" onclick="cancelOrder('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
-                                    <span class="badge bg-danger">canceled</span>
+                                 
                                     <%}%>
 
                                 <% }else{%>

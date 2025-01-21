@@ -57,6 +57,10 @@ const orderCancel = async(req, res) => {
         }
         // Update total price
         orderedProducts.finalAmount -= items.price * items.quantity;
+        if(orderedProducts.finalAmount < 0|| orderedProducts.totalPrice <0){
+            orderedProducts.finalAmount = 0
+            orderedProducts.totalPrice = 0
+        }
         if(items.cancelStatus == 'canceled' && orderedProducts.paymentMethod !='COD'){
             const wallet = await Wallet.findOne({userId:orderedProducts.userId})
             const refundAmount = items.price*items.quantity
@@ -82,7 +86,11 @@ const orderCancel = async(req, res) => {
             }
         }
         await orderedProducts.save();
-       
+       const allProductsCancelled = orderedProducts.orderedItems.every((p=>p.cancelStatus == 'canceled'))
+       if(allProductsCancelled){
+        orderedProducts.status = 'Canceled'
+        await orderedProducts.save()
+       }
         return res.status(200).json({ message: "Item canceled successfully" });
 
     } catch (error) {
