@@ -8,12 +8,9 @@ const orders = async(req,res)=>{
         const user = req.session.user
         let page = parseInt(req.query.page)||1
         let limit = 10
-        const orders = await Order.find({userId:user}).skip((page-1)*limit).limit(limit).populate('orderedItems.product');
+        const orders = await Order.find({userId:user}).skip((page-1)*limit).limit(limit).populate('orderedItems.product').sort({createdAt:-1});
         let count = await Order.find({userId:user}).countDocuments()
-        console.log("the count is"+count);
         let totalpages = Math.ceil(count/limit)
-        console.log("The total pages"+totalpages);
-        
         return res.render('user/orders', {orders,page,totalpages}) 
     } catch (error) {
         console.log("The error is"+error)

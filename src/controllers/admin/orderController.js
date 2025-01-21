@@ -6,12 +6,13 @@ const orderList = async(req,res)=>{
     try {
         let page = parseInt(req.query.page)||1
         let limit = 4
-        const orders = await Order.find().populate('userId').skip((page-1)*limit).limit(limit)
+        const orders = await Order.find().populate('userId').skip((page-1)*limit).limit(limit).sort({createdAt:-1})
         const count = await Order.find().countDocuments()
         const totalpages = Math.ceil(count/limit)
         return res.render('admin/order',{orders,currentPage:page,totalpages})
     } catch (error) {
-        
+        console.error('Error fetching orders:', error);
+        res.status(500).send('An error occurred while fetching orders.');
     }
 }
 

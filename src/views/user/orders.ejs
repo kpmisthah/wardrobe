@@ -125,7 +125,7 @@
                 <td><%=order.paymentMethod%></td>
                 <td>
                   <% if (order.paymentStatus === 'Pending'&& order.paymentMethod
-                  !== 'COD') { %>
+                  == 'razorpay' && order.status !=="Delivered" && order.status !== 'Canceled') { %>
                   <div class="payment-pending">
                     Payment Pending
                     <button
@@ -149,7 +149,7 @@
                   </span>
                   <% } %>
                 </td>
-                <td>₹<%= order.totalPrice %></td>
+                <td>₹<%= order.finalAmount || order.totalPrice %></td>
                 <td>
                   <div class="action-buttons">
                     <% if (order.status === 'Pending' || order.status ===
@@ -160,12 +160,14 @@
                       onclick="canceled('<%= order._id %>')"
                     >
                       Cancel Order
-                    </button>
-                    <% } else { %>
-                    <button type="button" class="btn-cancel disabled" disabled>
+                    </button>  
+                    <% } else if(order.status == 'Canceled') { %>
+                      <button type="button" class="btn-cancel disabled">cancelled</button>
+                    <% }else{ %>
+                      <button type="button" class="btn-cancel disabled" disabled>
                       Cannot Cancel
                     </button>
-                    <% } %>
+                      <%}%>
                   </div>
                 </td>
                 <td>

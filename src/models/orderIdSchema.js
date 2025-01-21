@@ -98,6 +98,11 @@ const orderIdSchema = new Schema({
     invoiceDate:{
         type:Date,
     },
+    return :{
+      type:String,
+      enum:['Not Requested','Requested','Approved','Rejected'],
+      default:'Not Requested'
+    },
     userId:{
         type:Schema.Types.ObjectId,
         ref:"User",
