@@ -11,7 +11,7 @@ import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
 import { loadWallet ,wallet} from "../controllers/user/walletController.js"
 const router = express.Router()
 //home page
-router.get('/',loadHome)
+router.get('/',userAuth,loadHome)
 router.get('/notfound',loadError)
 
 //shopping page

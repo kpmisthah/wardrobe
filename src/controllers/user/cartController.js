@@ -141,8 +141,7 @@ const deleteItem = async (req, res) => {
 
 const inc = async (req, res) => {
   try {
-    //product inc cheyyumbo atheth mansilaaki stock
-    //athava size schema l ulla aa product nte size kurakknm
+    
     const userId = req.session.user;
     const { productId, size } = req.body;
     const cart = await Cart.findOne({ userId });
@@ -174,8 +173,8 @@ const inc = async (req, res) => {
 
     cart.items[cartIndex].quantity = newQuantity;
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
-    // productSize.quantity -= 1;
-    await productSize.save();
+    // // productSize.quantity -= 1;
+    // await productSize.save();
     if (productSize.quantity < 0) {
       return res.status(400).json({ message: `Not enough stock` });
     }
@@ -188,7 +187,7 @@ const inc = async (req, res) => {
     return res
       .status(200)
       .json({ message: "Item added to the cart successfully" ,newTotalPrice: cart.items[cartIndex].totalPrice,
-        newCartTotal: cart.bill,});
+        newCartTotal: cart.bill,newQuantity});
   } catch (error) {
     console.log("The error is " + error);
   }
@@ -201,8 +200,8 @@ const dec = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
-    const { productId, size } = req.body;
-    const productSize = await Size.findOne({ product: productId, size });
+    const { productId } = req.body;
+    // const productSize = await Size.findOne({ product: productId, size });
     const cartIndex = cart.items.findIndex(
       (item) => item.product.toString() == productId
     );
@@ -223,7 +222,10 @@ const dec = async (req, res) => {
     await cart.save();
     return res
       .status(200)
-      .json({ message: "Item rmoved from the cart successfully" });
-  } catch (error) {}
+      .json({ message: "Item rmoved from the cart successfully" ,newQuantity, newTotalPrice: cart.items[cartIndex].totalPrice,newCartTotal: cart.bill});
+  } catch (error) {
+    console.error("Error in decrement:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 export { loadCart, cart, inc, dec, deleteItem };

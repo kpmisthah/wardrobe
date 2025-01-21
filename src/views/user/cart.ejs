@@ -54,11 +54,11 @@
                   <td class="column-4"><%= product.quantity %></td>
                   <td>
                     <div class="wrap-num-product flex-w m-r-20 m-tb-10">
-                      <button type="button" class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" onClick="decrement_quantity('<%= product.product._id %>', '<%= product.size %>')">
+                      <button type="button" class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" data-product-id="<%= product.product._id %>" data-size="<%= product.size %>">
                         <i class="fs-16 zmdi zmdi-minus"></i>
                       </button>
-                      <input class="mtext-104 cl3 txt-center num-product" id="input-quantity" type="number" name="num-product" value="<%= product.quantity %>" />
-                      <button type="button" class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" onClick="increment_quantity('<%= product.product._id %>', '<%= product.size %>', '<%= product.quantity %>')">
+                      <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="<%= product.quantity %>" readonly />
+                      <button type="button" class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" data-product-id="<%= product.product._id %>" data-size="<%= product.size %>" data-quantity="<%= product.quantity %>">
                         <i class="fs-16 zmdi zmdi-plus"></i>
                       </button>
                     </div>
@@ -111,23 +111,24 @@
   <!-- Footer -->
   <%- include('../../views/partials/userPartials/footer') %>
 
-  <script>
-    async function checkCartBeforeProceed() {
-      const cartItems = <%- JSON.stringify(cart.items) %>;
-
-      if (cartItems.length === 0) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Oops...',
-          text: 'Your cart is empty. Add items to cart.',
-          confirmButtonText: 'Go to shop'
-        });
-        window.location.href = "/shop"; // Redirect to the shop page if the cart is empty
-      } else {
-        window.location.href = "/checkout"; // Proceed to checkout if the cart is not empty
-      }
+<script>
+  
+  async function checkCartBeforeProceed() {
+    const cartItems = <%- JSON.stringify(cart.items) %>;
+    
+    if (cartItems.length === 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Oops...',
+        text: 'Your cart is empty. Add items to cart.',
+        confirmButtonText: 'Go to shop'
+      });
+      window.location.href = "/shop";
+    } else {
+      window.location.href = "/checkout";
     }
-
+  }
+  
     // Function to remove items from the cart
     async function removeFromCart(productId, event) {
       event.preventDefault();
@@ -176,59 +177,98 @@
       }
     }
 
-    async function decrement_quantity(productId, size) {
-      try {
-        const response = await fetch("/decrement", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId, size }),
-        });
-        if (response.ok) {
-          window.location.reload();
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Unexpected Error",
-          text: "An error occurred while adding the item to your cart. Please try again later.",
-        });
-      }
-    }
 
-    async function increment_quantity(productId, size, quantity) {
-      try {
-        const response = await fetch("/increment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId, size, stock: quantity }),
-        });
-        const responseData = await response.json();
-        if (response.ok) {
-          window.location.reload();
-        }
-        if (responseData.message == `Not enough stock.`) {
-          Swal.fire({
-            icon: "error",
-            title: "Insufficient Stock",
-            text: `Not enough stock left. Only ${responseData.stockLeft} items available.`,
-          });
-        } else if (responseData.message == `Cannot add more than 10 units per person.`) {
-          Swal.fire({
-            icon: "error",
-            title: `Not Permitted`,
-            text: `Only add 10 units for a product`,
-          });
-        }
-      } catch (error) {
-        console.log("Error on adding item to cart: " + error);
-        Swal.fire({
-          icon: "error",
-          title: "Unexpected Error",
-          text: "An error occurred while adding the item to your cart. Please try again later.",
-        });
-      }
-    }
-  </script>
 
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.btn-num-product-up').forEach(button => {
+    button.addEventListener('click', function(event) {
+      const productId = this.dataset.productId;
+      const size = this.dataset.size;
+      const quantity = this.dataset.quantity;
+      increment_quantity(productId, size, event);
+    });
+  });
+
+  document.querySelectorAll('.btn-num-product-down').forEach(button => {
+    button.addEventListener('click', function(event) {
+      const productId = this.dataset.productId;
+      const size = this.dataset.size;
+      decrement_quantity(productId, size, event);
+    });
+  });
+});
+
+async function increment_quantity(productId, size, event) {
+  try {
+    const response = await fetch("/increment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, size }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      const currentRow = event.target.closest(".table_row");
+      const quantityInput = currentRow.querySelector(".num-product");
+      const totalCell = currentRow.querySelector(".column-6");
+      const quantityCell = currentRow.querySelector(".column-4");
+
+      quantityInput.value = data.newQuantity;
+      quantityCell.textContent = data.newQuantity;
+      totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
+
+      updateCartTotals(data.newCartTotal);
+
+      const incrementButton = currentRow.querySelector('.btn-num-product-up');
+      incrementButton.dataset.quantity = data.newQuantity;
+    } else {
+      Swal.fire({ icon: "error", title: "Error",text: data.message });
+    }
+  } catch (error) {
+    console.error("Error incrementing quantity:", error);
+    Swal.fire({ icon: "error", title: "Error", text: "Failed to increment quantity"});
+  }
+}
+
+async function decrement_quantity(productId, size, event) {
+  try {
+    const response = await fetch("/decrement", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productId, size }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      const currentRow = event.target.closest(".table_row");
+      const quantityInput = currentRow.querySelector(".num-product");
+      const totalCell = currentRow.querySelector(".column-6");
+      const quantityCell = currentRow.querySelector(".column-4");
+
+      quantityInput.value = data.newQuantity;
+      quantityCell.textContent = data.newQuantity; 
+      totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
+      updateCartTotals(data.newCartTotal);
+
+      const incrementButton = currentRow.querySelector('.btn-num-product-up');
+      incrementButton.dataset.quantity = data.newQuantity;
+    // } else {
+    //   Swal.fire({ icon: "error",title: "Error", text: "cannot" });
+    }
+  } catch (error) {
+    console.error("Error decrementing quantity:", error);
+    Swal.fire({ icon: "error", title: "Error", text: "Failed to decrement quantity" });
+  }
+}
+
+function updateCartTotals(newTotal) {
+  const subtotalElement = document.querySelector(".size-209 .mtext-110.cl2");
+  const totalElement = document.querySelector(".size-209.p-t-1 .mtext-110.cl2");
+  
+  subtotalElement.textContent = `₹${newTotal}`;
+  totalElement.textContent = `₹${newTotal}`;
+}
+</script>
 </body>
 </html>
+

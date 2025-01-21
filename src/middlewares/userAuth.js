@@ -1,16 +1,14 @@
-// import { User } from "../../models/userSchema.js"
+import { User } from "../models/userSchema.js"
 const userAuth = async(req,res,next)=>{
     if(req.session.user){
         const user = await User.findById(req.session.user)
-        if(user && !user.isBlocked){
+        if(!user.isBlocked){
             next()
         }else{
-            req.session.destroy(err=>{
-                console.error("error destroying session",err)
-            })
+            req.session.destroy()
             return res.render('user/login',{message:"User id blocked by admin"})
         }
-        return next()
+       
     }else{
         return res.redirect('/login')
     }
