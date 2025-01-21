@@ -1,53 +1,35 @@
 function createSalesGraph(data) {
-    const dates = data.orders.map(order => new Date(order.invoiceDate).toLocaleDateString('en-US'));
-    const amounts = data.orders.map(order => 
-        order.finalAmount ? order.finalAmount : order.totalPrice
+    
+    const xArray = data.orders.map(order => 
+        order.finalAmount ? order.finalAmount : order.totalPrice );
+    const yArray = data.orders.map(order => 
+        new Date(order.invoiceDate).toLocaleDateString('en-US') 
     );
 
-    const trace = {
-        x: dates,
-        y: amounts,
-        type: 'scatter',
-        mode: 'lines+markers',
-        line: {
-            color: '#2196F3',
-            width: 2
-        },
-        marker: {
-            size: 6,
-            color: '#2196F3'
-        }
-    };
+    const chartData = [{
+        x: xArray, 
+        y: yArray, 
+        type: "bar",
+        orientation: "h",
+        marker: { color: "rgba(255, 0, 0, 0.6)" } 
+    }];
 
+   
     const layout = {
-        title: 'Sales Trend',
-        xaxis: {
-            title: 'Date',
-            tickangle: -45
-        },
-        yaxis: {
-            title: 'Amount (₹)',
-            tickprefix: '₹'
-        },
-        margin: {
-            l: 60,
-            r: 40,
-            b: 80,
-            t: 40
-        },
-        height: 400
+        title: "Sales Data (Horizontal Bar Chart)", 
+        xaxis: { title: "Amount (₹)" }, 
+        yaxis: { title: "Date" }, 
+        margin: { l: 100, r: 20, t: 50, b: 50 } 
     };
-
-    Plotly.newPlot('salesGraph', [trace], layout);
+    Plotly.newPlot("salesGraph", chartData, layout);
 }
 
-// Modify your existing event listener to update the graph
 document.getElementById('applyFilter').addEventListener('click', async () => {
     const quickFilter = document.getElementById('quickFilter').value;
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
 
-    const response = await fetch('/admin/sales', {
+    const response = await fetch('/admin/dashboard', {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quickFilter, startDate, endDate })
@@ -64,7 +46,6 @@ document.getElementById('applyFilter').addEventListener('click', async () => {
             <td>${new Date(order.invoiceDate).toLocaleDateString('en-US')}</td>
             <td>₹${order.totalPrice}</td>
             <td>₹${order.discount}</td>
-            <td>${order.coupon || '-'}</td>
             <td>₹${order.finalAmount ? order.finalAmount : order.totalPrice}</td>
             <td><span class="status ${order.status}">${order.status}</span></td>
         </tr>`;
@@ -83,7 +64,7 @@ document.getElementById('applyFilter').addEventListener('click', async () => {
 
 // Initial graph creation when page loads
 window.addEventListener('load', async () => {
-    const response = await fetch('/admin/sales', {
+    const response = await fetch('/admin/dashboard', {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
