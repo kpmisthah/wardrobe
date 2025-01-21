@@ -21,7 +21,6 @@ const orders = async(req,res)=>{
     try {
         const user = req.session.user
         const{orderid} = req.params
-        console.log("The orderId"+orderid)
         const order = await Order.findOne({_id:orderid}).populate('orderedItems.product')
         if(user){
             const userData = await User.findOne({_id:user})

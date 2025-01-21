@@ -20,9 +20,7 @@ const orderStatus = async(req,res)=>{
     try {
         const{status,orderId} = req.body
         const orders = await Order.find()
-        console.log("The orders is "+orders)
         const order = await Order.findOneAndUpdate({orderId},{status:status},{new:true})
-        console.log("the order updated is"+order)
         if(order){
             res.status(200).json({message:"Order is updated successfully"})
         }else{
@@ -37,7 +35,6 @@ const orderStatus = async(req,res)=>{
 const viewOrders = async(req,res)=>{
     try {
         const{orderid} = req.params
-        console.log("The orderId"+orderid)
         const order = await Order.findOne({_id:orderid}).populate('orderedItems.product')
          return res.render('admin/viewOrder',{order})
        

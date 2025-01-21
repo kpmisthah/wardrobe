@@ -54,6 +54,24 @@
                             <% } else { %>
                                 <span class="badge bg-secondary">Not Requested</span>
                             <% } %>
+
+                                                    <!-- Return Item Button -->
+                        <% if (item.returnStatus === 'Requested') { %>
+                        
+                            <button 
+                                class="btn btn-success btn-sm mx-1" 
+                                onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'approve')"
+                            >
+                                Approve
+                            </button>
+                            <button 
+                                class="btn btn-danger btn-sm mx-1" 
+                                onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'reject')"
+                            >
+                                Reject
+                            </button>
+                   
+                    <% } %>
                         </td>
 
                         <!-- Cancel Item Button -->
@@ -75,29 +93,13 @@
                             <% } %>
                         </td>
 
-                        <!-- Return Item Button -->
-                        <% if (item.returnStatus === 'Requested') { %>
-                        
-                                <button 
-                                    class="btn btn-success btn-sm mx-1" 
-                                    onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'approve')"
-                                >
-                                    Approve
-                                </button>
-                                <button 
-                                    class="btn btn-danger btn-sm mx-1" 
-                                    onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'reject')"
-                                >
-                                    Reject
-                                </button>
-                       
-                        <% } %>
+
                     </tr>
                 <% }); %>
             </tbody>
         </table>
 
-        <h3>Total Amount: <%= order.totalPrice %></h3>
+        <h3>Total Amount: <%= order.finalAmount ||order.totalAmount %></h3>
     <% } else { %>
         <p>No order data available.</p>
     <% } %>

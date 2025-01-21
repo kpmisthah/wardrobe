@@ -56,7 +56,6 @@ router.get('/orders',userAuth,orders)
 router.get('/user/view-order/:orderid',viewOrder)
 router.post('/order-cancel',orderCancel)
 router.post('/order/cancel',cancelOrder)
-// router.get('/emptyOrder',emptyOrder)
 router.post('/return-order',returnOrder)
 //otp-page
 router.get('/otp',otpVerification)
