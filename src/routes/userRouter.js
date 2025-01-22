@@ -4,7 +4,7 @@ import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartContro
 import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf,retryPayment,completeRetryPayment,createPendingOrder} from '../controllers/user/checkoutController.js'
 import { userAuth } from "../middlewares/userAuth.js"
-import { viewOrder,orders,orderCancel,returnOrder,cancelOrder,updateOrderStatus} from "../controllers/user/orderController.js"
+import { viewOrder,orders,orderCancel,returnOrder,cancelOrder,updateOrderStatus,returnOrdered} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
 import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
@@ -57,6 +57,7 @@ router.get('/user/view-order/:orderid',viewOrder)
 router.post('/order-cancel',orderCancel)
 router.post('/order/cancel',cancelOrder)
 router.post('/return-order',returnOrder)
+router.post('/returnOrder/:id',userAuth,returnOrdered)
 //otp-page
 router.get('/otp',otpVerification)
 router.post('/verify-otp',verifyOtps)

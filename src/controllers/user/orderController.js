@@ -172,6 +172,25 @@ const returnOrder = async(req,res)=> {
     }
 }
 
+//whole order return
+const returnOrdered = async(req,res)=>{
+    try {
+        const orderId = req.params.id
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).send("Order not found.");
+        }
+        if (order.status !== "Delivered") {
+            return res.status(400).send("Order cannot be returned.");
+        }
+        order.status = "Returned";
+        await order.save();
+        // res.redirect('/orders')
+    } catch (error) {
+        console.error("Error returning order:", err);
+        res.status(500).send("Error returning order.");
+    }
+}
 //update order status cancel payment 
 
 
@@ -194,4 +213,4 @@ const updateOrderStatus = async (req, res) => {
     }
   };
   
-export{orders,viewOrder,orderCancel,returnOrder,cancelOrder, updateOrderStatus}
+export{orders,viewOrder,orderCancel,returnOrder,cancelOrder, updateOrderStatus,returnOrdered}

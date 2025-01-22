@@ -115,7 +115,7 @@ const orderIdSchema = new Schema({
     status:{
         type:String,
        required:true,
-       enum:['Pending','Shipped','Delivered',"Completed","Return Request","Returned","Canceled"]
+       enum:['Pending','Shipped','Delivered',"Completed","Returned","Canceled"]
     },
     paymentStatus: {
       type: String,
