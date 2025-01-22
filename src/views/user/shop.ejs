@@ -165,7 +165,7 @@
             <ul class="pagination justify-content-center">
                 <% for (let i = 1; i <= totalpage; i++) { %>
                     <li class="page-item <%= page === i ? 'active' : '' %>">
-                        <a class="page-link" href="/shop?page=<%= i %>"><%= i %></a>
+                        <a class="page-link" href="/shop?page=<%= i %>&search=<%= searchQuery || '' %>&sort=<%= sortOption || '' %>&price=<%= price || '' %>&availability=<%= availability || '' %>"><%= i %></a>
                     </li>
                 <% } %>
             </ul>
@@ -189,6 +189,8 @@
     function applyFilter(filterName, filterValue) {
         const urlParams = new URLSearchParams(window.location.search);
         urlParams.set(filterName, filterValue);
+        const currentPage = urlParams.get('page') || 1; 
+        urlParams.set('page', currentPage);
         const searchQuery = document.getElementById('searchInput').value;
         if (searchQuery) {
             urlParams.set('search', searchQuery);

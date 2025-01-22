@@ -179,6 +179,8 @@ const loadShoppingPage = async (req, res) => {
         page,
         sortOption,
         searchQuery,
+        price,
+        availability
       });
     } else {
       return res.render("user/shop", {
@@ -187,6 +189,8 @@ const loadShoppingPage = async (req, res) => {
         page,
         sortOption,
         searchQuery,
+        price,
+        availability
       });
     }
   } catch (error) {
