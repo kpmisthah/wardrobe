@@ -178,10 +178,6 @@ const returnOrder = async(req,res)=> {
 const updateOrderStatus = async (req, res) => {
     try {
       const { orderId, status } = req.body;
-      console.log("bla bla bla");
-      
-      console.log("otders id"+orderId," status"+status);
-      console.log("ba ba b");
       
       const order = await Order.findOne({ _id:orderId });
       if (!order) {

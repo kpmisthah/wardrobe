@@ -79,9 +79,9 @@
                 });
                 inputs[0].focus();
                 
-                clearInterval(timerId); // Clear the previous timer
-                timerDisplay.classList.remove('expired'); // Remove expired class
-                startTimer(); // Start a new timer
+                clearInterval(timerId); 
+                timerDisplay.classList.remove('expired'); 
+                startTimer();
                 Swal.fire("New OTP sent!", "", "success");
                
             } else {
@@ -98,12 +98,10 @@
 
        inputs.forEach((input, index) => {
        input.addEventListener('input', (e) => {
-        // Ensure only one character can be entered in each input field
         if (e.target.value.length > 1) {
             e.target.value = e.target.value.slice(0, 1);
         }
 
-        // Move to the next input when the current one is filled
         if (e.target.value.length === 1) {
             if (index < inputs.length - 1) {
                 inputs[index + 1].focus();
@@ -112,13 +110,11 @@
     });
 
     input.addEventListener('keydown', (e) => {
-        // Go to the previous input when Backspace is pressed
         if (e.key === 'Backspace' && !e.target.value) {
             if (index > 0) {
                 inputs[index - 1].focus();
             }
         }
-        // Prevent entering non-numeric characters (e.g., 'e')
         if (e.key === 'e') {
             e.preventDefault();
         }

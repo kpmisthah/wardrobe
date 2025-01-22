@@ -61,7 +61,7 @@ router.get('/editCoupon/:edit',geteditCoupon)
 router.put('/editCoupon/:edit',editCoupon)
 router.delete('/deleteCoupon/:id',deleteCoupon)
 
-//sales-report
+//dashboard
 router.get('/dashboard',isAuthenticated ,loadDashboard)
 router.post('/dashboard',dashboard)
 router.get('/dashboard/download/pdf', generatePdfReport);

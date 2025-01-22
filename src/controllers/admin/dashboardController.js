@@ -53,8 +53,7 @@ const loadDashboard = async (req, res) => {
             { $project: {
                 productName: 1,
                 totalQuantity: 1,
-                totalRevenue: 1,
-                averagePrice: { $divide: ['$totalRevenue', '$totalQuantity'] }
+                totalRevenue: 1
             }}
         ]);
 
@@ -182,12 +181,7 @@ const dashboard = async(req,res)=>{
                                 break;
         }
     }
-    //    }else if(startDate && endDate){
-    //     matchCondition.invoiceDate = {
-    //         $gte: new Date(startDate),
-    //         $lt: new Date(endDate)
-    //     };
-    //    }
+
         let totalUsers = await User.countDocuments()
         let totalProducts = await Product.countDocuments()
         let totalOrders = await Order.countDocuments()

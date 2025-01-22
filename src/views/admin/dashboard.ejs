@@ -174,7 +174,6 @@
             <th>Product Name</th>
             <th> Sold</th>
             <th>Revenue</th>
-            <th>Avg Price</th>
           </tr>
         </thead>
         <tbody>
@@ -184,7 +183,6 @@
             <td><%= product.productName %></td>
             <td><%= product.totalQuantity %></td>
             <td>₹<%=  product.totalRevenue.toFixed(2) %></td>
-            <td>₹<%= product.averagePrice.toFixed(2) %></td>
           </tr>
           <% }) %>
         </tbody>
@@ -201,7 +199,6 @@
             <th>Category Name</th>
             <th> Sold</th>
             <th>Revenue</th>
-            <th>Avg Price</th>
           </tr>
         </thead>
         <tbody>

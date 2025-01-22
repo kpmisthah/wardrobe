@@ -21,8 +21,8 @@
 async function updateProfile(event){
     event.preventDefault()
 
-    const loader = document.getElementById('loader'); // Reference the loader element
-    loader.style.display = 'flex'; // Show loader
+    const loader = document.getElementById('loader');
+    loader.style.display = 'flex'; 
 
     const form = document.getElementById('updateProfile')
     const password = form[0].value
@@ -41,7 +41,7 @@ async function updateProfile(event){
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
         });
-        loader.style.display = 'none'; // Always hide loader after API call completes
+        loader.style.display = 'none'; 
         if (response.ok) {
             const result = await response.json();
             await Swal.fire({
@@ -50,7 +50,7 @@ async function updateProfile(event){
                 icon: 'success',
                 confirmButtonText: 'OK',
             });
-            window.location.href = '/otp'; // Redirect to OTP verification page
+            window.location.href = '/otp'; 
         } else {
             const error = await response.json();
             await Swal.fire({

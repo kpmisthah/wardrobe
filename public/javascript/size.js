@@ -14,8 +14,14 @@ const quantity = document.getElementById('quantity').value
 })
 
 if(response.ok){
-    alert("size is added")
-    location.href = '/admin/size'
+    Swal.fire({
+        title: 'Success!',
+        text: 'Size has been added successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+    }).then(() => {
+        location.href = '/admin/size';
+    });
 }
 } catch (error) {
 console.log("The error is "+error)

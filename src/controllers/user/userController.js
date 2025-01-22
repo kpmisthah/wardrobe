@@ -34,8 +34,10 @@ const loadHome = async (req, res) => {
             )
           : [],
       ]);
-  
-      const product = await Product.find({ isBlocked: false })
+      const category = await Category.find({isListed:true})
+      const categoryIds = category.map((cat=>cat._id))
+    
+      const product = await Product.find({ isBlocked: false ,category:categoryIds})
         .sort({ createdAt: -1 })
         .limit(4);
   
@@ -86,7 +88,9 @@ const loadShoppingPage = async (req, res) => {
     const price = req.query.price || null;
     const availability = req.query.availability || null;
     let limit = 12;
-    let query = { isBlocked: false };
+    const category = await Category.find({isListed:true})
+    const categoryId = category.map((cat)=>cat._id)
+    let query = { isBlocked: false ,category:categoryId};
     let sort = {};
 
     if (searchQuery) {
@@ -338,13 +342,19 @@ const updateProfile = async (req, res) => {
 
 const profileUpdate = async (req, res) => {
   try {
+    console.log("hello");
     const userId = req.session.user;
     const previousMail = await User.findOne({ _id: userId });
+    console.log("prev email"+previousMail);  
     const oldEmail = previousMail.email;
+    console.log("old email"+oldEmail);  
     const { email, password } = req.body;
+    console.log("email "+email+' pazssword'+password); 
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     console.log("The new otp is" + otp);
-    await Otp.create({ email: oldEmail, otp });
+    const o = await Otp.create({ email: oldEmail, otp });
+    console.log("The otp created is"+o);
+    
     req.session.updateProfile = { email, password };
     return res
       .status(200)
