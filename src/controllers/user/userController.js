@@ -3,6 +3,7 @@ import { Product } from "../../models/productSchema.js";
 import { Category } from "../../models/categoriesSchema.js";
 import { Address } from "../../models/addressSchema.js";
 import { Order } from "../../models/orderIdSchema.js";
+
 import bcrypt from "bcrypt";
 import { Otp } from "../../models/otpModels.js";
 import randomString from "randomstring";
@@ -90,6 +91,7 @@ const loadShoppingPage = async (req, res) => {
     let limit = 12;
     const category = await Category.find({isListed:true})
     const categoryId = category.map((cat)=>cat._id)
+    
     let query = { isBlocked: false ,category:categoryId};
     let sort = {};
 
