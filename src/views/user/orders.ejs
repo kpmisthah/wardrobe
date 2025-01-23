@@ -85,145 +85,166 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <nav class="sidebar">
-        <a href="/" class="sidebar-item">Home</a>
-        <a href="/myaccount" class="sidebar-item">Dashboard</a>
-        <a href="/order" class="sidebar-item active">Orders</a>
-        <a href="/updateProfile" class="sidebar-item">Update Profile</a>
-        <a href="/wallet" class="sidebar-item">Wallet</a>
-        <a href="/getAddress" class="sidebar-item">My Address</a>
-        <!-- <a href="/" class="sidebar-item">Logout</a> -->
-      </nav>
-
-      <main class="main-content">
-        <h2>Your Orders</h2>
-
-        <% if (orders && orders.length > 0) { %>
-        <div class="orders-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Payment Method</th>
-                <th>Payment Status</th>
-                <th>Discount</th>
-                <th>Total</th>
-                <th>Action</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% orders.forEach((order) => { %> <% if (order.orderedItems &&
-              order.orderedItems.length > 0) { %>
-              <tr data-order-id="<%= order._id %>">
-                <td><%= order.orderId %></td>
-                <td><%= order.invoiceDate.toLocaleDateString('en-IN') %></td>
-                <td>
-                  <span class="status-badge <%= order.status.toLowerCase() %>">
-                    <%= order.status %>
-                  </span>
-                </td>
-                <td><%=order.paymentMethod%></td>
-                <td>
-                  <% if (order.paymentStatus === 'Pending'&& order.paymentMethod
-                  == 'razorpay' && order.status !=="Delivered" && order.status
-                  !== 'Canceled') { %>
-                  <div class="payment-pending">
-                    Payment Pending
-                    <button
-                      class="retry-payment-btn"
-                      onclick="retryPayment('<%= order.paymentMethod%>',' <%= order.finalAmount || order.totalPrice %>','<%=order._id%>')"
-                    >
-                      Complete Payment
-                    </button>
-                  </div>
-                  <%}else if(order.paymentMethod == 'COD'){%>
-                  <span
-                    class="status-badge <%= order.paymentStatus.toLowerCase() %>"
-                  >
-                    <%= order.paymentStatus %>
-                  </span>
-                  <% } else { %>
-                  <span
-                    class="status-badge <%= order.paymentStatus.toLowerCase() %>"
-                  >
-                    <%= order.paymentStatus %>
-                  </span>
-                  <% } %>
-                </td>
-                <td>₹ <%=order.discount%></td>
-                <td>₹<%= order.finalAmount || order.totalPrice %></td>
-                <td>
-                  <div class="action-buttons">
-                    <% if (order.status === 'Pending' || order.status ===
-                    'Shipped') { %>
-                    <button
-                      type="button"
-                      class="btn-cancel"
-                      onclick="canceled('<%= order._id %>')"
-                    >
-                      Cancel Order
-                    </button>
-                    <% } else if(order.status == 'Canceled') { %>
-                    <button type="button" class="btn-cancel disabled">
-                      cancelled
-                    </button>
-                    <% }%> <% if (order.status === "Delivered") { %>
-
-                    <form
-                      action="/returnOrder/<%= order._id %>"
-                      method="POST"
-                      style="display: block; margin-top: 5px"
-                    >
-                      <button
-                        type="submit"
-                        class="btn btn-success btn-sm"
-                        onclick="return confirmReturn('<%= order._id %>')"
-                      >
-                        Return
-                      </button>
-                    </form>
-                    <% } else if (order.status !== "Pending" && order.status !==
-                    "Shipped") { %>
-                    <span
-                      class="text-muted"
-                      style="display: block; margin-top: 5px"
-                      ><%= order.status %></span
-                    >
-                    <% } %>
-                  </div>
-                </td>
-                <td>
-                  <a href="/user/view-order/<%= order._id %>" class="view-link">
-                    View Details
-                  </a>
-                </td>
-              </tr>
-              <% } %> <% }) %>
-            </tbody>
-          </table>
-        </div>
-
-        <nav aria-label="Page navigation" class="pagination-container">
-          <ul class="pagination justify-content-center">
-            <% for (let i = 1; i <= totalpages; i++) { %>
-            <li class="page-item <%= page === i ? 'active' : '' %>">
-              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-            </li>
-            <% } %>
-          </ul>
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/myaccount">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/order">Orders</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/updateProfile">Update Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/wallet">Wallet</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/getAddress">My Address</a>
+              </li>
+            </ul>
+          </div>
         </nav>
-        <% } else { %>
-        <div class="no-orders">
-          <p>You haven't placed any orders yet.</p>
-          <a href="/shop" class="shop-now-btn">Start Shopping</a>
-        </div>
-        <% } %>
-      </main>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+          <h2>Your Orders</h2>
+
+          <% if (orders && orders.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Payment Method</th>
+                  <th>Payment Status</th>
+                  <th>Discount</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach((order) => { %>
+                <% if (order.orderedItems && order.orderedItems.length > 0) { %>
+                <tr data-order-id="<%= order._id %>">
+                  <td><%= order.orderId %></td>
+                  <td><%= order.invoiceDate.toLocaleDateString('en-IN') %></td>
+                  <td>
+                    <span class="status-badge <%= order.status.toLowerCase() %>">
+                      <%= order.status %>
+                    </span>
+                  </td>
+                  <td><%=order.paymentMethod%></td>
+                  <td>
+                    <% if (order.paymentStatus === 'Pending'&& order.paymentMethod
+                    == 'razorpay' && order.status !=="Delivered" && order.status
+                    !== 'Canceled') { %>
+                    <div class="payment-pending">
+                      Payment Pending
+                      <button
+                        class="retry-payment-btn"
+                        onclick="retryPayment('<%= order.paymentMethod%>',' <%= order.finalAmount || order.totalPrice %>','<%=order._id%>')"
+                      >
+                        Complete Payment
+                      </button>
+                    </div>
+                    <%}else if(order.paymentMethod == 'COD'){%>
+                    <span
+                      class="status-badge <%= order.paymentStatus.toLowerCase() %>"
+                    >
+                      <%= order.paymentStatus %>
+                    </span>
+                    <% } else { %>
+                    <span
+                      class="status-badge <%= order.paymentStatus.toLowerCase() %>"
+                    >
+                      <%= order.paymentStatus %>
+                    </span>
+                    <% } %>
+                  </td>
+                  <td>₹ <%=order.discount%></td>
+                  <td>₹<%= order.finalAmount || order.totalPrice %></td>
+                  <td>
+                    <div class="action-buttons">
+                      <% if (order.status === 'Pending' || order.status ===
+                      'Shipped') { %>
+                      <button
+                        type="button"
+                        class="btn-cancel"
+                        onclick="canceled('<%= order._id %>')"
+                      >
+                        Cancel Order
+                      </button>
+                      <% } else if(order.status == 'Canceled') { %>
+                      <button type="button" class="btn-cancel disabled">
+                        cancelled
+                      </button>
+                      <% }%> <% if (order.status === "Delivered") { %>
+
+                      <form
+                        action="/returnOrder/<%= order._id %>"
+                        method="POST"
+                        style="display: block; margin-top: 5px"
+                      >
+                        <button
+                          type="submit"
+                          class="btn btn-success btn-sm"
+                          onclick="return confirmReturn('<%= order._id %>')"
+                        >
+                          Return
+                        </button>
+                      </form>
+                      <% } else if (order.status !== "Pending" && order.status !==
+                      "Shipped") { %>
+                      <span
+                        class="text-muted"
+                        style="display: block; margin-top: 5px"
+                        ><%= order.status %></span
+                      >
+                      <% } %>
+                    </div>
+                  </td>
+                  <td>
+                    <a
+                      href="/user/view-order/<%= order._id %>"
+                      class="view-link"
+                    >
+                      View Details
+                    </a>
+                  </td>
+                </tr>
+                <% } %> <% }) %>
+              </tbody>
+            </table>
+          </div>
+
+          <nav aria-label="Page navigation" class="pagination-container">
+            <ul class="pagination justify-content-center">
+              <% for (let i = 1; i <= totalpages; i++) { %>
+              <li class="page-item <%= page === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+              </li>
+              <% } %>
+            </ul>
+          </nav>
+          <% } else { %>
+          <div class="no-orders text-center">
+            <p>You haven't placed any orders yet.</p>
+            <a href="/shop" class="shop-now-btn btn btn-primary">Start Shopping</a>
+          </div>
+          <% } %>
+        </main>
+      </div>
     </div>
+
     <script>
       async function canceled(orderId) {
         const confirmation = await Swal.fire({
