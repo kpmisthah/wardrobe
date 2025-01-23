@@ -7,7 +7,6 @@ import { removeWishlist } from "./wishlistController.js";
 const loadCart = async (req, res) => {
   try {
     let userId = req.session.user;
-    // Properly populate the product details
     let cart = await Cart.findOne({ userId }).populate({
       path: "items.product",
       select: "name productImage price description",

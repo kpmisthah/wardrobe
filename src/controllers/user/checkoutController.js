@@ -268,7 +268,7 @@ const createPendingOrder = async (req, res) => {
       orderedItems,
       totalPrice: cart.bill,
       discount: cart.bill - (final_amount || cart.bill),
-      finalAmount: final_amount || cart.bill,
+      finalAmount: final_amount,
       address: {
         name: selectedAddress.name,
         email: selectedAddress.email,
@@ -421,6 +421,8 @@ const completeRetryPayment = async(req,res)=>{
 const applyCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;
+    console.log("teh coupon ocde"+couponCode);
+    
     const userId = req.session.user;
 
     const cart = await Cart.findOne({ userId });
@@ -428,8 +430,10 @@ const applyCoupon = async (req, res) => {
       return res.status(400).json({ message: "Cart not found" });
     }
 
-    const coupon = await Coupon.findOne({ code: couponCode, startDate: { $lte: new Date() }, endDate: { $gte: new Date() }});
 
+    const coupon = await Coupon.findOne({ code: couponCode, startDate: { $lte: new Date() }, endDate: { $gte: new Date() }});
+    console.log("The coupondvsjcknvbdjfslj"+coupon);
+    
     if (!coupon) {
       return res.status(400).json({ message: "Invalid or expired coupon" });
     }
