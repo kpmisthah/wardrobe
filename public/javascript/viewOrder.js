@@ -1,6 +1,5 @@
 async function cancel(orderId, productId) {
     try {
-       
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: "You want to cancel this item?",
@@ -34,7 +33,15 @@ async function cancel(orderId, productId) {
                 timer: 2000,
                 showConfirmButton: false
             });
-            window.location.reload();
+
+            // Dynamically update the cancel button
+            const cancelButton = document.getElementById(`cancel-button-${productId}`);
+            if (cancelButton) {
+                cancelButton.innerText = 'Cancelled';
+                cancelButton.disabled = true;
+                cancelButton.classList.remove('btn-cancel');
+                cancelButton.classList.add('badge', 'bg-danger');
+            }
         } else {
             await Swal.fire({
                 title: 'Error!',
@@ -53,7 +60,6 @@ async function cancel(orderId, productId) {
         });
     }
 }
-
 async function returnOrder(productId) {
     try {
         // First show confirmation dialog

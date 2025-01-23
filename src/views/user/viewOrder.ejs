@@ -65,7 +65,7 @@
                   <% if (item.cancelStatus === 'canceled') { %>
                     <span class="badge bg-danger">canceled</span>
                   <% } else { %>
-                    <button type="button" class="btn-cancel" onclick="cancel('<%= order.orderId %>','<%= item._id %>')">Cancel</button>
+                    <button type="button" class="btn-cancel" id="cancel-button-<%= item._id%>" onclick="cancel('<%= order.orderId %>','<%= item._id %>')">Cancel</button>
                   <% } %>
                 <% } else { %>
                   <button type="button" class="btn-cancel">The item is returned</button>

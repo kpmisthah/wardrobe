@@ -56,7 +56,17 @@ const orderCancel = async(req, res) => {
             await size.save()
         }
         // Update total price
-        orderedProducts.finalAmount -= items.price * items.quantity;
+        if (orderedProducts.finalAmount !== undefined && orderedProducts.finalAmount !== null) {
+            orderedProducts.finalAmount -= items.price;
+            if (orderedProducts.finalAmount < 0) {
+                orderedProducts.finalAmount = 0;
+            }
+        } else {
+            orderedProducts.totalPrice -= items.price;
+            if (orderedProducts.totalPrice < 0) {
+                orderedProducts.totalPrice = 0;
+            }
+        }
         if(orderedProducts.finalAmount < 0|| orderedProducts.totalPrice <0){
             orderedProducts.finalAmount = 0
             orderedProducts.totalPrice = 0
