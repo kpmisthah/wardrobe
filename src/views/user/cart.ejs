@@ -199,35 +199,59 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function increment_quantity(productId, size, event) {
-  try {
-    const response = await fetch("/increment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, size }),
-    });
+    try {
+        const currentRow = event.target.closest(".table_row");
+        const quantityInput = currentRow.querySelector(".num-product");
+        const currentQuantity = parseInt(quantityInput.value);
+        const incrementButton = currentRow.querySelector('.btn-num-product-up');
 
-    const data = await response.json();
-    if (response.ok) {
-      const currentRow = event.target.closest(".table_row");
-      const quantityInput = currentRow.querySelector(".num-product");
-      const totalCell = currentRow.querySelector(".column-6");
-      const quantityCell = currentRow.querySelector(".column-4");
+        const response = await fetch("/increment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, size })
+        });
 
-      quantityInput.value = data.newQuantity;
-      quantityCell.textContent = data.newQuantity;
-      totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
+        const data = await response.json();
 
-      updateCartTotals(data.newCartTotal);
-
-      const incrementButton = currentRow.querySelector('.btn-num-product-up');
-      incrementButton.dataset.quantity = data.newQuantity;
-    } else {
-      Swal.fire({ icon: "error", title: "Error",text: data.message });
+        if (response.ok) {
+            // Update cart details
+            const totalCell = currentRow.querySelector(".column-6");
+            const quantityCell = currentRow.querySelector(".column-4");
+            
+            quantityInput.value = data.newQuantity;
+            quantityCell.textContent = data.newQuantity;
+            totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
+            updateCartTotals(data.newCartTotal);
+            incrementButton.dataset.quantity = data.newQuantity;
+        } else {
+            // If increment fails due to stock limit
+            if (data.message.includes("Not enough stock")) {
+                // Revert to maximum available stock
+                quantityInput.value = data.stockLeft;
+                incrementButton.dataset.quantity = data.stockLeft;
+                
+                Swal.fire({
+                    icon: "error", 
+                    title: "Stock Limit Reached",
+                    text: data.message
+                });
+            } else {
+                // Handle other errors
+                Swal.fire({
+                    icon: "error", 
+                    title: "Error",
+                    text: data.message
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error incrementing quantity:", error);
+        Swal.fire({
+            icon: "error", 
+            title: "Error", 
+            text: "Failed to increment quantity"
+        });
     }
-  } catch (error) {
-    console.error("Error incrementing quantity:", error);
-    Swal.fire({ icon: "error", title: "Error", text: "Failed to increment quantity"});
-  }
 }
 
 async function decrement_quantity(productId, size, event) {

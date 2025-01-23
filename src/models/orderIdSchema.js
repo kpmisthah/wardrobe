@@ -120,7 +120,7 @@ const orderIdSchema = new Schema({
     paymentStatus: {
       type: String,
       enum: ['Pending', 'Failed', 'Success'],
-      default: 'PENDING'
+      default: 'Pending'
     },
 
 },{timestamps:true})

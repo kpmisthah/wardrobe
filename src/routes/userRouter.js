@@ -20,7 +20,6 @@ router.get('/shop',userAuth,loadShoppingPage)
 
 //product detail page
 router.get('/productDetails',productDetails)
-
 //review page
 router.post('/submit-review',handleReviewSubmission)
 //profile page
@@ -67,14 +66,11 @@ router.get('/wishlist',userAuth,loadWishlist)
 router.post('/add-to-wishlist',addToWishlist)
 router.post('/add-cart',wishlistToCart)
 router.delete('/remove-wishlist/:productId',removeWishlist)
-
 //wallet
 router.get('/wallet',loadWallet)
 router.post('/place-order/wallet',wallet)
-
 //Invoice download
 router.get('/order/download/pdf/:orderId',generatePdf)
-
 //razorpay
 router.post('/create-order', rzpOrder)
 router.post('/create-pending-order', createPendingOrder)

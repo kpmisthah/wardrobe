@@ -134,7 +134,7 @@
                     Payment Pending
                     <button
                       class="retry-payment-btn"
-                      onclick="retryPayment('<%= order.paymentMethod%>', '<%= order.finalAmount %>','<%=order._id%>')"
+                      onclick="retryPayment('<%= order.paymentMethod%>',' <%= order.finalAmount || order.totalPrice %>','<%=order._id%>')"
                     >
                       Complete Payment
                     </button>
@@ -169,8 +169,7 @@
                     <button type="button" class="btn-cancel disabled">
                       cancelled
                     </button>
-                    <% }%>
-                     <% if (order.status === "Delivered") { %>
+                    <% }%> <% if (order.status === "Delivered") { %>
 
                     <form
                       action="/returnOrder/<%= order._id %>"
@@ -355,21 +354,21 @@
         }
       }
       function confirmReturn(orderId) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You want to return this order!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, return it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // If the user clicks "Yes", proceed with the return
-        window.location.href = `/orders`;
-     }
-     });
-   }
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You want to return this order!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, return it!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // If the user clicks "Yes", proceed with the return
+            window.location.href = `/orders`;
+          }
+        });
+      }
     </script>
 
     <style>
