@@ -1,3 +1,5 @@
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const addressCards = document.querySelectorAll(".address-card");
   const selectedAddressIdInput = document.getElementById("selected-address-id");
@@ -98,7 +100,8 @@ async function placeOrder(event) {
     .getElementById("subtotal")
     .textContent.replace("₹", "")
     .trim(); 
-
+const finalAmount = document.getElementById('final-amount') .textContent.replace("₹", "").trim()
+console.log("Finsl amount"+finalAmount)
   if (!addressId) {
     swal("Error", "Please select a delivery address", "error");
     return;
@@ -114,7 +117,7 @@ async function placeOrder(event) {
       const response = await fetch("/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: subtotal, addressId, payment }),
+        body: JSON.stringify({ amount: finalAmount, addressId, payment }),
       });
 
       if (response.ok) {
@@ -128,13 +131,13 @@ async function placeOrder(event) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             addressId,
-            amount: subtotal,
+            amount: finalAmount||subtotal,
             razorpayOrderId: orderId
           }),
         });
-
+        console.log("Pending order is"+pendingOrder)
         if (!pendingOrder.ok) {
-          swal("Error", "Failed to save the order. Please try again.", "error");
+          swal("Error", "Failed to sarder. Please try again.", "error");
           return;
         }
 
@@ -172,7 +175,7 @@ async function placeOrder(event) {
             } else {
               swal(
                 "Error",
-                "Failed to save the order. Please try again.",
+                "Failed to sae the order. Please try again.",
                 "error"
               );
             }

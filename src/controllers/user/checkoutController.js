@@ -145,8 +145,8 @@ const placeOrder = async (req, res) => {
     const { payment, addressId } = req.body;
     const userId = req.session.user;
     let coupon_code = req.session.coupon;
-    let final_amount = req.session.finalAmount;
-    const discount_amount = req.session.discount;
+    let final_amount = req.session.finalAmount||null;
+    const discount_amount = req.session.discount||0;
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
@@ -313,6 +313,8 @@ const saveOrder = async (req, res) => {
     let userId = req.session.user;
     const { mongoOrderId,addressId, amount } = req.body;
     const order = await Order.findById(mongoOrderId)
+    console.log("the order is"+order);
+    
     if (!order) {
       throw new Error("Order not found");
     }
@@ -320,9 +322,11 @@ const saveOrder = async (req, res) => {
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
+    
 
       for (let item of cart.items) {
         const size = await Size.findOne({ product: item.product, size: item.size });
+  console.log("the suize "+size);
   
         if (!size) {
           return res.status(400).json({
@@ -330,12 +334,13 @@ const saveOrder = async (req, res) => {
           });
         }
   
-        if (size.quantity < item.quantity) {
-          return res.status(400).json({
-            message: `Insufficient stock for ${item.name} (Size: ${item.size}). Please remove it from the cart.`,
-          });
-        }
+        // if (size.quantity < item.quantity) {
+        //   return res.status(400).json({
+        //     message: `Insufficient stock for ${item.name} (Size: ${item.size}). Please remove it from the cart.`,
+        //   });
+        // }
       }
+      
   
       for (let item of cart.items) {
         const size = await Size.findOne({ product: item.product, size: item.size });
