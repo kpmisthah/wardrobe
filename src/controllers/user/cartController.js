@@ -212,10 +212,10 @@ const dec = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
-    const { productId } = req.body;
+    const { productId,size } = req.body;
     // const productSize = await Size.findOne({ product: productId, size });
     const cartIndex = cart.items.findIndex(
-      (item) => item.product.toString() == productId
+      (item) => item.product.toString() == productId && item.size == size
     );
     const cartItem = cart.items[cartIndex];
     const currrentQuantity = cartItem.quantity;

@@ -66,7 +66,9 @@ const handleReturn = async (req, res) => {
         if (action === 'approve') {
             productItem.returnStatus = 'Approved';
 
-            order.totalPrice -= productItem.price * productItem.quantity;
+            order.finalAmount?order.finalAmount: order.totalPrice -= productItem.price 
+            console.log("order total price "+order.totalPrice);
+            
         } else if (action === 'reject') {
 
             productItem.returnStatus = 'Rejected';
