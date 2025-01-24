@@ -1,0 +1,134 @@
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.payment-pending {
+  background-color: #ffe5e5;
+  color: #dc3545;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.retry-payment-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-payment-btn:hover {
+  background-color: #218838;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-cancel {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-cancel:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.order-details {
+  margin: 10px 0;
+  padding: 15px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.payment-info {
+  font-size: 0.9em;
+  color: #6c757d;
+  margin-top: 5px;
+}
+
+/* Mobile Responsiveness Styles */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    width: 100%;
+    margin: 0;
+    padding: 15px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .table {
+    width: 100%;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tbody tr {
+    display: block;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+  }
+
+  .table tbody td {
+    display: block;
+    text-align: right;
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    position: relative;
+  }
+
+  .table tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    font-weight: bold;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination .page-item {
+    margin: 5px;
+  }
+}
