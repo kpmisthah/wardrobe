@@ -1,28 +1,28 @@
 function createSalesGraph(data) {
-    
     const xArray = data.orders.map(order => 
-        order.finalAmount ? order.finalAmount : order.totalPrice );
-    const yArray = data.orders.map(order => 
         new Date(order.invoiceDate).toLocaleDateString('en-US') 
+    );
+    const yArray = data.orders.map(order => 
+        order.finalAmount ? order.finalAmount : order.totalPrice 
     );
 
     const chartData = [{
         x: xArray, 
         y: yArray, 
-        type: "bar",
-        orientation: "h",
-        marker: { color: "rgba(255, 0, 0, 0.6)" } 
+        type: "bar", 
+        marker: { color: "rgba(255, 0, 0, 0.6)" }
     }];
 
-   
     const layout = {
-        title: "Sales Data (Horizontal Bar Chart)", 
-        xaxis: { title: "Amount (₹)" }, 
-        yaxis: { title: "Date" }, 
-        margin: { l: 100, r: 20, t: 50, b: 50 } 
+        title: "Sales Data (Vertical Bar Chart)", 
+        xaxis: { title: "Date" }, 
+        yaxis: { title: "Amount (₹)" }, 
+        margin: { l: 50, r: 20, t: 50, b: 100 } 
     };
+
     Plotly.newPlot("salesGraph", chartData, layout);
 }
+
 
 document.getElementById('applyFilter').addEventListener('click', async () => {
     const quickFilter = document.getElementById('quickFilter').value;
