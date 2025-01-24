@@ -627,6 +627,7 @@ console.log("Final Amount:", order.finalAmount);
     res.status(500).send("Error generating invoice");
   }
 };
+
 export {
   loadCheckout,
   getEditAddressPage,

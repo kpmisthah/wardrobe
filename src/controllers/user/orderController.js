@@ -2,6 +2,9 @@ import { Order } from "../../models/orderIdSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 import { User } from '../../models/userSchema.js';
 import { Wallet } from '../../models/walletSchema.js';
+import PDFDocument from 'pdfkit';
+import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
+
 //load Orders page
 const orders = async(req,res)=>{
     try {
@@ -222,5 +225,103 @@ const updateOrderStatus = async (req, res) => {
       res.status(500).json({ message: "Failed to update order status" });
     }
   };
+
+  const createPdf = async(req,res)=>{
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findOne({ orderId: orderId });
+        if (!order) {
+          return res.status(404).send("Order not found");
+        }
+        const doc = new PDFDocument({
+          size: "A4",
+          margin: 50,
+        });
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+          "Content-Disposition",
+          "attachment; filename=sales_report.pdf"
+        );
+        doc.pipe(res);
+        doc.fontSize(10).text("YOUR LOGO", 50, 50);
+        //invoice number
+        doc.fontSize(10).text(`NO. ${order.orderId}`, 450, 50, { align: "right" });
+        doc.fontSize(30).text("INVOICE", 50, 100);
+        doc
+          .fontSize(10)
+          .text(
+            `Date: ${new Date(order.invoiceDate).toLocaleDateString("en-US")}`,
+            50,
+            150
+          );
+        // Add billing info
+        doc
+          .fontSize(10)
+          .text("Billed to:", 50, 180)
+          .text(order.address.name, 50, 195)
+          .text(order.address.houseNumber, 50, 210)
+          .text(
+            `${order.address.city}, ${order.address.state} ${order.address.zipCode}`,
+            50,
+            225
+          )
+          .text(order.address.email, 50, 240);
+    
+        const tableTop = 280;
+        doc
+          .fontSize(10)
+          .text("Item", 50, tableTop)
+          .text("Quantity", 200, tableTop)
+          .text("Price", 300, tableTop)
+          .text("Amount", 400, tableTop);
+        // Add horizontal line
+        doc
+          .moveTo(50, tableTop + 15)
+          .lineTo(550, tableTop + 15)
+          .stroke();
+        let position = tableTop + 30;
+        order.orderedItems.forEach((item) => {
+          doc
+            .fontSize(10)
+            .text(item.name, 50, position)
+            .text(item.quantity.toString(), 200, position)
+            .text(`₹${item.price.toFixed(2)}`, 300, position)
+            .text(`₹${(item.quantity * item.price).toFixed(2)}`, 400, position);
+          position += 20;
+        });
+        // Add totals
+        doc.moveTo(50, position).lineTo(550, position).stroke();
+    
+        position += 20;
+        doc
+          .fontSize(10)
+          .text("Subtotal:", 300, position)
+          .text(`₹${order.totalPrice.toFixed(2)}`, 400, position);
+        position += 20;
+        doc
+          .text("Discount:", 300, position)
+          .text(`₹${order.discount.toFixed(2)}`, 400, position);
+        position += 20;
+        doc
+          .fontSize(12)
+          .text("Total:", 300, position)
+          .text(`₹${order.finalAmount.toFixed(2)}`, 400, position);
+        // Add payment method
+        position += 40;
+        doc
+          .fontSize(10)
+          .text(`Payment method: ${order.paymentMethod}`, 50, position);
+        // Add note
+        position += 20;
+        doc.text("Note: Thank you for your business!", 50, position);
+        doc.end();
+    console.log("Subtotal:", order.totalPrice);
+    console.log("Discount:", order.discount);
+    console.log("Final Amount:", order.finalAmount);
+      } catch (error) {
+        console.error("Error generating invoice:", error);
+        res.status(500).send("Error generating invoice");
+      }
+  }
   
-export{orders,viewOrder,orderCancel,returnOrder,cancelOrder, updateOrderStatus,returnOrdered}
+export{orders,viewOrder,orderCancel,returnOrder,cancelOrder, updateOrderStatus,returnOrdered,createPdf}
