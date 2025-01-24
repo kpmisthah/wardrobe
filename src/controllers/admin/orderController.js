@@ -2,6 +2,7 @@ import { Order } from "../../models/orderIdSchema.js"
 import { Product } from "../../models/productSchema.js"
 import { User } from "../../models/userSchema.js"
 import { Size } from "../../models/sizeSchema.js"
+import { Wallet } from "../../models/walletSchema.js"
 const orderList = async(req,res)=>{
     try {
         let page = parseInt(req.query.page)||1
@@ -45,10 +46,12 @@ const viewOrders = async(req,res)=>{
 }
 const handleReturn = async (req, res) => {
     try {
+        const userId = req.session.user
         const { orderId, productId, action } = req.body;
-
         const order = await Order.findOne({ orderId });
-
+        const wallet = await Wallet.findOne({userId})
+        console.log("the wallet is"+wallet);
+        
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -65,10 +68,15 @@ const handleReturn = async (req, res) => {
 
         if (action === 'approve') {
             productItem.returnStatus = 'Approved';
-
             order.finalAmount?order.finalAmount: order.totalPrice -= productItem.price 
-            console.log("order total price "+order.totalPrice);
-            
+           wallet.balance+=order.finalAmount?order.finalAmount:order.totalPrice
+           const refundAmount = productItem.price
+            wallet.transactionHistory.push({
+                transactionType:'refund',
+                transactionAmount:refundAmount,
+                  description: `Refund for returned  item from order ${order._id}`
+            })
+            await wallet.save()
         } else if (action === 'reject') {
 
             productItem.returnStatus = 'Rejected';
