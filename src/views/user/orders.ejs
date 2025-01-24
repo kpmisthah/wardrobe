@@ -155,17 +155,32 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light d-md-none">
           <div class="container-fluid">
             <a class="navbar-brand" href="#">Menu</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavbar">
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#mobileNavbar"
+            >
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mobileNavbar">
               <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/myaccount">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/order">Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="/updateProfile">Update Profile</a></li>
-                <li class="nav-item"><a class="nav-link" href="/wallet">Wallet</a></li>
-                <li class="nav-item"><a class="nav-link" href="/getAddress">My Address</a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/myaccount">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="/order">Orders</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/updateProfile">Update Profile</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/wallet">Wallet</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/getAddress">My Address</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -176,19 +191,32 @@
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="/myaccount">Dashboard</a></li>
-              <li class="nav-item"><a class="nav-link active" href="/order">Orders</a></li>
-              <li class="nav-item"><a class="nav-link" href="/updateProfile">Update Profile</a></li>
-              <li class="nav-item"><a class="nav-link" href="/wallet">Wallet</a></li>
-              <li class="nav-item"><a class="nav-link" href="/getAddress">My Address</a></li>
+              <li class="nav-item">
+                <a class="nav-link" href="/myaccount">Dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/order">Orders</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/updateProfile">Update Profile</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/wallet">Wallet</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/getAddress">My Address</a>
+              </li>
             </ul>
           </div>
         </nav>
-  
+
         <!-- Main Content -->
-        <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+        <main
+          role="main"
+          class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content"
+        >
           <h2 class="mt-3">Your Orders</h2>
-  
+
           <% if (orders && orders.length > 0) { %>
           <!-- Responsive Table -->
           <div class="table-responsive">
@@ -207,19 +235,27 @@
                 </tr>
               </thead>
               <tbody>
-                <% orders.forEach((order) => { %>
-                <% if (order.orderedItems && order.orderedItems.length > 0) { %>
+                <% orders.forEach((order) => { %> <% if (order.orderedItems &&
+                order.orderedItems.length > 0) { %>
                 <tr data-order-id="<%= order._id %>">
                   <td data-label="Order ID"><%= order.orderId %></td>
-                  <td data-label="Date"><%= order.invoiceDate.toLocaleDateString('en-IN') %></td>
+                  <td data-label="Date">
+                    <%= order.invoiceDate.toLocaleDateString('en-IN') %>
+                  </td>
                   <td data-label="Status">
-                    <span class="status-badge <%= order.status.toLowerCase() %>">
+                    <span
+                      class="status-badge <%= order.status.toLowerCase() %>"
+                    >
                       <%= order.status %>
                     </span>
                   </td>
-                  <td data-label="Payment Method"><%= order.paymentMethod %></td>
+                  <td data-label="Payment Method">
+                    <%= order.paymentMethod %>
+                  </td>
                   <td data-label="Payment Status">
-                    <% if (order.paymentStatus === 'Pending' && order.paymentMethod == 'razorpay' && order.status !== 'Delivered' && order.status !== 'Canceled') { %>
+                    <% if (order.paymentStatus === 'Pending' &&
+                    order.paymentMethod == 'razorpay' && order.status !==
+                    'Delivered' && order.status !== 'Canceled') { %>
                     <div class="payment-pending">
                       Payment Pending
                       <button
@@ -244,23 +280,30 @@
                     <% } %>
                   </td>
                   <td data-label="Discount">₹ <%= order.discount %></td>
-                  <td data-label="Total">₹ <%= order.finalAmount || order.totalPrice %></td>
+                  <td data-label="Total">
+                    ₹ <%= order.finalAmount || order.totalPrice %>
+                  </td>
                   <td data-label="Action">
                     <div class="action-buttons">
-                      <% if (order.status === 'Pending' || order.status === 'Shipped') { %>
+                      <% if (order.status === 'Pending' || order.status ===
+                      'Shipped') { %>
                       <button
                         type="button"
                         class="btn btn-danger btn-sm"
+                        id="cancel-button-<%=order.orderId%>"
                         onclick="canceled('<%= order._id %>')"
                       >
                         Cancel Order
                       </button>
                       <% } else if (order.status === 'Canceled') { %>
-                      <button type="button" class="btn btn-secondary btn-sm" disabled>
+                      <button
+                        type="button"
+                        class="btn btn-secondary btn-sm"
+                        disabled
+                      >
                         Canceled
                       </button>
-                      <% } %>
-                      <% if (order.status === 'Delivered') { %>
+                      <% } %> <% if (order.status === 'Delivered') { %>
                       <form
                         action="/returnOrder/<%= order._id %>"
                         method="POST"
@@ -286,12 +329,11 @@
                     </a>
                   </td>
                 </tr>
-                <% } %>
-                <% }) %>
+                <% } %> <% }) %>
               </tbody>
             </table>
           </div>
-  
+
           <!-- Pagination -->
           <nav aria-label="Page navigation" class="pagination-container mt-4">
             <ul class="pagination justify-content-center">
@@ -305,7 +347,9 @@
           <% } else { %>
           <div class="no-orders text-center mt-5">
             <p class="fs-4">You haven't placed any orders yet.</p>
-            <a href="/shop" class="shop-now-btn btn btn-primary btn-lg mt-3">Start Shopping</a>
+            <a href="/shop" class="shop-now-btn btn btn-primary btn-lg mt-3"
+              >Start Shopping</a
+            >
           </div>
           <% } %>
         </main>
@@ -343,13 +387,16 @@
                 icon: "success",
                 confirmButtonColor: "#3085d6",
               });
-              const cancelButton = document.getElementById(`cancel-button-${productId}`);
-            if (cancelButton) {
-                cancelButton.innerText = 'Cancelled';
+
+              const cancelButton = document.querySelector(
+                `[data-order-id="${orderId}"] .btn-danger`
+              );
+              if (cancelButton) {
+                cancelButton.innerText = "Cancelled";
                 cancelButton.disabled = true;
-                cancelButton.classList.remove('btn-cancel');
-                cancelButton.classList.add('badge', 'bg-danger');
-            }
+                cancelButton.classList.remove("btn-danger");
+                cancelButton.classList.add("btn-secondary");
+              }
             } else {
               await Swal.fire({
                 title: "Error!",
@@ -369,7 +416,6 @@
           }
         }
       }
-
       async function retryPayment(paymentMethod, amount, originalOrderId) {
         try {
           const response = await fetch(`/retry-payment`, {
