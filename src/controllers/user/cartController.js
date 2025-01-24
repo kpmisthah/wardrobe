@@ -148,13 +148,22 @@ const inc = async (req, res) => {
       return res.status(404).json({ message: "Cart not found" });
     }
     const productSize = await Size.findOne({ product: productId, size });
+    console.log("product size"+productSize);
+    
     // console.log(cart.items.product+"ith correct aano")
     const cartIndex = cart.items.findIndex(
-      (item) => item.product.toString() == productId
+      (item) => item.product.toString() == productId && item.size == size
     );
+    console.log("acrt index"+cartIndex);
+    
     const cartItem = cart.items[cartIndex];
+    console.log("the cart item "+cartItem);
+    
     const currrentQuantity = cartItem.quantity;
+    console.log("current quanitty"+currrentQuantity);
+    
     let maxQuantityPerPerson = 10;
+    
     let newQuantity = currrentQuantity + 1;
     if (newQuantity > maxQuantityPerPerson) {
       return res.status(400).json({
@@ -171,7 +180,11 @@ const inc = async (req, res) => {
     }
 
     cart.items[cartIndex].quantity = newQuantity;
+    console.log(cart.items[cartIndex].quantity);
+    
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
+    console.log("cart price"+cart.items[cartIndex].totalPrice);
+    
     // // productSize.quantity -= 1;
     // await productSize.save();
     if (productSize.quantity < 0) {
