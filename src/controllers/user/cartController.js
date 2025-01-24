@@ -148,19 +148,15 @@ const inc = async (req, res) => {
       return res.status(404).json({ message: "Cart not found" });
     }
     const productSize = await Size.findOne({ product: productId, size });
-    console.log("product size"+productSize);
     
     // console.log(cart.items.product+"ith correct aano")
     const cartIndex = cart.items.findIndex(
       (item) => item.product.toString() == productId && item.size == size
     );
-    console.log("acrt index"+cartIndex);
     
     const cartItem = cart.items[cartIndex];
-    console.log("the cart item "+cartItem);
     
     const currrentQuantity = cartItem.quantity;
-    console.log("current quanitty"+currrentQuantity);
     
     let maxQuantityPerPerson = 10;
     
@@ -182,9 +178,7 @@ const inc = async (req, res) => {
     cart.items[cartIndex].quantity = newQuantity;
     console.log(cart.items[cartIndex].quantity);
     
-    cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
-    console.log("cart price"+cart.items[cartIndex].totalPrice);
-    
+    cart.items[cartIndex].totalPrice = cartItem.price * newQuantity; 
     // // productSize.quantity -= 1;
     // await productSize.save();
     if (productSize.quantity < 0) {
@@ -223,10 +217,6 @@ const dec = async (req, res) => {
 
     cart.items[cartIndex].quantity = newQuantity;
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
-    // productSize.quantity += 1;
-    // await productSize.save();
-
-    // cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
     cart.bill = cart.items.reduce(
       (acc, curr) => acc + curr.quantity * curr.price,
       0

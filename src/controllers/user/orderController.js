@@ -285,8 +285,8 @@ const updateOrderStatus = async (req, res) => {
             .fontSize(10)
             .text(item.name, 50, position)
             .text(item.quantity.toString(), 200, position)
-            .text(`₹${item.price.toFixed(2)}`, 300, position)
-            .text(`₹${(item.quantity * item.price).toFixed(2)}`, 400, position);
+            .text(`₹${(item.price/item.quantity).toFixed(2)}`, 300, position)
+            .text(`₹${( item.price).toFixed(2)}`, 400, position);
           position += 20;
         });
         // Add totals
@@ -305,7 +305,7 @@ const updateOrderStatus = async (req, res) => {
         doc
           .fontSize(12)
           .text("Total:", 300, position)
-          .text(`₹${order.finalAmount.toFixed(2)}`, 400, position);
+          .text(`₹${order.finalAmount?order.finalAmount:order.totalPrice.toFixed(2)}`, 400, position);
         // Add payment method
         position += 40;
         doc
