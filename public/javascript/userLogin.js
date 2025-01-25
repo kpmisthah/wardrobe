@@ -84,3 +84,20 @@ async function userLogin(event) {
     loader.style.display = 'none';
   }
 }
+
+document.querySelectorAll('.password-icon').forEach(icon => {
+  icon.addEventListener('click', function() {
+      const input = this.previousElementSibling;
+      const iconElement = this.querySelector('i');
+      
+      if (input.type === 'password') {
+          input.type = 'text';
+          iconElement.classList.remove('fa-eye');
+          iconElement.classList.add('fa-eye-slash');
+      } else {
+          input.type = 'password';
+          iconElement.classList.remove('fa-eye-slash');
+          iconElement.classList.add('fa-eye');
+      }
+  });
+});

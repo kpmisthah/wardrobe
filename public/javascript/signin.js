@@ -157,6 +157,24 @@ async function handleSignup(event) {
   }
 }
 
+document.querySelectorAll('.password-icon').forEach(icon => {
+    icon.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        const iconElement = this.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconElement.classList.remove('fa-eye');
+            iconElement.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            iconElement.classList.remove('fa-eye-slash');
+            iconElement.classList.add('fa-eye');
+        }
+    });
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
   loader.style.display = "none";
   loadSignup.addEventListener("submit", handleSignup);
