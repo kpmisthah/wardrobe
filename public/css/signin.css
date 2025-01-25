@@ -1,0 +1,199 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #f9f9f9; /* Light gray base background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add subtle background patterns */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0) 20%,
+      rgba(240, 240, 240, 0.7) 60%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(255, 255, 255, 0) 20%,
+      rgba(240, 240, 240, 0.7) 60%
+    );
+  z-index: -1; /* Push behind the content */
+}
+
+/* Centered signup container remains clean */
+.signup-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  padding: 35px;
+  position: relative;
+  z-index: 2; /* Stay above background */
+}
+
+/* Optional: Add some decorative elements */
+.signup-container::after {
+  content: "";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  opacity: 0.2;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+/* .signup-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  padding: 35px;
+} */
+.signup-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+.signup-header h2 {
+  color: #333;
+  font-size: 24px;
+}
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: border-color 0.3s;
+}
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+.error-message {
+  color: #ff4d4d;
+  font-size: 12px;
+  margin-top: 5px;
+  display: none;
+}
+.password-icon {
+  position: absolute;
+  right: 10px;
+  top: 40px;
+  cursor: pointer;
+  color: #999;
+}
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.signup-btn:hover {
+  transform: scale(1.02);
+}
+.or-continue {
+  text-align: center;
+  margin: 20px 0;
+  color: #777;
+  position: relative;
+}
+.or-continue::before,
+.or-continue::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background-color: #ddd;
+}
+.or-continue::before {
+  left: 0;
+}
+.or-continue::after {
+  right: 0;
+}
+.google-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  background-color: #f1f1f1;
+  color: #333;
+  text-decoration: none;
+  border-radius: 6px;
+  margin-bottom: 15px;
+}
+.login-link {
+  text-align: center;
+  margin-top: 15px;
+}
+.loader-container {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 480px) {
+  .signup-container {
+    padding: 20px;
+  }
+  .signup-header h2 {
+    font-size: 20px;
+  }
+}

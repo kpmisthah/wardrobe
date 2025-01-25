@@ -1,43 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create an Account</title>
-<link rel="stylesheet" href="css/signup.css">
-</head>
-<body>
-  <div class="container">
-    <div class="form-container">
-      <h2>Create an account</h2>
-      
-        <!-- Loader -->
-        <div id="loader" class="loader-container" style="display: none">
-          <div class="spinner"></div>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create an Account</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+  <link rel="stylesheet" href="css/signin.css">
+  </head>
+  <body>
+    <div class="signup-container">
+      <div class="signup-header">
+        <h2>Create an Account</h2>
+      </div>
+
+      <div id="loader" class="loader-container">
+        <div class="spinner"></div>
+      </div>
 
       <form method="post" action="/signup" id="loadSignup">
         <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" id="username" name="name" placeholder="Enter username">
+          <input
+            type="text"
+            id="username"
+            name="name"
+            placeholder="Enter username"
+          />
           <div id="error1" class="error-message"></div>
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="Enter email">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter email"
+          />
           <div id="error2" class="error-message"></div>
         </div>
 
         <div class="form-group">
           <label for="mobile">Mobile</label>
-          <input type="tel" id="mobile" name="phone" placeholder="Enter mobile number">
+          <input
+            type="tel"
+            id="mobile"
+            name="phone"
+            placeholder="Enter mobile number"
+          />
           <div id="error3" class="error-message"></div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" placeholder="Enter password">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter password"
+          />
           <div class="password-icon">
             <i class="fas fa-eye"></i>
           </div>
@@ -45,188 +69,32 @@
         </div>
 
         <div class="form-group">
-          <label for="password">Confirm password</label>
-          <input type="password" id="cPassword" name="cPassword" placeholder="Enter password">
+          <label for="cPassword">Confirm Password</label>
+          <input
+            type="password"
+            id="cPassword"
+            name="cPassword"
+            placeholder="Confirm password"
+          />
           <div class="password-icon">
             <i class="fas fa-eye"></i>
           </div>
-          <%if(locals.message && message.length>0){%>
-          <div><%=message%></div>
-          <%}%>
           <div id="error5" class="error-message"></div>
         </div>
-        <button type="submit" class="btn">Create an account</button>
+
+        <button type="submit" class="signup-btn">Create an Account</button>
       </form>
+
       <div class="or-continue">or continue with</div>
+
       <a href="/auth/google" class="google-btn">
-        Google
+        <i class="fab fa-google"></i> Sign up with Google
       </a>
+
+      <div class="login-link">
+        Already have an account? <a href="/login">Sign In</a>
+      </div>
     </div>
-    <div class="image-container">
-      <img src="./images/person-image.png" alt="Person Image">
-    </div>
-  </div>
-
-  <script>
-
-const name = document.getElementById('username');
-const email = document.getElementById('email');
-const mobile = document.getElementById('mobile');
-const password = document.getElementById('password');
-const confirmPassword = document.getElementById('cPassword');
-const error1 = document.getElementById('error1');
-const error2 = document.getElementById('error2');
-const error3 = document.getElementById('error3');
-const error4 = document.getElementById('error4');
-const error5 = document.getElementById('error5');
-const loadSignup = document.getElementById('loadSignup');
-const loader = document.getElementById('loader');
-
-
-function nameValidateChecking() {
-  const nameVal = name.value;
-  const namePattern = /^[a-zA-Z\s'-]+$/;
-  
-  if (nameVal.trim() === "") {
-    error1.style.display = "block";
-    error1.innerHTML = "please enter a valid name";
-    return false;
-  } else if (!namePattern.test(nameVal)) {
-    error1.style.display = "block";
-    error1.innerHTML = "Name can only contain alphabets and spaces";
-    return false;
-  } else {
-    error1.style.display = "none";
-    error1.innerHTML = '';
-    return true;
-  }
-}
-
-function emailValidateChecking() {
-  const emailval = email.value;
-  const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  
-  if (emailval === "") {
-    error2.style.display = "block";
-    error2.innerHTML = "please enter a valid email";
-    return false;
-  } else if (!emailPattern.test(emailval)) {
-    error2.style.display = "block";
-    error2.innerHTML = "Invalid Email";
-    return false;
-  } else if (!emailval.includes(".com")) {
-    error2.style.display = "block";
-    error2.innerHTML = 'Enter valid Email';
-    return false;
-  } else {
-    error2.style.display = "none";
-    error2.innerHTML = '';
-    return true;
-  }
-}
-
-function phoneValidateChecking() {
-  const phoneVal = mobile.value;
-  
-  if (phoneVal === "") {
-    error3.style.display = "block";
-    error3.innerHTML = "Enter a valid phone number";
-    return false;
-  } else if (phoneVal.length !== 10) {
-    error3.style.display = "block";
-    error3.innerHTML = "Enter 10 digits";
-    return false;
-  } else {
-    error3.style.display = "none";
-    error3.innerHTML = "";
-    return true;
-  }
-}
-
-function passwordValidateChecking() {
-  const passVal = password.value;
-  const cPassVal = confirmPassword.value;
-  const alpha = /^[a-zA-Z]+$/;
-  const digit = /^\d+$/;
-
-  if (passVal.length < 8) {
-    error4.style.display = "block";
-    error4.innerHTML = "should contain atleast 8 characters";
-    return false;
-  } else if (!alpha.test(passVal) && !digit.test(passVal)) {
-    error4.style.display = "block";
-    error4.innerHTML = "password only contain alphabets and digits";
-    return false;
-  } else {
-    error4.style.display = "none";
-    error4.innerHTML = "";
-  }
-
-  if (passVal !== cPassVal) {
-    error5.style.display = "block";
-    error5.innerHTML = "password do not match";
-    return false;
-  } else {
-    error5.style.display = "none";
-    error5.innerHTML = '';
-    return true;
-  }
-  
-  return true;
-}
-
-async function handleSignup(event) {
-  event.preventDefault();
-  
-  const isNameValid = nameValidateChecking();
-  const isEmailValid = emailValidateChecking();
-  const isPhoneValid = phoneValidateChecking();
-  const isPasswordValid = passwordValidateChecking();
-  
-  if (!isNameValid || !isEmailValid || !isPhoneValid || !isPasswordValid) {
-    return;
-  }
-
-  loader.style.display = 'flex';
-  
-  try {
-    const formData = {
-      name: name.value,
-      email: email.value,
-      phone: mobile.value,
-      password: password.value,
-      cPassword: confirmPassword.value
-    };
-    
-    const response = await fetch('/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok && data.redirectUrl) {
-      sessionStorage.setItem('verificationEmail', data.email);
-      window.location.href = data.redirectUrl;
-    } else {
-      if (data.message) {
-        console.error(data.message);
-      }
-    }
-  } catch (error) {
-    console.error('An error occurred during signup:', error);
-  } finally {
-    loader.style.display = 'none';
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  loader.style.display = 'none';
-  loadSignup.addEventListener('submit', handleSignup);
-});
-  </script>
-</body>
+    <script src="/javascript/signin.js"></script>
+  </body>
 </html>

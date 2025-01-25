@@ -10,7 +10,7 @@ const userAuth = async(req,res,next)=>{
         }
        
     }else{
-        return res.redirect('/login')
+        return res.redirect('/signup')
     }
 }
 const userLogin = (req,res,next)=>{

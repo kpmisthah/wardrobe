@@ -168,20 +168,6 @@
                       >
                         Canceled
                       </button>
-                      <% } %> <% if (order.status === 'Delivered') { %>
-                      <form
-                        action="/returnOrder/<%= order._id %>"
-                        method="POST"
-                        style="display: inline-block; margin-top: 5px"
-                      >
-                        <button
-                          type="submit"
-                          class="btn btn-success btn-sm"
-                          onclick="return confirmReturn('<%= order._id %>')"
-                        >
-                          Return
-                        </button>
-                      </form>
                       <% } %>
                     </div>
                   </td>
@@ -199,7 +185,7 @@
             </table>
           </div>
 
-          <!-- Pagination -->
+          //  Pagination
           <nav aria-label="Page navigation" class="pagination-container mt-4">
             <ul class="pagination justify-content-center">
               <% for (let i = 1; i <= totalpages; i++) { %>

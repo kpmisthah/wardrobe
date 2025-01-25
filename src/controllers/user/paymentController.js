@@ -16,7 +16,7 @@ const rzpOrder = async(req,res)=>{
                 paymentMethod: payment
             }
         });
-    
+        console.log("Razorpay Order Response:", rzpOrder);
         // Send the order ID back to the frontend for checkout
         res.json({ orderId: rzpOrder.id,razorpayKey: process.env.RAZORPAY_KEY_ID,});
     
