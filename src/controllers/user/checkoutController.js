@@ -302,8 +302,11 @@ const createPendingOrder = async (req, res) => {
 const orderConfirm = async (req, res) => {
   try {
     const user = req.session.user;
-    const orders = await Order.findOne({ userId: user })
-    return res.render("user/orderconfirmed", { orders });
+    const lastOrder = await Order.findOne({ userId: user }).sort({createdAt:-1})
+    if (!lastOrder) {
+      return res.status(404).render('error');
+  }
+    return res.render("user/orderconfirmed", { orderId: lastOrder.orderId});
   } catch (error) {
     console.log("the error for orders is" + orders);
   }
