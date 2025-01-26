@@ -107,6 +107,12 @@ const wallet = async (req, res) => {
       });
       await newOrder.save();
       wallet.balance -= amountToDeduct;
+      wallet.transactionHistory.push({
+        transactionType:'purchase',
+        transactionAmount:amountToDeduct,
+        transactionDate:new Date(),
+        description: `purchase from order ${order._id}`
+      })
       await wallet.save();
       console.log("wallet balance is" + wallet.balance);
       cart.items = [];

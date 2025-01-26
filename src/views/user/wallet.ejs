@@ -4,83 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Profile</title>
-   <link rel="stylesheet" href="css/userProfile.css">
+    <link rel="stylesheet" href="css/userProfile.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            background: #27374D;
+            border-radius: 15px;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .card-body {
+            padding: 20px;
+            color: white;
+            
+        }
+
+        h4, h5, small, span, td, th {
+            font-family: Arial, sans-serif;
+        }
+
+        h4 {
+            color: #333;
+        }
+
+        h5, span, small {
+            color: #ffffff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            color: black;
+        }
+
+        th {
+            color: #666;
+        }
+
+        td {
+            vertical-align: middle;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                padding: 10px;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            h4, h5 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
-<div class="container py-5" style="margin-top: 2rem;">
-<%-include('../../views/partials/userPartials/usernavbar')%>
-    <!-- Header -->
-    <h4 class="mb-4" style="color: #333;">Wallet</h4>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <h4 class="mb-4" style="color: #333;">Wallet</h4>
 
-    <!-- Wallet Card -->
-    <div class="card mb-4" style="background: #27374D; border-radius: 15px; border: none;">
-        <div class="card-body p-4">
-            <h5 class="text-white mb-3">Wardrobe</h5>
-            <div class="d-flex flex-column">
-                <div class="mb-3">
-                    <span class="text-white" style="letter-spacing: 3px; font-size: 1.2rem;">**** **** **** 1234</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="text-white mb-0">₹<%= wallet && wallet.balance !== null && wallet.balance !== undefined ? wallet.balance.toFixed(2) : '0.00' %>
-                    </h2>
-                    <small class="text-white">Refund Wallet</small>
+        <!-- Wallet Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Wardrobe</h5>
+                <div class="d-flex flex-column">
+                    <div class="mb-3">
+                        <span style="letter-spacing: 3px; font-size: 1.2rem;">**** **** **** 1234</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2>₹<%= wallet && wallet.balance !== null && wallet.balance !== undefined ? wallet.balance.toFixed(2) : '0.00' %></h2>
+                        <small>Refund Wallet</small>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Transaction History -->
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title mb-4">Transaction History</h5>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (wallet.transactionHistory && wallet.transactionHistory.length > 0) { %>
-                            <% wallet.transactionHistory.forEach(transaction => { %>
-                                <tr>
-                                    <td><%= new Date(transaction.transactionDate).toLocaleDateString() %></td>
-                                    <td><%= transaction.transactionType.charAt(0).toUpperCase() + transaction.transactionType.slice(1) %></td>
-                                    <td>₹<%= transaction.transactionAmount.toFixed(2) %></td>
-                                    <td><%= transaction.description || 'N/A' %></td>
-                                </tr>
-                            <% }); %>
-                        <% } else { %>
+        <!-- Transaction History -->
+        <div class="cards">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Transaction History</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td colspan="4" class="text-center">No transactions yet</td>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Description</th>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% if (wallet.transactionHistory && wallet.transactionHistory.length > 0) { %>
+                                <% wallet.transactionHistory.forEach(transaction => { %>
+                                    <tr>
+                                        <td><%= new Date(transaction.transactionDate).toLocaleDateString() %></td>
+                                        <td><%= transaction.transactionType.charAt(0).toUpperCase() + transaction.transactionType.slice(1) %></td>
+                                        <td>₹<%= transaction.transactionAmount.toFixed(2) %></td>
+                                        <td><%= transaction.description || 'N/A' %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="text-center">No transactions yet</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<style>
-    .container {
-        max-width: 800px;
-        background: #ffffff;
-    }
-
-    .table th {
-        font-weight: 500;
-        color: #666;
-    }
-
-    .table td {
-        vertical-align: middle;
-    }
-</style>
-
-<!--===============================================================================================-->	
+    <!--===============================================================================================-->	
 <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
 <!--===============================================================================================-->
 <script src="vendor/animsition/js/animsition.min.js"></script>
@@ -175,5 +244,7 @@
 <!--===============================================================================================-->
 <script src="js/main.js"></script>
 
-      </body>
-    </html>
+</body>
+</html>
+
+
