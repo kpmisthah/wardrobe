@@ -534,7 +534,9 @@ const generatePdf = async (req, res) => {
   try {
     const { orderId } = req.params;
     const order = await Order.findOne({ orderId: orderId });
-    console.log("the orderrreerdsdsdsdsds",order);
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
     
     if (!order) {
       return res.status(404).send("Order not found");
@@ -591,8 +593,8 @@ const generatePdf = async (req, res) => {
         .fontSize(10)
         .text(item.name, 50, position)
         .text(item.quantity.toString(), 200, position)
-        .text(`₹${item.price.toFixed(2)}`, 300, position)
-        .text(`₹${(item.quantity * item.price).toFixed(2)}`, 400, position);
+        .text(`₹${(item.price/item.quantity).toFixed(2)}`, 300, position)
+        .text(`₹${( item.price).toFixed(2)}`, 400, position);
       position += 20;
     });
     // Add totals
@@ -611,7 +613,7 @@ const generatePdf = async (req, res) => {
     doc
       .fontSize(12)
       .text("Total:", 300, position)
-      .text(`₹${order.finalAmount.toFixed(2)}`, 400, position);
+      .text(`₹${order.finalAmount?order.finalAmount:order.totalPrice.toFixed(2)}`, 400, position);
     // Add payment method
     position += 40;
     doc
@@ -621,9 +623,6 @@ const generatePdf = async (req, res) => {
     position += 20;
     doc.text("Note: Thank you for your business!", 50, position);
     doc.end();
-console.log("Subtotal:", order.totalPrice);
-console.log("Discount:", order.discount);
-console.log("Final Amount:", order.finalAmount);
   } catch (error) {
     console.error("Error generating invoice:", error);
     res.status(500).send("Error generating invoice");

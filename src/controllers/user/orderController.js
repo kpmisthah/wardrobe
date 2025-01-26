@@ -3,7 +3,6 @@ import { Size } from "../../models/sizeSchema.js"
 import { User } from '../../models/userSchema.js';
 import { Wallet } from '../../models/walletSchema.js';
 import PDFDocument from 'pdfkit';
-import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'fs';
 
 //load Orders page
 const orders = async(req,res)=>{
@@ -296,9 +295,6 @@ const updateOrderStatus = async (req, res) => {
         position += 20;
         doc.text("Note: Thank you for your business!", 50, position);
         doc.end();
-    console.log("Subtotal:", order.totalPrice);
-    console.log("Discount:", order.discount);
-    console.log("Final Amount:", order.finalAmount);
       } catch (error) {
         console.error("Error generating invoice:", error);
         res.status(500).send("Error generating invoice");
