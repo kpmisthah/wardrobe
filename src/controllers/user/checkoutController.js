@@ -534,6 +534,8 @@ const generatePdf = async (req, res) => {
   try {
     const { orderId } = req.params;
     const order = await Order.findOne({ orderId: orderId });
+    console.log("the orderrreerdsdsdsdsds",order);
+    
     if (!order) {
       return res.status(404).send("Order not found");
     }
