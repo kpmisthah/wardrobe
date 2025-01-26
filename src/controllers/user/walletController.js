@@ -11,7 +11,7 @@ const loadWallet = async (req, res) => {
     const wallet = await Wallet.findOne({ userId: user });
     if (user) {
       let userData = await User.findOne({ _id: user });
-      return res.render("user/wallet", { wallet, user: userData });
+      return res.render("user/wallet", {wallet: wallet || { balance: 0, transactionHistory: [] }, user: userData });
     }
   } catch (error) {
     console.log("The error is" + error);
