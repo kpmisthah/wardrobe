@@ -13,7 +13,8 @@
                     <span class="text-white" style="letter-spacing: 3px; font-size: 1.2rem;">**** **** **** 1234</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <h2 class="text-white mb-0">₹<%= wallet.balance.toFixed(2) %></h2>
+                    <h2 class="text-white mb-0">₹<%= wallet && wallet.balance !== null && wallet.balance !== undefined ? wallet.balance.toFixed(2) : '0.00' %>
+                    </h2>
                     <small class="text-white">Refund Wallet</small>
                 </div>
             </div>
