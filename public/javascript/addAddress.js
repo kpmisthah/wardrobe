@@ -138,6 +138,8 @@ async function address(event){
             body:JSON.stringify(formData)
     
         })
+        console.log('response is',response);
+        
         if(response.ok){
                         await Swal.fire({
                 title: 'Success!',
@@ -145,7 +147,7 @@ async function address(event){
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
-            window.location.href = '/add-address'
+            window.location.href = '/getAddress'
         }
     } catch (error) {
       console.log("The error " + error);

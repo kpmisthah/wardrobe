@@ -41,6 +41,7 @@ router.post('/add-size',addSize)
 //product management
 router.get('/addProducts',getProductAddPage)
 router.post('/addProducts',uploads.array('images',4),addProducts)
+router.get('/dashboard/:id',isAuthenticated ,loadDashboard)
 router.get('/products',getProductPage)
 router.get('/blockProduct',blockProduct)
 router.get('/unblockProduct',unblockProduct)
