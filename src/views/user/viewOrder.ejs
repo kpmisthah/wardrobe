@@ -17,7 +17,9 @@
 
   <% if (order) { %>
     <p><strong>Order ID:</strong> <%= order.orderId %></p>
+    <br>
     <p><strong>Order Date:</strong> <%= order.invoiceDate.toDateString() %></p>
+    <br>
     <p><strong>Status:</strong> <%= order.status %></p>
 
     <table class="table-shopping-cart">
