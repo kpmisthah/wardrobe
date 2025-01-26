@@ -7,10 +7,8 @@ import { User } from "../models/userSchema.js"
 passport.use(new Strategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.NODE_ENV === 'production' 
-    ? 'https://wardrobe.zapto.org/auth/google/callback'
-    : 'http://localhost:3000/auth/google/callback',
-  passReqToCallback: true
+    callbackURL:'https://wardrobe.zapto.org/auth/google/callback',
+    passReqToCallback: true
 }, async (accessToken, refreshToken, profile, done) => {
     try {
 
