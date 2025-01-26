@@ -56,7 +56,7 @@ router.get('/user/view-order/:orderid',viewOrder)
 router.post('/order-cancel',orderCancel)
 router.post('/order/cancel',cancelOrder)
 router.post('/return-order',returnOrder)
-router.get('https://wardrobe.zapto.org/orderdetails/download/pdf/:orderId',createPdf)
+router.get('/orderdetails/download/pdf/:orderId',createPdf)
 //otp-page
 router.get('/otp',otpVerification)
 router.post('/verify-otp',verifyOtps)
@@ -70,7 +70,7 @@ router.delete('/remove-wishlist/:productId',removeWishlist)
 router.get('/wallet',loadWallet)
 router.post('/place-order/wallet',wallet)
 //Invoice download
-router.get('https://wardrobe.zapto.org/order/download/pdf/:orderId',generatePdf)
+router.get('/order/download/pdf/:orderId',generatePdf)
 //razorpay
 router.post('/create-order', rzpOrder)
 router.post('/create-pending-order', createPendingOrder)

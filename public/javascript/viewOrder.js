@@ -109,6 +109,6 @@ async function returnOrder(productId) {
 document.getElementById('downloadInvoices').addEventListener('click', () => {
     const orderId = document.querySelector('input[name="orderId"]').value;
     console.log("The id is"+orderId)
-       window.location.href = `https://wardrobe.zapto.org/orderdetails/download/pdf/${orderId}`;
+       window.location.href = `/orderdetails/download/pdf/${orderId}`;
    });
    
