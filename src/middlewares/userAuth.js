@@ -1,14 +1,7 @@
 import { User } from "../models/userSchema.js"
 const userAuth = async(req,res,next)=>{
     if(req.session.user){
-        const user = await User.findById(req.session.user)
-        if(!user.isBlocked){
-            next()
-        }else{
-            req.session.destroy()
-            return res.render('user/login',{message:"User id blocked by admin"})
-        }
-       
+            next()     
     }else{
         return res.redirect('/login')
     }
@@ -21,5 +14,24 @@ const userLogin = (req,res,next)=>{
     }
 }
 
+const block = async (req, res, next) => {
+    try {
+        if (!req.session.user) {
+            return next();
+        }
 
-export{userAuth,userLogin}  
+        const user = await User.findById(req.session.user);
+
+        if (user.isBlocked) {
+            req.session.destroy()
+            return res.redirect('/login');
+        }else{
+            return next();
+        }
+       
+    } catch (error) {
+        console.error('Block middleware error:', error);
+        return res.redirect('/login');
+    }
+};
+export{userAuth,userLogin,block}  

@@ -14,7 +14,6 @@ const signupPage = async (req, res) => {
 const signup = async (req, res) => {
   try {
     const { name, email, password, phone, cPassword } = req.body;
-    console.log("name" + name + "email" + email);
 
     if (!name || !email || !password) {
       return res.status(403).json({
@@ -39,11 +38,8 @@ const signup = async (req, res) => {
       JSON.stringify(req.session.userDetails, null, 2)
     );
 
-    console.log("The otp generated" + result);
     return res.status(200).json({message:'redirect to verifiy otp',email:req.session.userDetails.email,redirectUrl:'/verify-otp'})
-    // return res.render("user/otpVerification", {
-    //   email: req.session.userDetails.email,
-    // });
+
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ success: false, error: error.message });
@@ -90,13 +86,9 @@ const otpPage = async(req,res)=>{
   
 }
 const verifyOtp = async (req, res) => {
-  console.log("hai from verifyotp")
   try {
     const { otps, email } = req.body;
 
-    console.log("Received OTP:", otps);
-    console.log("Received Email:", email);
-    console.log("Session Details:", req.session.userDetails);
 
     // Validate input
     if (!email || !otps) {
@@ -106,10 +98,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    // Find the most recent OTP record for this email
     const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 });
-
-    console.log("Found OTP Record:", otpRecord);
 
     if (!otpRecord) {
       return res.status(400).json({
@@ -128,7 +117,6 @@ const verifyOtp = async (req, res) => {
 
     // Get user details from session
     const user = req.session.userDetails;
-    console.log("The user"+user);
     const passwordHash = await bcrypt.hash(user.password,10)
 
     // Create new user
@@ -168,12 +156,6 @@ const resendOtp = async (req, res) => {
       { otp },
       { upsert: true, new: true }
     );
-    console.log("The otp is " + existingOtp);
-    // if(existingOtp){
-    //   await Otp.updateOne({email},{otp})
-    // }else{
-    //   await Otp.create({email,otp})
-    // }
 
     return res.json({ success: true, message: "OTP sent successfully!" });
   } catch (error) {

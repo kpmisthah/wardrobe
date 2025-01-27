@@ -44,11 +44,6 @@ const loadHome = async (req, res) => {
   
       if (users) {
         const userData = await User.findOne({ _id: users });
-        if (userData.isBlocked) {
-          req.session.destroy();
-          return res.redirect("/login");
-        } else {
-   
           return res.render("user/home", {
             user: userData,
             menProducts,
@@ -56,7 +51,7 @@ const loadHome = async (req, res) => {
             kidsProducts,
             product,
           });
-        }
+        
       }
   
       return res.render("user/home", {

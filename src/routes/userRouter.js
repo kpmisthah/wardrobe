@@ -3,7 +3,7 @@ import  {loadHome,loadError,loadShoppingPage,loadProfile,updateProfile,getAddres
 import { loadCart,cart ,deleteItem,inc,dec} from "../controllers/user/cartController.js"
 import { productDetails } from "../controllers/user/productController.js"
 import {loadCheckout, getEditAddressPage,editAddress,loadAddcheckoutaddress,addcheckoutAddress,placeOrder,orderConfirm,applyCoupon,saveOrder,removeCoupon,generatePdf,retryPayment,completeRetryPayment,createPendingOrder} from '../controllers/user/checkoutController.js'
-import { userAuth } from "../middlewares/userAuth.js"
+import { userAuth,block } from "../middlewares/userAuth.js"
 import { viewOrder,orders,orderCancel,returnOrder,cancelOrder,updateOrderStatus,createPdf} from "../controllers/user/orderController.js"
 import { loadWishlist,addToWishlist,wishlistToCart,removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
@@ -11,15 +11,15 @@ import { handleReviewSubmission } from "../controllers/user/reviewConroller.js"
 import { loadWallet ,wallet} from "../controllers/user/walletController.js"
 const router = express.Router()
 //home page
-router.get('/',loadHome)
+router.get('/',block,loadHome)
 router.get('/notfound',loadError)
 
 //shopping page
 
-router.get('/shop',userAuth,loadShoppingPage)
+router.get('/shop',userAuth,block,loadShoppingPage)
 
 //product detail page
-router.get('/productDetails',productDetails)
+router.get('/productDetails',userAuth,block,productDetails)
 //review page
 router.post('/submit-review',handleReviewSubmission)
 //profile page
