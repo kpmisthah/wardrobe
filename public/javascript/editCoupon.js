@@ -53,7 +53,6 @@ async function validateEditCouponForm(event) {
         minPurchase: minOrderValue,
         startDate,
         endDate,
-        isActive: status === "true",
       };
       const response = await fetch(`/admin/editCoupon/${couponId}`, {
         method: "PUT",
@@ -64,7 +63,8 @@ async function validateEditCouponForm(event) {
       });
 
       const result = await response.json();
-
+      console.log("the result is",response);
+      
       if (response.ok) {
         await swal("Success", "Coupon updated successfully!", "success");
         window.location.href = "/admin/coupon";
@@ -73,7 +73,7 @@ async function validateEditCouponForm(event) {
       }
       return true;
     } catch (error) {
-      console.error("Error:", error);
+      console.log("Error:", error);
       await swal("Error", "Error updating coupon", "error");
     }
   } else {

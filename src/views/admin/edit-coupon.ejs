@@ -33,12 +33,12 @@
         </div>
         <div class="form-group">
             <label for="startDate">Start Date</label>
-            <input type="date" class="form-control" id="startDate" name="startDate" required value="<%= coupon.startDate.toISOString().split('T')[0] %>">
+            <input type="date" class="form-control" id="startDate" name="startDate" required value="<%= coupon.startDate.toISOString() %>">
             <span id="startDateError" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label for="endDate">End Date</label>
-            <input type="date" class="form-control" id="endDate" name="endDate" required value="<%= coupon.endDate.toISOString().split('T')[0] %>">
+            <input type="date" class="form-control" id="endDate" name="endDate" required value="<%= coupon.endDate.toISOString() %>">
             <span id="endDateError" class="text-danger"></span>
         </div>
         <div class="form-group">

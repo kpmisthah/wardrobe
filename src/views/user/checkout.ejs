@@ -83,7 +83,7 @@
                 <div class="coupon-section">
                     <div class="flex-w flex-m m-r-20 m-tb-5">
 
-                    
+                        <% if (coupon && coupon.length > 0) { %>
                     <div class="coupon-section">
                         <div class="flex-w flex-m m-r-20 m-tb-5">
                             <input
@@ -106,7 +106,9 @@
                            </div>
                         </div>
                     </div>
-                
+                    <% } else { %>
+                        <div></div>
+                    <% } %>
                     <!-- Display Applied Coupon Name -->
     <!-- Display Available Coupons -->
     <div class="coupon-display">
