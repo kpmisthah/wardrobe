@@ -266,7 +266,6 @@ const sizeManagement = async (req, res) => {
 const addSize = async (req, res) => {
   try {
     const { product, size, quantity } = req.body;
-    console.log("The product in size is " + product);
     //existing size
     const normalSize = size.toLowerCase();
     const existingSize = await Size.findOne({ size: normalSize, product });

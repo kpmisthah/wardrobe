@@ -17,8 +17,7 @@ const handleReviewSubmission = async(req,res)=>{
         productId,
         userId
       })
-      console.log("the review is"+newReview);
-      
+
       await newReview.save()
       res.json({status:200,message:"review addedd successfully"})
 

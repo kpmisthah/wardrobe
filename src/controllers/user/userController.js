@@ -2,8 +2,8 @@ import { User } from "../../models/userSchema.js";
 import { Product } from "../../models/productSchema.js";
 import { Category } from "../../models/categoriesSchema.js";
 import { Address } from "../../models/addressSchema.js";
+import { Subcategory } from "../../models/subcategorySchema.js";
 import { Order } from "../../models/orderIdSchema.js";
-
 import bcrypt from "bcrypt";
 import { Otp } from "../../models/otpModels.js";
 import randomString from "randomstring";
@@ -37,8 +37,10 @@ const loadHome = async (req, res) => {
       ]);
       const category = await Category.find({isListed:true})
       const categoryIds = category.map((cat=>cat._id))
+      const subcategory = await Subcategory.find({isListed:true})
+      const subcategoryIds = subcategory.map((sub=>sub._id))
     
-      const product = await Product.find({ isBlocked: false ,category:categoryIds})
+      const product = await Product.find({ isBlocked: false ,category:categoryIds, subcategory:subcategoryIds})
         .sort({ createdAt: -1 })
         .limit(4);
   
@@ -86,8 +88,9 @@ const loadShoppingPage = async (req, res) => {
     let limit = 12;
     const category = await Category.find({isListed:true})
     const categoryId = category.map((cat)=>cat._id)
-    
-    let query = { isBlocked: false ,category:categoryId};
+    const subcategory = await Subcategory.find({isListed:true})
+    const subcategoryIds = subcategory.map((sub=>sub._id))
+    let query = { isBlocked: false ,category:categoryId,subcategory:subcategoryIds};
     let sort = {};
 
     if (searchQuery) {
