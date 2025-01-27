@@ -22,7 +22,11 @@ const wallet = async (req, res) => {
   try {
     const { payment, addressId } = req.body;
     const userId = req.session.user;
+    console.log("wallet userId"+userId);
+    
     const wallet = await Wallet.findOne({ userId });
+    console.log("wallet"+wallet);
+    
     const order = await Order.findOne({ userId });
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length === 0) {
