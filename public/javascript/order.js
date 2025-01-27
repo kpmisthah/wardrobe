@@ -29,7 +29,7 @@ async function handleReturn(orderId, productId, action) {
     });
     if (response.ok) {
       Swal.fire({
-        title: "Are you going to approve?",
+        title: "Are you sure?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes",
