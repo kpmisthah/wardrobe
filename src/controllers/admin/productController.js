@@ -40,16 +40,17 @@ const addProducts = async (req, res) => {
       if (req.files && req.files.length > 0) {
         for (let i = 0; i < req.files.length; i++) {
           const originalImagePath = req.files[i].path;
+          const resizedFileName = `resized-${req.files[i].filename}`;
           const resizedImagePath = path.join(
             "public",
             "uploads",
             "product-images",
-            req.files[i].filename
+            resizedFileName
           );
           await sharp(originalImagePath)
             .resize({ width: 440, height: 440 })
             .toFile(resizedImagePath);
-          images.push(req.files[i].filename);
+          images.push(resizedFileName);
         }
       }
       //ividathe products form nn varunne aan req.body nn.
@@ -73,8 +74,7 @@ const addProducts = async (req, res) => {
         sizeOptions: [],
         status: "Available",
       });
-      const val = await newProduct.save();
-      console.log(val);
+     await newProduct.save();
       return res.redirect("/admin/addProducts");
     } else {
       return res
@@ -83,7 +83,7 @@ const addProducts = async (req, res) => {
     }
   } catch (error) {
     console.error("Error saving product", error);
-    return res.redirect("/admin/pageNotFound");
+    // return res.redirect("/admin/pageNotFound");
   }
 };
 
