@@ -53,7 +53,7 @@ const addCategoryOffer = async (req, res) => {
             message: "Category not found",
           });
       }
-      category.categoryOffer = percentage
+      category.categoryOffer =Math.abs( percentage)
       await category.save()
       const products = await Product.find({ category: categoryId });
       for(let product of products){
