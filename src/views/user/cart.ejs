@@ -114,20 +114,73 @@
 <script>
   
   async function checkCartBeforeProceed() {
-    const cartItems = <%- JSON.stringify(cart.items) %>;
+    const cartRows = document.querySelectorAll('.table_row');
+    const cartItems = Array.from(cartRows).map(row => {
+        const incrementButton = row.querySelector('.btn-num-product-up');
+        
+        return {
+            product: {
+                _id: incrementButton.getAttribute('data-product-id')
+            },
+            name: row.querySelector('.column-2').textContent,
+            quantity: parseInt(row.querySelector('.num-product').value),
+            size: incrementButton.getAttribute('data-size'),
+            totalPrice: parseFloat(row.querySelector('.column-6').textContent.replace('₹', ''))
+        };
+    });
     
     if (cartItems.length === 0) {
-      await Swal.fire({
-        icon: 'warning',
-        title: 'Oops...',
-        text: 'Your cart is empty. Add items to cart.',
-        confirmButtonText: 'Go to shop'
-      });
-      window.location.href = "/shop";
-    } else {
-      window.location.href = "/checkout";
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Your cart is empty. Add items to cart.',
+            confirmButtonText: 'Go to shop'
+        });
+        window.location.href = "/shop";
+        return;
     }
-  }
+
+    try {
+        const response = await fetch('/validate-cart-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ cartItems })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            if (result.valid) {
+                window.location.href = "/checkout";
+            } else {
+                let message = 'The following items have insufficient stock:\n\n';
+                result.invalidItems.forEach(item => {
+                    message += `${item.name} (Size: ${item.size})\n`;
+                    message += `Requested: ${item.requestedQty}, Available: ${item.availableQty}\n\n`;
+                });
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Stock Changed',
+                    text: message,
+                    confirmButtonText: 'Ok'
+                });
+            }
+        } else {
+            throw new Error(result.message || 'Failed to validate cart');
+        }
+    } catch (error) {
+        console.error('Error validating cart:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to validate cart. Please try again.',
+        });
+    }
+}
+  
   
     // Function to remove items from the cart
     async function removeFromCart(productId, event) {

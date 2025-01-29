@@ -37,7 +37,7 @@ const cart = async (req, res) => {
 
     //check the stock of the product and user enter stock
     const productSize = await Size.findOne({ product: productId, size });
-
+    
     let cart = await Cart.findOne({ userId: owner });
     let maxQtyPerPerson = 10;
     if (!cart) {
@@ -74,18 +74,16 @@ const cart = async (req, res) => {
       cart.items.push({
         product: productId,
         name,
-        quantity: stock,
+        quantity: requestedQuantity,
         size: size,
         price,
         totalPrice: price * requestedQuantity,
       });
     }
-    //change the quantity of stock in size schema
-    // productSize.quantity -= requestedQuantity;
+
     if (productSize.quantity < 0) {
       return res.status(400).json({ message: `Not enough stock` });
     }
-    // await productSize.save();
 
     cart.bill = cart.items.reduce(
       (acc, curr) => acc + curr.quantity * curr.price,
@@ -96,6 +94,48 @@ const cart = async (req, res) => {
   } catch (error) {
     console.log("Error in addToCart:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+//check the stock when proceed to checkout 
+
+const validateCartStock = async (req, res) => {
+  try {
+      const { cartItems } = req.body;
+      const invalidItems = [];
+
+      for (const item of cartItems) {
+          const productSize = await Size.findOne({ 
+              product: item.product, 
+              size: item.size 
+          });
+
+          if (!productSize || productSize.quantity < item.quantity) {
+              invalidItems.push({
+                  name: item.name,
+                  size: item.size,
+                  requestedQty: item.quantity,
+                  availableQty: productSize ? productSize.quantity : 0
+              });
+          }
+      }
+
+      if (invalidItems.length > 0) {
+          return res.status(200).json({
+              valid: false,
+              invalidItems
+          });
+      }
+
+      return res.status(200).json({
+          valid: true
+      });
+
+  } catch (error) {
+      console.error('Error in validateCartStock:', error);
+      return res.status(500).json({
+          message: 'Internal server error'
+      });
   }
 };
 const deleteItem = async (req, res) => {
@@ -230,4 +270,4 @@ const dec = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-export { loadCart, cart, inc, dec, deleteItem };
+export { loadCart, cart, inc, dec, deleteItem,validateCartStock };

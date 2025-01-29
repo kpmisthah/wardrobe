@@ -12,8 +12,6 @@ let productDetails = async(req,res)=>{
             const productId = req.query.id
             const products = await Product.find({_id:productId,isBlocked:false}).populate('category').populate('sizeOptions')
             console.log("The products is",products);
-            // const review = await Review.find({productId}).populate('userId').sort({createdAt:-1})
-            // console.log("The review is in",review); 
             const categoryInProduct = await Product.findOne({_id:productId})
             
             const relatedProducts = await Product.find({
