@@ -72,17 +72,18 @@ function phoneValidateChecking() {
   }
 }
 
+
 function passwordValidateChecking() {
   const passVal = password.value;
   const cPassVal = confirmPassword.value;
-  const alpha = /^[a-zA-Z]+$/;
-  const digit = /^\d+$/;
+  const alpha = /[a-zA-Z]/;
+  const digit = /\d/;
 
   if (passVal.length < 8) {
     error4.style.display = "block";
     error4.innerHTML = "should contain atleast 8 characters";
     return false;
-  } else if (!alpha.test(passVal) && !digit.test(passVal)) {
+  } else if (!alpha.test(passVal) ||!digit.test(passVal)) {
     error4.style.display = "block";
     error4.innerHTML = "password only contain alphabets and digits";
     return false;
@@ -179,3 +180,5 @@ document.addEventListener("DOMContentLoaded", () => {
   loader.style.display = "none";
   loadSignup.addEventListener("submit", handleSignup);
 });
+
+// ..................
