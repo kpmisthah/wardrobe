@@ -85,7 +85,7 @@ function passwordValidateChecking() {
     return false;
   } else if (!alpha.test(passVal) ||!digit.test(passVal)) {
     error4.style.display = "block";
-    error4.innerHTML = "password only contain alphabets and digits";
+    error4.innerHTML = "password must contain alphabets and digits";
     return false;
   } else {
     error4.style.display = "none";
@@ -181,4 +181,3 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSignup.addEventListener("submit", handleSignup);
 });
 
-// ..................

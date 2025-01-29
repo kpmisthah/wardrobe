@@ -20,8 +20,8 @@ function emailValidateChecking(email) {
 
 function passwordValidateChecking(password) {
   const error2 = document.getElementById('error2');
-  const alpha = /^[a-zA-Z]+$/;
-  const digit = /^\d+$/;
+  const alpha = /^[a-zA-Z]/;
+  const digit = /^\d/;
   
   if (password.length < 8) {
     error2.style.display = "block";
@@ -29,7 +29,7 @@ function passwordValidateChecking(password) {
     return false;
   } else if (!alpha.test(password) && !digit.test(password)) {
     error2.style.display = "block";
-    error2.innerHTML = "password only contain alphabets and digits";
+    error2.innerHTML = "password must contain alphabets and digits";
     return false;
   } else {
     error2.style.display = "none";
