@@ -3,7 +3,6 @@ import { Product } from "../../models/productSchema.js";
 
 const categoryManagement = async (req, res) => {
   try {
-    if (req.session.admin) {
       let page = parseInt(req.query.page || 1);
       let limit = 3;
       let category = await Category.find()
@@ -18,9 +17,6 @@ const categoryManagement = async (req, res) => {
         totalpages,
         currentPage: page,
       });
-    } else {
-      return res.redirect("/admin/login");
-    }
   } catch (error) {
     return res.render("admin/pageNotFound");
   }
@@ -44,7 +40,6 @@ const category = async (req, res) => {
 
 const addCategoryOffer = async (req, res) => {
   try {
-    if (req.session.admin) {
       const percentage = req.body.percentage;
       const categoryId = req.body.categoryId;
       const category = await Category.findById(categoryId);
@@ -53,9 +48,9 @@ const addCategoryOffer = async (req, res) => {
             message: "Category not found",
           });
       }
-      category.categoryOffer =Math.abs( percentage)
+      category.categoryOffer =Math.abs(percentage)
       await category.save()
-      const products = await Product.find({ category: categoryId });
+      const products = await Product.find({ category: categoryId }); 
       for(let product of products){
         const discount = product.regularPrice*(percentage/100)
         product.salePrice = product.regularPrice - discount
@@ -63,7 +58,7 @@ const addCategoryOffer = async (req, res) => {
         
       }
       res.json({ status: true });
-    }
+    
   } catch (error) {
     console.log("The error is "+error)
     res.status(500).json({ status: false, message: "internal server error" });
@@ -94,13 +89,9 @@ const removeCategoryOffer = async (req, res) => {
 
 const isListed = async (req, res) => {
   try {
-    if (req.session.admin) {
       const { id } = req.query;
       await Category.findByIdAndUpdate(id, { isListed: true }, { new: true });
       res.redirect("/admin/category");
-    } else {
-      res.redirect("/admin/login");
-    }
   } catch (error) {
     console.log(error);
   }
@@ -108,13 +99,9 @@ const isListed = async (req, res) => {
 
 const unListed = async (req, res) => {
   try {
-    if (req.session.admin) {
       const { id } = req.query;
       await Category.findByIdAndUpdate(id, { isListed: false }, { new: true });
       res.redirect("/admin/category");
-    } else {
-      res.redirect("/admin/login");
-    }
   } catch (error) {
     console.log(error);
     res.status(500).redirect("/admin/category");
@@ -137,7 +124,6 @@ const edit = async(req,res)=>{
 }
 const editCategory = async(req,res)=>{
     try {
-        if(req.session.admin){
             const{id} = req.params
             const{categoryName,description} = req.body
             const existingCategory = await Category.findOne({name:categoryName})
@@ -154,10 +140,6 @@ const editCategory = async(req,res)=>{
             }else{
                 res.status(404).json({error:"Category not found"})
             }
-
-        }else{
-            res.redirect('/admin/login')
-        }
     } catch (error) {
         res.status(500).json({error:"Internal Server error"})
     }

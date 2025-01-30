@@ -10,7 +10,6 @@ import fs from 'fs';
 
 const getProductAddPage = async (req, res) => {
   try {
-    if (req.session.admin) {
       //extract category and brand from dbs
       const category = await Category.find({ isListed: true });
       const subcategory = await Subcategory.find({ isListed: true });
@@ -20,9 +19,6 @@ const getProductAddPage = async (req, res) => {
         subcategory,
         size,
       });
-    } else {
-      res.redirect("/admin/login");
-    }
   } catch (error) {
     res.render("admin/pageNotFound");
   }
@@ -83,13 +79,11 @@ const addProducts = async (req, res) => {
     }
   } catch (error) {
     console.error("Error saving product", error);
-    // return res.redirect("/admin/pageNotFound");
   }
 };
 
 const getProductPage = async (req, res) => {
   try {
-    if (req.session.admin) {
       const search = req.query.search || "";
       const page = req.query.page || 1;
       const limit = 3;
@@ -105,24 +99,15 @@ const getProductPage = async (req, res) => {
         .populate("sizeOptions");
       const count = await Product.countDocuments(searchQuery);
       const totalPages = Math.ceil(count / limit);
-      // const category = await Category.find({isListed:true})
-      // const brand = await Brand.find({isBlocked:false})
-      //product page kk ella datasum render cheyya
-      // if(category && brand){
       res.render("admin/products", {
         data: productData,
         currentPage: page,
         totalPages,
         search,
-        // category,
-        // brand
+  
       });
-      // }
-    } else {
-      res.redirect("/admin/login");
-    }
   } catch (error) {
-    console.error(error + "oke");
+    console.error(error);
   }
 };
 
@@ -171,7 +156,6 @@ const editProduct = async (req, res) => {
       console.log(req.files);
       const { id } = req.params;
       const data = req.body;
-      console.log("The body is ", data);
       const existingProduct = await Product.findOne({
           name: data.productName,
           _id: { $ne: id },

@@ -8,7 +8,6 @@ const __dirname = path.dirname(__filename);
 // Define the upload path
 const uploadPath = path.join(__dirname, "../../public/uploads/product-images");
 console.log(uploadPath)
-console.log("Upload path",uploadPath)
 const storage = multer.diskStorage({
     destination: (req,res, cb) => {
         cb(null, uploadPath);
@@ -21,7 +20,5 @@ const storage = multer.diskStorage({
 export const  uploadMulter = (store)=>{
     return multer({storage:store})
 }
-// Date.now(): Generates a timestamp, ensuring unique file names.
-// file.originalname: Keeps the original file name after the timestamp.
-// cb(null, ...) sets the file name. null indicates no error.
+
 export {storage}

@@ -26,6 +26,9 @@ const login = async(req,res)=>{
 
 }
 
+const pageNotFound = async(req,res)=>{
+   return res.render('admin/pageNotFound')
 
+}
 
-export{loginPage,login}
+export{loginPage,login,pageNotFound}

@@ -4,7 +4,6 @@ const isAuthenticated = (req,res,next)=>{
     }else{
         return res.redirect('/admin/login')
     }
-    // next()
 }
 
 const isLogin = (req,res,next)=>{
@@ -13,7 +12,6 @@ const isLogin = (req,res,next)=>{
     }else{
        return res.redirect('/admin/dashboard')
     }
-    // next()
 }
 
 export{isAuthenticated,isLogin}
