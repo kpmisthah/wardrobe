@@ -101,7 +101,6 @@ async function placeOrder(event) {
     .textContent.replace("₹", "")
     .trim(); 
 const finalAmount = document.getElementById('final-amount') .textContent.replace("₹", "").trim()
-console.log("Finsl amount"+finalAmount)
   if (!addressId) {
     swal("Error", "Please select a delivery address", "error");
     return;
@@ -135,13 +134,15 @@ console.log("Finsl amount"+finalAmount)
             razorpayOrderId: orderId
           }),
         });
-        console.log("Pending order is"+pendingOrder)
-        if (!pendingOrder.ok) {
-          swal("Error", "Failed to sarder. Please try again.", "error");
+        const pendingOrderData = await pendingOrder.json();
+        console.log("pending orderdata",pendingOrderData);
+        
+        if (!pendingOrder.ok || !pendingOrderData.success) {
+          swal("Error", pendingOrderData.message || "Failed to create order", "error");
           return;
         }
 
-        const { mongoOrderId } = await pendingOrder.json();
+        const { mongoOrderId } = pendingOrderData
 
         const options = {
           key: razorpayKey,

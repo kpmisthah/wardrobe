@@ -156,7 +156,7 @@ const placeOrder = async (req, res) => {
         const size = await Size.findOne({ product: item.product, size: item.size });
         if (size.quantity < item.quantity) {
           return res.status(400).json({
-            message: `Insufficient stock`,
+            message: `Insufficient stock for ${item.name} in size ${item.size}.only${size.quantity} available`,
           });
         }
       }
@@ -244,6 +244,15 @@ const createPendingOrder = async (req, res) => {
     const userId = req.session.user;
     
     const cart = await Cart.findOne({ userId });
+    if(!cart || cart.items.length == 0){
+      return res.status(400).json({success:false,message:'cart is empty'})
+    }
+    for(let item of cart.items){
+      const size = await Size.findOne({product:item.product,size:item.size})
+      if(size.quantity<item.quantity){
+        return res.status(400).json({success:false ,message: `Insufficient stock for ${item.name} in size ${item.size}.only ${size.quantity} left`})
+      }
+    }
     const address = await Address.findOne({ userId });
     const addressIndex = address.address.findIndex(
       (adr) => adr._id.toString() === addressId
@@ -289,6 +298,7 @@ const createPendingOrder = async (req, res) => {
     await newOrder.save();
 
     res.json({
+      success:true,
       status: 200,
       message: "Pending order created",
       mongoOrderId: newOrder._id
@@ -316,7 +326,6 @@ const saveOrder = async (req, res) => {
     let userId = req.session.user;
     const { mongoOrderId,addressId, amount } = req.body;
     const order = await Order.findById(mongoOrderId)
-    console.log("the order is"+order);
     
     if (!order) {
       throw new Error("Order not found");
@@ -329,19 +338,12 @@ const saveOrder = async (req, res) => {
 
       for (let item of cart.items) {
         const size = await Size.findOne({ product: item.product, size: item.size });
-  console.log("the suize "+size);
   
-        if (!size) {
+        if (size.quantity < item.quantity) {
           return res.status(400).json({
-            message: `Size ${item.size} for product ${item.name} is not available.`,
+            message: `Insufficient stock for ${item.name} in size ${item.size} only ${size.quantity} left`,
           });
         }
-  
-        // if (size.quantity < item.quantity) {
-        //   return res.status(400).json({
-        //     message: `Insufficient stock for ${item.name} (Size: ${item.size}). Please remove it from the cart.`,
-        //   });
-        // }
       }
       
   
@@ -551,7 +553,7 @@ const generatePdf = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=sales_report.pdf"
+      "attachment; filename=order_report.pdf"
     );
     doc.pipe(res);
     doc.fontSize(10).text("YOUR LOGO", 50, 50);
