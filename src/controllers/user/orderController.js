@@ -73,7 +73,7 @@ const orderCancel = async(req, res) => {
             orderedProducts.finalAmount = 0
             orderedProducts.totalPrice = 0
         }
-        if(items.cancelStatus == 'canceled' && orderedProducts.paymentMethod !='COD'){
+        if(items.cancelStatus == 'canceled' && orderedProducts.paymentMethod !='COD' && orderedProducts.paymentStatus!='Pending'){
             const wallet = await Wallet.findOne({userId:orderedProducts.userId})
             const refundAmount = items.price
             if(wallet ){
@@ -125,7 +125,7 @@ const cancelOrder = async (req, res) => {
 
 
         // Refund to wallet if payment method is not COD
-        if (cancelledOrder.paymentMethod !== 'COD' && cancelOrder.paymentStatus != 'Pending') {
+        if (cancelledOrder.paymentMethod !== 'COD' && cancelledOrder.paymentStatus != 'Pending') {
             const wallet = await Wallet.findOne({ userId: cancelledOrder.userId });
             const refundAmount = cancelledOrder.finalAmount || cancelledOrder.totalPrice;
             if (wallet) {

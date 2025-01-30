@@ -22,11 +22,7 @@ const wallet = async (req, res) => {
   try {
     const { payment, addressId } = req.body;
     const userId = req.session.user;
-    console.log("wallet userId"+userId);
-    
     const wallet = await Wallet.findOne({ userId });
-    console.log("wallet"+wallet);
-    
     const order = await Order.findOne({ userId });
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length === 0) {
@@ -39,15 +35,9 @@ const wallet = async (req, res) => {
         size: item.size,
       });
 
-      if (!size) {
-        return res.status(400).json({
-          message: `Size ${item.size} for product ${item.name} is not available.`,
-        });
-      }
-
       if (size.quantity < item.quantity) {
         return res.status(400).json({
-          message: `Insufficient stock for ${item.name} (Size: ${item.size}). Please remove it from the cart.`,
+          message: `Insufficient stock for ${item.name} in size ${item.size}.only ${size.quantity}left`,
         });
       }
     }
@@ -129,36 +119,6 @@ const wallet = async (req, res) => {
           redirectUrl: "/order-confirmation",
         });
     }
-
-    // let orderedItems = [];
-    // for (let item of cart.items) {
-    //   orderedItems.push({
-    //     product: item.product,
-    //     name: item.name,
-    //     size: item.size,
-    //     quantity: item.quantity,
-    //     couponCode: coupon_code,
-    //     price: item.price,
-    //     returnStatus: "Not Requested",
-    //   });
-    // }
-    // let totalPrice = cart.bill;
-    // const newOrder = new Order({
-    //   orderedItems,
-    //   address: addressId,
-    //   userId,
-    //   paymentMethod: payment,
-    //   status: "Pending",
-    //   totalPrice,
-    //   finalAmount: final_amount || totalPrice,
-    //   discount: discount_amount,
-    //   invoiceDate: new Date(),
-    // });
-    // await newOrder.save()
-    // cart.items = []
-    // cart.bill = 0
-    // await cart.save()
-    // return res.status(200).json({ message: "Order placed successfully", redirectUrl: "/order-confirmation" });
   } catch (error) {
     console.log("The error is " + error);
   }
