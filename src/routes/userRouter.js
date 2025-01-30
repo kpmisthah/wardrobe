@@ -23,17 +23,17 @@ router.get('/productDetails',userAuth,block,productDetails)
 //review page
 // router.post('/submit-review',handleReviewSubmission)
 //profile page
-router.get('/myaccount',userAuth,loadProfile)
-router.get('/updateProfile',userAuth,updateProfile)
+router.get('/myaccount',block,userAuth,loadProfile)
+router.get('/updateProfile',block,userAuth,updateProfile)
 router.put('/update-profile',profileUpdate)
-router.get('/getAddress',userAuth,getAddress)
-router.get('/add-address',userAuth,addAddress)
+router.get('/getAddress',userAuth,block,getAddress)
+router.get('/add-address',block,userAuth,addAddress)
 router.post('/address',address)
-router.get('/edit/:id',getEditPage)
+router.get('/edit/:id',block,getEditPage)
 router.put('/edit/:id',edit)
 router.delete('/delete/:id',deleteAddress)
 //cart page
-router.get('/cart',userAuth,loadCart)
+router.get('/cart',block,userAuth,loadCart)
 router.post('/add-to-cart',cart)
 router.post('/validate-cart-stock', validateCartStock);
 router.delete('/cart/remove/:productId',deleteItem);
@@ -41,10 +41,10 @@ router.delete('/cart/remove/:productId',deleteItem);
 router.post('/decrement',dec)
 router.post('/increment',inc)
 //checkout page
-router.get('/checkout',loadCheckout)
-router.get('/editted/:id',getEditAddressPage)
+router.get('/checkout',block,loadCheckout)
+router.get('/editted/:id',block,getEditAddressPage)
 router.put('/editted/:id',editAddress)
-router.get('/add-checkoutaddress',loadAddcheckoutaddress)
+router.get('/add-checkoutaddress',block,loadAddcheckoutaddress)
 router.post('/add-checkout-address',addcheckoutAddress)
 //place order
 router.post('/place-order',placeOrder)
@@ -52,8 +52,8 @@ router.post('/apply-coupon',applyCoupon)
 router.get('/order-confirmation',orderConfirm)
 router.post('/remove-coupon',removeCoupon)
 //view-orderpage
-router.get('/orders',userAuth,orders)
-router.get('/user/view-order/:orderid',viewOrder)
+router.get('/orders',block,userAuth,orders)
+router.get('/user/view-order/:orderid',block,viewOrder)
 router.post('/order-cancel',orderCancel)
 router.post('/order/cancel',cancelOrder)
 router.post('/return-order',returnOrder)
@@ -63,12 +63,12 @@ router.get('/otp',otpVerification)
 router.post('/verify-otp',verifyOtps)
 router.post('/resend-otp',resendOtp)
 //wishlist
-router.get('/wishlist',userAuth,loadWishlist)
+router.get('/wishlist',block,userAuth,loadWishlist)
 router.post('/add-to-wishlist',addToWishlist)
 router.post('/add-cart',wishlistToCart)
 router.delete('/remove-wishlist/:productId',removeWishlist)
 //wallet
-router.get('/wallet',loadWallet)
+router.get('/wallet',block,loadWallet)
 router.post('/place-order/wallet',wallet)
 //Invoice download
 router.get('/order/download/pdf/:orderId',generatePdf)
