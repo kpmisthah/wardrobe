@@ -46,60 +46,134 @@ const viewOrders = async(req,res)=>{
         console.log(error)
     }
 }
+// const handleReturn = async (req, res) => {
+//     try {
+//         const userId = req.session.user
+//         const { orderId, productId, action } = req.body;
+//         const order = await Order.findOne({ orderId });
+//         const wallet = await Wallet.findOne({userId})
+//         console.log("the wallet is"+wallet);
+        
+//         if (!order) {
+//             return res.status(404).json({ error: 'Order not found' });
+//         }
+
+//         const productIndex = order.orderedItems.findIndex(
+//             (item) => item._id.toString() === productId
+//         );
+
+//         if (productIndex === -1) {
+//             return res.status(404).json({ error: 'Product not found in order' });
+//         }
+
+//         const productItem = order.orderedItems[productIndex];
+
+//         if (action === 'approve') {
+//             productItem.returnStatus = 'Approved';
+//             order.finalAmount?order.finalAmount: order.totalPrice -= productItem.price 
+//            wallet.balance+=order.finalAmount?order.finalAmount:order.totalPrice
+//            const refundAmount = productItem.price
+//             wallet.transactionHistory.push({
+//                 transactionType:'refund',
+//                 transactionAmount:refundAmount,
+//                   description: `Refund for returned  item from order ${order._id}`
+//             })
+//             await wallet.save()
+//         } else if (action === 'reject') {
+
+//             productItem.returnStatus = 'Rejected';
+//         } else {
+//             return res.status(400).json({ error: 'Invalid action provided' });
+//         }
+
+//         // Save the updated order
+//         await order.save();
+
+//         return res.status(200).json({ 
+//             success: true, 
+//             message: `Return ${action}d successfully`, 
+//             order 
+//         });
+//     } catch (error) {
+//         console.error("Error in handleReturn:", error);
+//         return res.status(500).json({ error: 'Something went wrong' });
+//     }
+// };
 const handleReturn = async (req, res) => {
     try {
-        const userId = req.session.user
+        const userId = req.session.user;
         const { orderId, productId, action } = req.body;
+        
+        // Find order and wallet
         const order = await Order.findOne({ orderId });
-        const wallet = await Wallet.findOne({userId})
-        console.log("the wallet is"+wallet);
+        const wallet = await Wallet.findOne({ userId });
         
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        const productIndex = order.orderedItems.findIndex(
-            (item) => item._id.toString() === productId
+        // Find the specific product in the order
+        const productItem = order.orderedItems.find(
+            item => item._id.toString() === productId
         );
 
-        if (productIndex === -1) {
+        if (!productItem) {
             return res.status(404).json({ error: 'Product not found in order' });
         }
 
-        const productItem = order.orderedItems[productIndex];
-
         if (action === 'approve') {
+            // Calculate refund amount correctly
+            const refundAmount = productItem.price * productItem.quantity;
+            
+            // Update product status
             productItem.returnStatus = 'Approved';
-            order.finalAmount?order.finalAmount: order.totalPrice -= productItem.price 
-           wallet.balance+=order.finalAmount?order.finalAmount:order.totalPrice
-           const refundAmount = productItem.price
+            
+            // Update wallet balance
+            wallet.balance += refundAmount;
+            
+            // Add transaction to history
             wallet.transactionHistory.push({
-                transactionType:'refund',
-                transactionAmount:refundAmount,
-                  description: `Refund for returned  item from order ${order._id}`
-            })
-            await wallet.save()
-        } else if (action === 'reject') {
+                transactionType: 'refund',
+                transactionAmount: refundAmount,
+                transactionDate: new Date(),
+                description: `Refund for returned item from order ${orderId}`
+            });
 
+            // Update order total/final amount
+            if (order.finalAmount) {
+                order.finalAmount -= refundAmount;
+            } else {
+                order.totalPrice -= refundAmount;
+            }
+
+            // Save both wallet and order
+            await Promise.all([
+                wallet.save(),
+                order.save()
+            ]);
+
+        } else if (action === 'reject') {
             productItem.returnStatus = 'Rejected';
+            await order.save();
         } else {
             return res.status(400).json({ error: 'Invalid action provided' });
         }
 
-        // Save the updated order
-        await order.save();
-
-        return res.status(200).json({ 
-            success: true, 
-            message: `Return ${action}d successfully`, 
-            order 
+        return res.status(200).json({
+            success: true,
+            message: `Return ${action}d successfully`,
+            order,
+            walletBalance: action === 'approve' ? wallet.balance : undefined
         });
+
     } catch (error) {
         console.error("Error in handleReturn:", error);
-        return res.status(500).json({ error: 'Something went wrong' });
+        return res.status(500).json({ 
+            error: 'Something went wrong',
+            details: error.message 
+        });
     }
 };
-
 const orderCancelled = async(req,res)=>{
      try {
             const { orderId,productId} = req.body;  
