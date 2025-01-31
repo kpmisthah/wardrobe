@@ -18,6 +18,10 @@ async function addToCart(productId,name,price,stock,size) {
         })
         const responseData = await response.json()
         if(response.ok){
+            const updatedCart = await fetch('/cart/count');
+            const { count } = await updatedCart.json();
+
+            window.dispatchCartUpdate(count);
             Swal.fire({
                 icon: 'success',
                 title: 'Added to Cart',
@@ -53,6 +57,8 @@ async function addToCart(productId,name,price,stock,size) {
         });
     }
 }
+
+
 async function likeProduct(productId, size, quantity) {
     if (!size || size === 'Choose an option') {
         Swal.fire({

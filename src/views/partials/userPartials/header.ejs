@@ -126,10 +126,9 @@
 							<i class="zmdi zmdi-search"></i>
 						</div>
 
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="<%=locals.cartItemCount || 0 %>">
+						<div id="cartIconContainer" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="<%=locals.cartItemCount || 0 %>">
 							<i class="zmdi zmdi-shopping-cart"></i>
 						</div>
-
 						<a href="/wishlist" class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti" data-notify="<%=locals.wishlistItemCount || 0 %>">
 							<i class="zmdi zmdi-favorite-outline"></i>
 						</a>
@@ -275,5 +274,30 @@
 				
 		</div>		
 	</header>
+	<!-- At the bottom of your header partial -->
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			// Function to update cart count from any page
+			window.updateCartCount = function(count) {
+				const cartIcon = document.querySelector('.js-show-cart');
+				if (cartIcon) {
+					cartIcon.setAttribute('data-notify', count);
+				}
+			};
+		
+			// Listen for cart update events
+			document.addEventListener('cartUpdated', function(event) {
+				updateCartCount(event.detail.count);
+			});
+		});
+		
+		// Function to dispatch cart update event (can be called from any page)
+		window.dispatchCartUpdate = function(count) {
+			document.dispatchEvent(new CustomEvent('cartUpdated', {
+				detail: { count: count }
+			}));
+		};
+		</script>
+<script src="/javascript/cartHandler.js"></script>
 
 	

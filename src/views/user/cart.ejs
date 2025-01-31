@@ -210,7 +210,7 @@
               title: "Item Removed",
               text: "The item was successfully removed from your cart!",
             });
-
+            CartHandler.dispatchCartUpdate(data.cartCount); // Add this line
             window.location.reload();
           } else {
             await Swal.fire({
@@ -276,6 +276,8 @@ async function increment_quantity(productId, size, event) {
             totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
             updateCartTotals(data.newCartTotal);
             incrementButton.dataset.quantity = data.newQuantity;
+            CartHandler.dispatchCartUpdate(data.cartCount); // Add this line
+            updateCartTotals(data.newCartTotal);
         } else {
             // If increment fails due to stock limit
             if (data.message.includes("Not enough stock")) {
@@ -329,6 +331,8 @@ async function decrement_quantity(productId, size, event) {
 
       const incrementButton = currentRow.querySelector('.btn-num-product-up');
       incrementButton.dataset.quantity = data.newQuantity;
+      CartHandler.dispatchCartUpdate(data.cartCount); // Add this line
+  updateCartTotals(data.newCartTotal);
     // } else {
     //   Swal.fire({ icon: "error",title: "Error", text: "cannot" });
     }

@@ -9,8 +9,8 @@ import userRouter from './routes/userRouter.js'
 import authRouter from './routes/authRoutes.js'
 import adminRouter from './routes/adminRouter.js'
 import{passport} from './db/passport.js'
-import { cartCountMiddleware } from "./middlewares/cart.js";
-import { wishlistCountMiddleware } from "./middlewares/cart.js";
+// import { cartCountMiddleware } from "./middlewares/cart.js";
+// import { wishlistCountMiddleware } from "./middlewares/cart.js";
 
 dotenv.config()
 const PORT = process.env.PORT;
@@ -52,8 +52,8 @@ app.use(session({
 
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(cartCountMiddleware)
-app.use(wishlistCountMiddleware)
+// app.use(cartCountMiddleware)
+// app.use(wishlistCountMiddleware)
 /*Security: Sometimes, sensitive data (like personal or session-related information)
  should never be cached to avoid the risk of exposing it if someone else uses the same browser.*/
 
