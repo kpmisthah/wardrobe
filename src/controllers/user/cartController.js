@@ -161,9 +161,6 @@ const deleteItem = async (req, res) => {
         .json({ success: false, error: "Item not found in cart" });
     }
 
-    // Extract size and quantity 
-    // const itemToDelete = cart.items[itemIndex];
-
     // Remove the item
     cart.items.splice(itemIndex, 1);
 
@@ -189,7 +186,6 @@ const inc = async (req, res) => {
     }
     const productSize = await Size.findOne({ product: productId, size });
     
-    // console.log(cart.items.product+"ith correct aano")
     const cartIndex = cart.items.findIndex(
       (item) => item.product.toString() == productId && item.size == size
     );
@@ -216,15 +212,11 @@ const inc = async (req, res) => {
     }
 
     cart.items[cartIndex].quantity = newQuantity;
-    console.log(cart.items[cartIndex].quantity);
     
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity; 
-    // // productSize.quantity -= 1;
-    // await productSize.save();
     if (productSize.quantity < 0) {
       return res.status(400).json({ message: `Not enough stock` });
     }
-    // cart.bill = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
     cart.bill = cart.items.reduce(
       (acc, curr) => acc + curr.quantity * curr.price,
       0

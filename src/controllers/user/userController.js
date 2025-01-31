@@ -215,11 +215,12 @@ const loadProfile = async (req, res) => {
 const addAddress = async (req, res) => {
   try {
     return res.render("user/addAddress");
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    
+  }
 };
 
-//post the address into address page
-//user id session eduth store cheyth
 const address = async (req, res) => {
   try {
     const user = req.session.user;
@@ -346,18 +347,12 @@ const updateProfile = async (req, res) => {
 
 const profileUpdate = async (req, res) => {
   try {
-    console.log("hello");
     const userId = req.session.user;
-    const previousMail = await User.findOne({ _id: userId });
-    console.log("prev email"+previousMail);  
-    const oldEmail = previousMail.email;
-    console.log("old email"+oldEmail);  
+    const previousMail = await User.findOne({ _id: userId }); 
+    const oldEmail = previousMail.email; 
     const { email, password } = req.body;
-    console.log("email "+email+' pazssword'+password); 
     const otp = randomString.generate({ length: 6, charset: "numeric" });
-    console.log("The new otp is" + otp);
-    const o = await Otp.create({ email: oldEmail, otp });
-    console.log("The otp created is"+o);
+     await Otp.create({ email: oldEmail, otp });
     
     req.session.updateProfile = { email, password };
     return res
@@ -377,14 +372,12 @@ const otpVerification = async (req, res) => {
 };
 
 const verifyOtps = async (req, res) => {
-  console.log("hello from verifyotps");
   try {
     const userId = req.session.user;
     const previousMail = await User.findOne({ _id: userId });
     const oldEmail = previousMail.email;
     const { otps } = req.body;
     const otpRecord = await Otp.findOne({ email: oldEmail });
-    console.log("The record is " + otpRecord);
     if (!otpRecord) {
       return res
         .status(400)
@@ -399,7 +392,6 @@ const verifyOtps = async (req, res) => {
       email: email,
       password: hashedPassword,
     });
-    console.log("The updated user is " + updateUser);
     await updateUser.save();
     return res
       .status(200)
@@ -409,7 +401,6 @@ const verifyOtps = async (req, res) => {
         redirectUrl: "/updateProfile",
       }); // Example redirect URL
   } catch (error) {
-    console.log("the errorr is" + error);
     return res
       .status(500)
       .json({ success: false, message: "An error occured" });
@@ -425,7 +416,6 @@ const resendOtp = async (req, res) => {
       { otp },
       { upsert: true, new: true }
     );
-    console.log("The otp is " + existingOtp);
 
     return res.json({ success: true, message: "OTP sent successfully!" });
   } catch (error) {

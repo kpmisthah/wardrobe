@@ -1,6 +1,5 @@
 import { Product } from "../../models/productSchema.js";
 import { Category } from "../../models/categoriesSchema.js";
-import { Brand } from "../../models/brandSchema.js";
 import { Subcategory } from "../../models/subcategorySchema.js";
 import path from "path";
 import sharp from "sharp";
@@ -10,7 +9,7 @@ import fs from 'fs';
 
 const getProductAddPage = async (req, res) => {
   try {
-      //extract category and brand from dbs
+      //extract category  from dbs
       const category = await Category.find({ isListed: true });
       const subcategory = await Subcategory.find({ isListed: true });
       const size = await Size.find();
@@ -91,7 +90,6 @@ const getProductPage = async (req, res) => {
       const searchQuery = {
         name: { $regex: search, $options: "i" },
       };
-      //search nokkanm
       const productData = await Product.find(searchQuery)
         .limit(limit)
         .skip((page - 1) * limit)
@@ -135,8 +133,7 @@ const getEditProduct = async (req, res) => {
   try {
     
       const { id } = req.query;
-      const product = await Product.findOne({ _id: id }).populate('category').populate('subcategory').populate('sizeOptions');;
-      //category and brand need to be drop down and user can select to edit them
+      const product = await Product.findOne({ _id: id }).populate('category').populate('subcategory').populate('sizeOptions');
       const category = await Category.find({ isListed: true});
       const subcategory = await Subcategory.find({ isListed: true});
       res.render("admin/edit-product", {

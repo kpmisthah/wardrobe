@@ -46,36 +46,6 @@ const signup = async (req, res) => {
   }
 };
 
-// const verifyOtp = async (req,res)=>{
-//   try {
-//     const{otps,email} = req.body
-//     if (!email || !otps) {
-//       return res.status(400).json({ success: false, message: "Invalid request data. OTP or email missing." });
-//   }
-//   console.log("Email and OTP received in backend:", email, otps);
-//     console.log("otps"+otps+" and"+email);
-
-//     const otpRecord = await Otp.findOne({email})
-//     if (!otpRecord) {
-//       return res.status(400).json({ success: false, message: "OTP has expired or is invalid." });
-//     }
-//     if(otpRecord.otp!=otps){
-//       return res.status(400).json({ success: false, message: "Invalid OTP." });
-//     }
-//     const users = req.session.userDetails
-//     const newUser = new User(users);
-//     await newUser.save()
-//     req.session.user = newUser._id
-//     console.log(typeof users,"otp side")
-//     // return res.redirect("/")
-//     return res.status(200).json({ success: true, message: "OTP verified successfully.", redirectUrl: "/" });
-//   } catch (error) {
-//     console.error("Error in verifyOtp:", error);
-
-//     return res.status(500).json({success:false,message:"An error occured"})
-//   }
-
-// }
 const otpPage = async(req,res)=>{
 
     const { email } = req.session.userDetails || {};
