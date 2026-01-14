@@ -11,63 +11,63 @@ import randomString from "randomstring";
 
 //load Home page
 const loadHome = async (req, res) => {
-    try {
-      const users = req.session.user;
-  
-      const [menCategory, womenCategory, kidsCategory] = await Promise.all([
-        Category.findOne({ name: "men", isListed: true }),
-        Category.findOne({ name: "women", isListed: true }),
-        Category.findOne({ name: "kids", isListed: true }),
-      ]);
-  
-      const [menProducts, womenProducts, kidsProducts] = await Promise.all([
-        menCategory
-          ? Product.find({ category: menCategory._id, isBlocked: false }).limit(1)
-          : [],
-        womenCategory
-          ? Product.find({ category: womenCategory._id, isBlocked: false }).limit(
-              1
-            )
-          : [],
-        kidsCategory
-          ? Product.find({ category: kidsCategory._id, isBlocked: false }).limit(
-              1
-            )
-          : [],
-      ]);
-      const category = await Category.find({isListed:true})
-      const categoryIds = category.map((cat=>cat._id))
-      const subcategory = await Subcategory.find({isListed:true})
-      const subcategoryIds = subcategory.map((sub=>sub._id))
-    
-      const product = await Product.find({ isBlocked: false ,category:categoryIds, subcategory:subcategoryIds})
-        .sort({ createdAt: -1 })
-        .limit(4);
-  
-      if (users) {
-        const userData = await User.findOne({ _id: users });
-          return res.render("user/home", {
-            user: userData,
-            menProducts,
-            womenProducts,
-            kidsProducts,
-            product,
-          });
-        
-      }
-  
+  try {
+    const users = req.session.user;
+
+    const [menCategory, womenCategory, kidsCategory] = await Promise.all([
+      Category.findOne({ name: "men", isListed: true }),
+      Category.findOne({ name: "women", isListed: true }),
+      Category.findOne({ name: "kids", isListed: true }),
+    ]);
+
+    const [menProducts, womenProducts, kidsProducts] = await Promise.all([
+      menCategory
+        ? Product.find({ category: menCategory._id, isBlocked: false }).limit(1)
+        : [],
+      womenCategory
+        ? Product.find({ category: womenCategory._id, isBlocked: false }).limit(
+          1
+        )
+        : [],
+      kidsCategory
+        ? Product.find({ category: kidsCategory._id, isBlocked: false }).limit(
+          1
+        )
+        : [],
+    ]);
+    const category = await Category.find({ isListed: true })
+    const categoryIds = category.map((cat => cat._id))
+    const subcategory = await Subcategory.find({ isListed: true })
+    const subcategoryIds = subcategory.map((sub => sub._id))
+
+    const product = await Product.find({ isBlocked: false, category: categoryIds, subcategory: subcategoryIds })
+      .sort({ createdAt: -1 })
+      .limit(4);
+
+    if (users) {
+      const userData = await User.findOne({ _id: users });
       return res.render("user/home", {
+        user: userData,
         menProducts,
         womenProducts,
         kidsProducts,
         product,
       });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send("Server error");
+
     }
-  };
-    
+
+    return res.render("user/home", {
+      menProducts,
+      womenProducts,
+      kidsProducts,
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Server error");
+  }
+};
+
 //load Error page
 const loadError = async (req, res) => {
   try {
@@ -86,11 +86,11 @@ const loadShoppingPage = async (req, res) => {
     const price = req.query.price || null;
     const availability = req.query.availability || null;
     let limit = 12;
-    const category = await Category.find({isListed:true})
-    const categoryId = category.map((cat)=>cat._id)
-    const subcategory = await Subcategory.find({isListed:true})
-    const subcategoryIds = subcategory.map((sub=>sub._id))
-    let query = { isBlocked: false ,category:categoryId,subcategory:subcategoryIds};
+    const category = await Category.find({ isListed: true })
+    const categoryId = category.map((cat) => cat._id)
+    const subcategory = await Subcategory.find({ isListed: true })
+    const subcategoryIds = subcategory.map((sub => sub._id))
+    let query = { isBlocked: false, category: categoryId, subcategory: subcategoryIds };
     let sort = {};
 
     if (searchQuery) {
@@ -217,7 +217,7 @@ const addAddress = async (req, res) => {
     return res.render("user/addAddress");
   } catch (error) {
     console.log(error);
-    
+
   }
 };
 
@@ -348,12 +348,12 @@ const updateProfile = async (req, res) => {
 const profileUpdate = async (req, res) => {
   try {
     const userId = req.session.user;
-    const previousMail = await User.findOne({ _id: userId }); 
-    const oldEmail = previousMail.email; 
+    const previousMail = await User.findOne({ _id: userId });
+    const oldEmail = previousMail.email;
     const { email, password } = req.body;
     const otp = randomString.generate({ length: 6, charset: "numeric" });
-     await Otp.create({ email: oldEmail, otp });
-    
+    await Otp.create({ email: oldEmail, otp });
+
     req.session.updateProfile = { email, password };
     return res
       .status(200)
@@ -407,27 +407,6 @@ const verifyOtps = async (req, res) => {
   }
 };
 
-const resendOtp = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const otp = randomString.generate({ length: 6, charset: "numeric" });
-    const existingOtp = await Otp.findOneAndUpdate(
-      { email },
-      { otp },
-      { upsert: true, new: true }
-    );
-
-    return res.json({ success: true, message: "OTP sent successfully!" });
-  } catch (error) {
-    console.error("Error while resending OTP:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Something went wrong. Please try again later.",
-      });
-  }
-};
 
 export {
   loadHome,
@@ -444,7 +423,6 @@ export {
   profileUpdate,
   otpVerification,
   verifyOtps,
-  resendOtp,
 };
 
 

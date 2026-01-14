@@ -1,16 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OTP Verification</title>
-    <link rel="stylesheet" href="css/otp.css">
+    <link rel="stylesheet" href="css/signin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
-    <div class="container">
-        <h1>OTP Verification</h1>
-        <p>Enter the OTP you received to <span id="email"></span></p>
+    <div class="signup-container otp-verification-container">
+        <div class="signup-header">
+            <h2>OTP Verification</h2>
+        </div>
+
+        <p style="color: #666; margin-bottom: 20px;">Enter the OTP you received to <span id="email">
+                <%=email%>
+            </span></p>
+
         <div class="otp-input">
             <input type="number" min="0" max="9" required>
             <input type="number" min="0" max="9" required>
@@ -19,158 +28,161 @@
             <input type="number" min="0" max="9" required>
             <input type="number" min="0" max="9" required>
         </div>
-        <button onclick="verifyOTP()">Verify</button>
+
+        <button class="signup-btn" onclick="verifyOTP()">Verify</button>
+
         <div class="resend-text">
-            Didn't receive the code? 
+            Didn't receive the code?
             <span class="resend-link" onclick="resendOTP()">Resend Code</span>
             <span id="timer"></span>
         </div>
     </div>
 
     <script>
-         const inputs = document.querySelectorAll('.otp-input input');
-          const timerDisplay = document.getElementById('timer');
-          const resendLink = document.querySelector('.resend-link');
-          const emailSpan = document.getElementById('email');
-          let timeLeft = 60; // 1 minutes in seconds
-          let timerId;
-          let canResend = true;
+        const inputs = document.querySelectorAll('.otp-input input');
+        const timerDisplay = document.getElementById('timer');
+        const resendLink = document.querySelector('.resend-link');
+        const emailSpan = document.getElementById('email');
+        let timeLeft = 60; // 1 minutes in seconds
+        let timerId;
+        let canResend = true;
 
-          // Simulating an email for demonstration
-          const res = emailSpan.textContent = "<%=email%>"
-          console.log(res);
-          
+        // Simulating an email for demonstration
+        //   const res = emailSpan.textContent = "<%=email%>"
+        //   console.log(res);
 
-          function startTimer() {
+
+        function startTimer() {
             canResend = false
-              timerId = setInterval(() => {
-                  if (timeLeft <= 0) {
-                      clearInterval(timerId);
-                      timerDisplay.textContent = "Code expired";
-                      timerDisplay.classList.add('expired');
-                      inputs.forEach(input => input.disabled = true);
-                      canResend = true;
-                  } else {
-                      const minutes = Math.floor(timeLeft / 60);
-                      const seconds = timeLeft % 60;
-                      timerDisplay.textContent = `(${minutes}:${seconds.toString().padStart(2, '0')})`;
-                      timeLeft--;
-                  }
-              }, 1000);
-          }
+            timerId = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerDisplay.textContent = "Code expired";
+                    timerDisplay.classList.add('expired');
+                    inputs.forEach(input => input.disabled = true);
+                    canResend = true;
+                } else {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerDisplay.textContent = `(${minutes}:${seconds.toString().padStart(2, '0')})`;
+                    timeLeft--;
+                }
+            }, 1000);
+        }
 
-          async function resendOTP() {
+        async function resendOTP() {
             if (!canResend) {
                 Swal.fire("Error", "Please wait for the timer to expire.", "error");
                 return;
             }
-                    try {
-                    const email = emailSpan.textContent;
-                    const response = await fetch('/resend-otp', {
+            try {
+                const email = emailSpan.textContent;
+                const response = await fetch('/resend-otp', {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
-            });
-            const result = await response.json();  
-            console.log("The result is"+result)
-            if (result.success) {
-                 // Reset timer
-                 timeLeft = 60;
-                inputs.forEach(input => {
-                    input.value = '';
-                    input.disabled = false;
                 });
-                inputs[0].focus();
-                
-                clearInterval(timerId);
-                timerDisplay.classList.remove('expired');
-                startTimer(); 
-                Swal.fire("New OTP sent!", "", "success");
-               
-            } else {
-                Swal.fire("Error", "Cannot resend code. Time has expired.", "error");
-                
-            }
-        } catch (error) {
-            console.log("TRhe error is "+error)
-            Swal.fire("Error", "An error occurred. Please try again later.", "error");
-           
-        }
-    }
+                const result = await response.json();
+                console.log("The result is" + result)
+                if (result.success) {
+                    // Reset timer
+                    timeLeft = 60;
+                    inputs.forEach(input => {
+                        input.value = '';
+                        input.disabled = false;
+                    });
+                    inputs[0].focus();
 
+                    clearInterval(timerId);
+                    timerDisplay.classList.remove('expired');
+                    startTimer();
+                    Swal.fire("New OTP sent!", "", "success");
 
-       inputs.forEach((input, index) => {
-       input.addEventListener('input', (e) => {
-        // Ensure only one character can be entered in each input field
-        if (e.target.value.length > 1) {
-            e.target.value = e.target.value.slice(0, 1);
-        }
+                } else {
+                    Swal.fire("Error", "Cannot resend code. Time has expired.", "error");
 
-        // Move to the next input when the current one is filled
-        if (e.target.value.length === 1) {
-            if (index < inputs.length - 1) {
-                inputs[index + 1].focus();
+                }
+            } catch (error) {
+                console.log("TRhe error is " + error)
+                Swal.fire("Error", "An error occurred. Please try again later.", "error");
+
             }
         }
-    });
 
-    input.addEventListener('keydown', (e) => {
-        // Go to the previous input when Backspace is pressed
-        if (e.key === 'Backspace' && !e.target.value) {
-            if (index > 0) {
-                inputs[index - 1].focus();
-            }
-        }
-        // Prevent entering non-numeric characters (e.g., 'e')
-        if (e.key === 'e') {
-            e.preventDefault();
-        }
-    });
-});
 
-         async function verifyOTP() {
-              const otps = Array.from(inputs).map(input => input.value).join('');
-              const email = emailSpan.textContent;
-              console.log("The emial is"+email)
-              console.log("the otps"+otps)
-              if (otps.length === 6) {
-                  if (timeLeft > 0) {
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                // Ensure only one character can be entered in each input field
+                if (e.target.value.length > 1) {
+                    e.target.value = e.target.value.slice(0, 1);
+                }
+
+                // Move to the next input when the current one is filled
+                if (e.target.value.length === 1) {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                // Go to the previous input when Backspace is pressed
+                if (e.key === 'Backspace' && !e.target.value) {
+                    if (index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                }
+                // Prevent entering non-numeric characters (e.g., 'e')
+                if (e.key === 'e') {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        async function verifyOTP() {
+            const otps = Array.from(inputs).map(input => input.value).join('');
+            const email = emailSpan.textContent;
+            console.log("The emial is" + email)
+            console.log("the otps" + otps)
+            if (otps.length === 6) {
+                if (timeLeft > 0) {
                     try {
-                      const response =  await fetch('/verify/otp',{
-                        method:"POST",
-                        headers:{"Content-Type":"application/json"},
-                        body:JSON.stringify({otps,email})
-                        
-                    })
+                        const response = await fetch('/verify-otp', {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ otps, email })
 
-                    const result = await response.json()
-                    console.log("The result is otp json"+JSON.stringify(result));
-                    
-                    if(result.success){
-                        Swal.fire("Success", "OTP Verified Successfully!", "success");
-                        console.log(result.redirectUrl)
-                        console.log(window.location.href)
-                        window.location.href = result.redirectUrl;
-                        return
-                    }else{
-                        Swal.fire("Error", "Invalid OTP. Please try again.", "error");
-                    }
-                    
+                        })
+
+                        const result = await response.json()
+                        console.log("The result is otp json" + JSON.stringify(result));
+
+                        if (result.success) {
+                            Swal.fire("Success", "OTP Verified Successfully!", "success").then(() => {
+                                window.location.href = result.redirectUrl || '/';
+                            });
+
+                            return
+                        } else {
+                            Swal.fire("Error", "Invalid OTP. Please try again.", "error");
+                        }
+
                     } catch (error) {
-                        console.log(error+"error details")
+                        console.log(error + "error details")
                         Swal.fire("Error", "Something went wrong. Please try again later.", "error");
-                        
+
                     }
 
-                  } else {
+                } else {
                     Swal.fire("Error", "OTP has expired. Please request a new one.", "error");
-                  }
-              } else {
+                }
+            } else {
                 Swal.fire("Warning", "Please enter a 6-digit OTP", "warning");
-              }
-          }
+            }
+        }
 
-          startTimer();
+        startTimer();
     </script>
 </body>
+
 </html>

@@ -32,13 +32,14 @@ const signup = async (req, res) => {
     // Generate and save OTP
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     const result = await Otp.create({ email, otp });
+    console.log("THE OTP IS:", otp); // Added for testing
     req.session.userDetails = { name, email, password, phone };
     console.log(
       "The session details: ",
       JSON.stringify(req.session.userDetails, null, 2)
     );
 
-    return res.status(200).json({message:'redirect to verifiy otp',email:req.session.userDetails.email,redirectUrl:'/verify-otp'})
+    return res.status(200).json({ message: 'redirect to verifiy otp', email: req.session.userDetails.email, redirectUrl: '/verify-otp' })
 
   } catch (error) {
     console.log(error.message);
@@ -46,14 +47,14 @@ const signup = async (req, res) => {
   }
 };
 
-const otpPage = async(req,res)=>{
+const otpPage = async (req, res) => {
 
-    const { email } = req.session.userDetails || {};
-    if (!email) {
-      return res.redirect('/signup'); 
-    }
-    res.render('user/otpVerification', { email });
-  
+  const { email } = req.session.userDetails || {};
+  if (!email) {
+    return res.redirect('/signup');
+  }
+  res.render('user/otpVerification', { email });
+
 }
 const verifyOtp = async (req, res) => {
   try {
@@ -87,14 +88,14 @@ const verifyOtp = async (req, res) => {
 
     // Get user details from session
     const user = req.session.userDetails;
-    const passwordHash = await bcrypt.hash(user.password,10)
+    const passwordHash = await bcrypt.hash(user.password, 10)
 
     // Create new user
     const newUser = new User({
-      name:user.name,
-      email:user.email,
-      phone:user.phone,
-      password:passwordHash
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      password: passwordHash
     });
     await newUser.save();
 
@@ -113,7 +114,7 @@ const verifyOtp = async (req, res) => {
     // Send more specific error message
     return res.status(500).json({
       success: false,
-      message:  "An error occurred during verification",
+      message: "An error occurred during verification",
     });
   }
 };
@@ -236,7 +237,7 @@ const otpVerified = async (req, res) => {
   try {
     const email = req.session.email;
     return res.render("user/otp-page", { email });
-  } catch (error) {}
+  } catch (error) { }
 };
 
 const verify = async (req, res) => {
