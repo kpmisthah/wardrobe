@@ -76,9 +76,10 @@ router.get('/order/download/pdf/:orderId',generatePdf)
 router.post('/create-order', rzpOrder)
 router.post('/create-pending-order', createPendingOrder)
 router.post('/confirm-order',saveOrder)
+router.post('/update-order-status', updateOrderStatus);
+
 //retry-payment
 router.post('/retry-payment',retryPayment)
 router.post('/complete-retry-payment', completeRetryPayment);
-router.post('/update-order-status', updateOrderStatus);
 
 export default router

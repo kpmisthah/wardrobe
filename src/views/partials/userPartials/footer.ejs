@@ -1,138 +1,171 @@
-<footer class="bg3 p-t-75 p-b-32">
+<footer class="text-white"
+    style="background-color: #111 !important; width: 100vw; position: relative; left: 50%; margin-left: -50vw; padding-top: 70px; padding-bottom: 30px;">
+    <!-- Ensure full width background extends if within a container -->
+    <style>
+        /* Force body to prevent horizontal scroll from 100vw footer */
+        body {
+            overflow-x: hidden !important;
+        }
+
+        /* Premium Typography & Hover Effects */
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .footer-heading {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .footer-link {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: #999;
+            line-height: 2.2;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+
+        .footer-link:hover {
+            color: #fff;
+            padding-left: 5px;
+            text-decoration: none;
+        }
+
+        .footer-desc {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            color: #999;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            max-width: 300px;
+        }
+
+        .social-icon {
+            font-size: 18px;
+            color: #999;
+            margin-right: 20px;
+            transition: all 0.3s;
+        }
+
+        .social-icon:hover {
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        .newsletter-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #444;
+            width: 100%;
+            padding: 10px 0;
+            color: #fff;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .newsletter-input:focus {
+            outline: none;
+            border-bottom-color: #fff;
+        }
+
+        .subscribe-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 30px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .subscribe-btn:hover {
+            background: #ccc;
+        }
+    </style>
+
     <div class="container">
         <div class="row">
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    Categories
-                </h4>
-
-                <ul>
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Women
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Men
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Shoes
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Watches
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    Help
-                </h4>
-
-                <ul>
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Track Order
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Returns 
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Shipping
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            FAQs
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    GET IN TOUCH
-                </h4>
-
-                <p class="stext-107 cl7 size-201">
-                    Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879
+            <!-- Brand Section -->
+            <div class="col-sm-6 col-lg-4 p-b-50">
+                <a href="/" class="footer-logo">Wardrobe</a>
+                <p class="footer-desc">
+                    Discover the essence of style with our premium collection. Quality craftsmanship meets contemporary
+                    design to define your unique look.
                 </p>
-
-                <div class="p-t-27">
-                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                        <i class="fa fa-facebook"></i>
-                    </a>
-
-                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                        <i class="fa fa-instagram"></i>
-                    </a>
-
-                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                        <i class="fa fa-pinterest-p"></i>
-                    </a>
+                <div class="p-t-15">
+                    <a href="#" class="social-icon"><i class="fa fa-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="fa fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fa fa-pinterest-p"></i></a>
+                    <a href="#" class="social-icon"><i class="fa fa-twitter"></i></a>
                 </div>
             </div>
 
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    Newsletter
-                </h4>
+            <!-- Shop Section -->
+            <div class="col-sm-6 col-lg-2 p-b-50">
+                <h4 class="footer-heading">Collections</h4>
+                <ul>
+                    <li><a href="/shop?category=women" class="footer-link">Women</a></li>
+                    <li><a href="/shop?category=men" class="footer-link">Men</a></li>
+                    <li><a href="/shop?category=shoes" class="footer-link">Shoes</a></li>
+                    <li><a href="/shop?category=watches" class="footer-link">Watches</a></li>
+                    <li><a href="/shop?sort=new" class="footer-link">New Arrivals</a></li>
+                </ul>
+            </div>
 
-                <form>
-                    <div class="wrap-input1 w-full p-b-4">
-                        <input class="input1 bg-none plh1 stext-107 cl7" type="text" name="email" placeholder="email@example.com">
-                        <div class="focus-input1 trans-04"></div>
-                    </div>
+            <!-- Support Section -->
+            <div class="col-sm-6 col-lg-2 p-b-50">
+                <h4 class="footer-heading">Customer Care</h4>
+                <ul>
+                    <li><a href="#" class="footer-link">Order Status</a></li>
+                    <li><a href="#" class="footer-link">Shipping & Returns</a></li>
+                    <li><a href="#" class="footer-link">Size Guide</a></li>
+                    <li><a href="#" class="footer-link">FAQ</a></li>
+                    <li><a href="#" class="footer-link">Contact Us</a></li>
+                </ul>
+            </div>
 
-
+            <!-- Newsletter Section -->
+            <div class="col-sm-6 col-lg-4 p-b-50">
+                <h4 class="footer-heading">Newsletter</h4>
+                <p class="footer-desc">
+                    Subscribe to receive updates, access to exclusive deals, and more.
+                </p>
+                <form onsubmit="event.preventDefault();">
+                    <input class="newsletter-input" type="email" name="email" placeholder="Enter your email address">
+                    <button class="subscribe-btn">Subscribe</button>
                 </form>
             </div>
         </div>
 
-        <div class="p-t-40">
+        <div class="p-t-40 border-top" style="border-color: #222 !important;">
             <div class="flex-c-m flex-w p-b-18">
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-01.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-02.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-03.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-04.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-05.png" alt="ICON-PAY">
-                </a>
+                <a href="#" class="m-all-1"><img src="/images/icons/icon-pay-01.png" alt="ICON-PAY"></a>
+                <a href="#" class="m-all-1"><img src="/images/icons/icon-pay-02.png" alt="ICON-PAY"></a>
+                <a href="#" class="m-all-1"><img src="/images/icons/icon-pay-03.png" alt="ICON-PAY"></a>
+                <a href="#" class="m-all-1"><img src="/images/icons/icon-pay-04.png" alt="ICON-PAY"></a>
+                <a href="#" class="m-all-1"><img src="/images/icons/icon-pay-05.png" alt="ICON-PAY"></a>
             </div>
 
-            <p class="stext-107 cl6 txt-center">
-                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a> &amp; distributed by <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-
+            <p class="stext-107 cl6 txt-center" style="color: #666;">
+                Copyright &copy; 2026 Wardrobe. All rights reserved.
             </p>
         </div>
     </div>
@@ -145,101 +178,107 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     </span>
 </div>
 
-
-<!--===============================================================================================-->	
-<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
-<!--===============================================================================================-->
-<script src="vendor/animsition/js/animsition.min.js"></script>
-<!--===============================================================================================-->
-<script src="vendor/bootstrap/js/popper.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-<!--===============================================================================================-->
-<script src="vendor/select2/select2.min.js"></script>
+<!-- Scripts -->
+<script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
+<script src="/vendor/animsition/js/animsition.min.js"></script>
+<script src="/vendor/bootstrap/js/popper.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/vendor/select2/select2.min.js"></script>
 <script>
-    $(".js-select2").each(function(){
+    $(".js-select2").each(function () {
         $(this).select2({
             minimumResultsForSearch: 20,
             dropdownParent: $(this).next('.dropDownSelect2')
         });
     })
 </script>
-<!--===============================================================================================-->
-<script src="vendor/daterangepicker/moment.min.js"></script>
-<script src="vendor/daterangepicker/daterangepicker.js"></script>
-<!--===============================================================================================-->
-<script src="vendor/slick/slick.min.js"></script>
-<script src="js/slick-custom.js"></script>
-<!--===============================================================================================-->
-<script src="vendor/parallax100/parallax100.js"></script>
+<script src="/vendor/daterangepicker/moment.min.js"></script>
+<script src="/vendor/daterangepicker/daterangepicker.js"></script>
+<script src="/vendor/slick/slick.min.js"></script>
+<script src="/js/slick-custom.js"></script>
+<script src="/vendor/parallax100/parallax100.js"></script>
 <script>
     $('.parallax100').parallax100();
 </script>
-<!--===============================================================================================-->
-<script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+<script src="/vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
 <script>
-    $('.gallery-lb').each(function() { // the containers for all your galleries
+    $('.gallery-lb').each(function () {
         $(this).magnificPopup({
-            delegate: 'a', // the selector for gallery item
+            delegate: 'a',
             type: 'image',
             gallery: {
-                enabled:true
+                enabled: true
             },
             mainClass: 'mfp-fade'
         });
     });
 </script>
-<!--===============================================================================================-->
-<script src="vendor/isotope/isotope.pkgd.min.js"></script>
-<!--===============================================================================================-->
-<script src="vendor/sweetalert/sweetalert.min.js"></script>
+<script src="/vendor/isotope/isotope.pkgd.min.js"></script>
+<script src="/vendor/sweetalert/sweetalert.min.js"></script>
 <script>
-    $('.js-addwish-b2').on('click', function(e){
+    $('.js-addwish-b2').on('click', function (e) {
         e.preventDefault();
     });
 
-    $('.js-addwish-b2').each(function(){
+    $('.js-addwish-b2').each(function () {
         var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
-        $(this).on('click', function(){
+        $(this).on('click', function () {
             swal(nameProduct, "is added to wishlist !", "success");
-
             $(this).addClass('js-addedwish-b2');
             $(this).off('click');
         });
     });
 
-    $('.js-addwish-detail').each(function(){
+    $('.js-addwish-detail').each(function () {
         var nameProduct = $(this).parent().parent().parent().find('.js-name-detail').html();
-
-        $(this).on('click', function(){
+        $(this).on('click', function () {
             swal(nameProduct, "is added to wishlist !", "success");
-
             $(this).addClass('js-addedwish-detail');
             $(this).off('click');
         });
     });
-
-    /*---------------------------------------------*/
-
 </script>
-<!--===============================================================================================-->
-<script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <script>
-    $('.js-pscroll').each(function(){
-        $(this).css('position','relative');
-        $(this).css('overflow','hidden');
+    $('.js-pscroll').each(function () {
+        $(this).css('position', 'relative');
+        $(this).css('overflow', 'hidden');
         var ps = new PerfectScrollbar(this, {
             wheelSpeed: 1,
             scrollingThreshold: 1000,
             wheelPropagation: false,
         });
 
-        $(window).on('resize', function(){
+        $(window).on('resize', function () {
             ps.update();
         })
     });
 </script>
-<!--===============================================================================================-->
-<script src="js/main.js"></script>
+<script src="/js/main.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to update cart count from any page
+        window.updateCartCount = function (count) {
+            const cartIcons = document.querySelectorAll('.js-show-cart');
+            cartIcons.forEach(icon => {
+                icon.setAttribute('data-notify', count);
+            });
+        };
 
-      </body>
-    </html>
+        // Listen for cart update events
+        document.addEventListener('cartUpdated', function (event) {
+            updateCartCount(event.detail.count);
+        });
+    });
+
+    // Function to dispatch cart update event (can be called from any page)
+    window.dispatchCartUpdate = function (count) {
+        document.dispatchEvent(new CustomEvent('cartUpdated', {
+            detail: { count: count }
+        }));
+    };
+</script>
+<script src="/javascript/cartHandler.js"></script>
+</body>
+
+</html>

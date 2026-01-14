@@ -19,22 +19,30 @@ Primary use:  Company
 /*------------------------------------------------------------------
 [COLOR CODES]
 
-# Text Color      :  
-# Primary Color 01:  
-# Primary Color 02:   
-# Primary Color 03:  
+# Text Color      :  #333333
+# Primary Color 01:  #717fe0 (Indigo)
+# Primary Color 02:  #222222 (Dark Black)
+# Primary Color 03:  #e65540 (Red Accent)
+# Background Light:  #f8f9fa
+# Card Shadow     :  0 10px 30px rgba(0,0,0,0.08)
 
 ------------------------------------------------------------------*/
 /*------------------------------------------------------------------
 [TYPOGRAPHY]
 
-Body            : 16px/1.6 '', Arial, sans-serif;
-Title           : 18px/1.6 '', Arial, sans-serif;
-Paragrap        : 18px/1.6 '', Arial, sans-serif;
-Input, textarea : 14px/1.6 '', Arial, sans-serif;
+Body            : 16px/1.6 'Poppins', Arial, sans-serif;
+Title           : 18px/1.6 'Playfair Display', serif;
+Paragraph       : 16px/1.6 'Poppins', sans-serif;
 -------------------------------------------------------------------*/
 
-
+:root {
+    --color-primary: #717fe0;
+    --color-dark: #222;
+    --color-text: #555;
+    --color-light: #f9f9f9;
+    --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+    --shadow-md: 0 10px 30px rgba(0,0,0,0.08);
+}
 
 /*//////////////////////////////////////////////////////////////////
 [ FONT ]*/
@@ -42,115 +50,38 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 @font-face {
     font-family: Poppins-Regular;
     src: url('../fonts/Poppins/Poppins-Regular.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Poppins-Light;
-    src: url('../fonts/Poppins/Poppins-Light.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Poppins-ExtraLight;
-    src: url('../fonts/Poppins/Poppins-ExtraLight.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Poppins-Medium;
-    src: url('../fonts/Poppins/Poppins-Medium.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Poppins-Italic;
-    src: url('../fonts/Poppins/Poppins-Italic.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Poppins-Bold;
-    src: url('../fonts/Poppins/Poppins-Bold.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Poppins-SemiBold;
-    src: url('../fonts/Poppins/Poppins-SemiBold.ttf'); 
-  }
-  
-  
-  /*---------------------------------------------*/
-  @font-face {
-    font-family: PlayfairDisplay-Regular;
-    src: url('../fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf'); 
-  }
-  
-  @font-face {
-    font-family: PlayfairDisplay-Bold;
-    src: url('../fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf'); 
-  }
-  
-  /*---------------------------------------------*/
-  @font-face {
-    font-family: Montserrat-Regular;
-    src: url('../fonts/Montserrat/Montserrat-Regular.ttf'); 
-  }
-  
-  @font-face {
-    font-family: Montserrat-Bold;
-    src: url('../fonts/Montserrat/Montserrat-Bold.ttf'); 
-  }
-  
-  
-  /*//////////////////////////////////////////////////////////////////
-  [ RS PLUGIN ]*/
-  
-  /*------------------------------------------------------------------
-  [ Bootstrap ]*/
-  .container {max-width: 1380px;}
-  
-  @media (max-width: 1600px) {
-    .container {max-width: 1200px;}
-  }
-  
-  /*------------------------------------------------------------------
-  [ Slick2 ]*/
-  .slick-slide {outline: none !important;}
-  
-  
-  
-  
-  
-  /*//////////////////////////////////////////////////////////////////
-  [ LOADDING ]*/
-  .animsition-loading-1 {
+}
+
+/* ... existing font definitions ... */
+
+/*//////////////////////////////////////////////////////////////////
+[ LOADING ]*/
+.animsition-loading-1 {
     position: absolute;
     top: 50%;
     left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    -moz-transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    -o-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
-  }
-  
-  .loader05 {
-    width: 56px;
-    height: 56px;
-    border: 4px solid #717fe0;
+    background: rgba(255,255,255,0.95);
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader05 {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(113, 127, 224, 0.2);
     border-radius: 50%;
-    position: relative;
-    animation: loader-scale 1s ease-out infinite;
-    top: 50%;
-    margin: -28px auto 0 auto; 
-  }
-  
-  @keyframes loader-scale {
-    0% {
-      transform: scale(0);
-      opacity: 0; }
-    50% {
-      opacity: 1; }
-    100% {
-      transform: scale(1);
-      opacity: 0; } 
-  }
+    border-top-color: #717fe0;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
   
   /*//////////////////////////////////////////////////////////////////
   [ BUTTON BACK TO TOP ]*/
@@ -3330,4 +3261,269 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
     }
   
   }
+
+
+/* ==============================================
+   CUSTOM UI ENHANCEMENTS (MODERN PREMIUM LOOK)
+   ============================================== */
+
+/* --- Typography & Spacing --- */
+body {
+    background-color: var(--color-light);
+    color: var(--color-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-dark);
+}
+
+.ltext-103 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--color-dark);
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.ltext-103::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--color-primary);
+    margin: 10px auto 0;
+}
+
+/* --- Product Cards (Block2) --- */
+.block2 {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    border: 1px solid rgba(0,0,0,0.03);
+    box-shadow: var(--shadow-sm);
+}
+
+.block2:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+}
+
+.block2-pic {
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+}
+
+.block2-pic img {
+    transition: transform 0.6s ease;
+    width: 100%;
+    height: 300px; /* Fixed height for consistency */
+    object-fit: cover;
+}
+
+.block2:hover .block2-pic img {
+    transform: scale(1.05);
+}
+
+.block2-txt {
+    padding: 20px;
+    background: #fff;
+}
+
+.block2-txt-child1 {
+    width: 100%;
+    text-align: center;
+}
+
+.block2-txt-child1 a {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--color-dark);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 8px;
+    transition: color 0.3s;
+}
+
+.block2-txt-child1 a:hover {
+    color: var(--color-primary);
+}
+
+.block2-txt-child1 .stext-105 {
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+/* --- Buttons --- */
+.flex-c-m.stext-101.cl0.size-101.bg1.bor1.hov-btn1 {
+    border-radius: 30px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(113, 127, 224, 0.4);
+    background-color: var(--color-primary);
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.flex-c-m.stext-101.cl0.size-101.bg1.bor1.hov-btn1:hover {
+    background-color: var(--color-dark);
+    transform: translateY(-2px);
+}
+
+/* --- Banner Improvements --- */
+.block1 {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.block1 img {
+    border-radius: 12px;
+    transition: transform 0.5s;
+}
+
+.block1:hover img {
+    transform: scale(1.03);
+}
+
+.sec-banner {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+/* --- Section Spacing Fixes --- */
+.p-t-23 { padding-top: 40px !important; }
+.p-b-140 { padding-bottom: 60px !important; }
+.mt-9 { margin-top: 2rem !important; }
+
+
+/* ==============================================
+   ZARA-INSPIRED HERO & CATEGORY GRID
+   ============================================== */
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+    transition: transform 10s ease; /* Subtle zoom effect */
+}
+
+/* Subtle zoom on load/hover could be added here */
+.hero-section:hover .hero-bg {
+    transform: scale(1.05);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3); /* Dark overlay for text readability */
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    color: #fff;
+    padding: 0 20px;
+}
+
+.hero-subtitle {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px; /* Huge title */
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: -2px;
+    line-height: 1.1;
+}
+
+.hero-btn {
+    display: inline-block;
+    padding: 15px 40px;
+    background: #fff;
+    color: #000;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    border: 1px solid #fff;
+    transition: all 0.3s ease;
+}
+
+.hero-btn:hover {
+    background: transparent;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .hero-title { font-size: 42px; }
+    .hero-section { height: 80vh; }
+}
+
+/* --- Category Grid (Bento Style) --- */
+.tall-card img {
+    height: 600px; /* Force tall height */
+    object-fit: cover;
+}
+
+.wide-card img {
+    height: 285px; /* Force wide height, half of tall minus gap */
+    object-fit: cover;
+}
+
+.block1-txt {
+    background: rgba(0,0,0,0.2) !important; /* Always show slight overlay */
+}
+
+.block1-txt:hover {
+    background: rgba(0,0,0,0.4) !important;
+}
+
+.block1-name {
+    font-size: 32px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.block1-info {
+    color: rgba(255,255,255,0.8);
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 1px;
+}
 
