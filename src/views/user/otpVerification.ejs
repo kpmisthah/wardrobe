@@ -76,7 +76,7 @@
                 return;
             }
             try {
-                const email = emailSpan.textContent;
+                const email = emailSpan.textContent.trim();
                 const response = await fetch('/resend-otp', {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
@@ -141,13 +141,13 @@
 
         async function verifyOTP() {
             const otps = Array.from(inputs).map(input => input.value).join('');
-            const email = emailSpan.textContent;
+            const email = emailSpan.textContent.trim();
             console.log("The emial is" + email)
             console.log("the otps" + otps)
             if (otps.length === 6) {
                 if (timeLeft > 0) {
                     try {
-                        const response = await fetch('/verify-otp', {
+                        const response = await fetch('/verify-signup-otp', {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ otps, email })

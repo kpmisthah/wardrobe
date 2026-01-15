@@ -1,18 +1,18 @@
 import express from "express"
-import  { signup,signupPage,verifyOtp,resendOtp,loginpage,login,loadError,logout,forgotPassword ,handleForgotPassword,verify,otpVerified,resetPassword,postNewPassword,otpPage} from '../controllers/user/authController.js'
-import {passport} from "../db/passport.js"
-import {userLogin } from "../middlewares/userAuth.js"
+import { signup, signupPage, verifyOtp, resendOtp, loginpage, login, loadError, logout, forgotPassword, handleForgotPassword, verify, otpVerified, resetPassword, postNewPassword, otpPage } from '../controllers/user/authController.js'
+import { passport } from "../db/passport.js"
+import { userLogin } from "../middlewares/userAuth.js"
 const router = express.Router()
 //signup
 
-router.get('/signup',userLogin,signupPage)
-router.post('/signup',signup)
-router.get('/verify-otp',otpPage)
-router.post('/verify/otp',verifyOtp)
-router.post('/resend-otp',resendOtp)
+router.get('/signup', userLogin, signupPage)
+router.post('/signup', signup)
+router.get('/verify-otp', otpPage)
+router.post('/verify-signup-otp', verifyOtp)
+router.post('/resend-otp', resendOtp)
 //google auth
-router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-router.get('/auth/google/callback', 
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+router.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/signup' }),
     (req, res) => {
         // Set the session the same way as regular login
@@ -27,18 +27,18 @@ router.get('/auth/google/callback',
     }
 );
 //forgot password
-router.get('/forgot-password',userLogin,forgotPassword)
-router.post('/forgot-password',handleForgotPassword)
-router.get('/otp-page',userLogin,otpVerified)
-router.post('/verified',verify)
-router.get('/reset-password',userLogin,resetPassword)
-router.post('/reset-password',postNewPassword)
+router.get('/forgot-password', userLogin, forgotPassword)
+router.post('/forgot-password', handleForgotPassword)
+router.get('/otp-page', userLogin, otpVerified)
+router.post('/verified', verify)
+router.get('/reset-password', userLogin, resetPassword)
+router.post('/reset-password', postNewPassword)
 //error
-router.get('/pageNotFound',loadError)
+router.get('/pageNotFound', loadError)
 
 //login
-router.get('/login',userLogin,loginpage)
-router.post('/login',login)
+router.get('/login', userLogin, loginpage)
+router.post('/login', login)
 //logout
-router.get('/logout',logout)
+router.get('/logout', logout)
 export default router

@@ -1,3 +1,11 @@
+import express from "express"
+import { loadHome, loadError, loadShoppingPage, loadProfile, updateProfile, getAddress, addAddress, address, getEditPage, edit, deleteAddress, profileUpdate, otpVerification, verifyOtps } from "../controllers/user/userController.js"
+import { loadCart, cart, deleteItem, inc, dec, validateCartStock, cartcount } from "../controllers/user/cartController.js"
+import { productDetails } from "../controllers/user/productController.js"
+import { loadCheckout, getEditAddressPage, editAddress, loadAddcheckoutaddress, addcheckoutAddress, placeOrder, orderConfirm, applyCoupon, saveOrder, removeCoupon, generatePdf, retryPayment, completeRetryPayment, createPendingOrder } from '../controllers/user/checkoutController.js'
+import { userAuth, block } from "../middlewares/userAuth.js"
+import { viewOrder, orders, orderCancel, returnOrder, cancelOrder, updateOrderStatus, createPdf } from "../controllers/user/orderController.js"
+import { loadWishlist, addToWishlist, wishlistToCart, removeWishlist } from "../controllers/user/wishlistController.js"
 import { rzpOrder } from "../controllers/user/paymentController.js"
 import { loadWallet, wallet } from "../controllers/user/walletController.js"
 import { Cart } from "../models/cartSchema.js"
@@ -52,7 +60,6 @@ router.post('/return-order', returnOrder)
 router.get('/orderdetails/download/pdf/:orderId', createPdf)
 //otp-page
 router.get('/otp', otpVerification)
-router.post('/verify-otp', verifyOtps)
 router.post('/verify-otp', verifyOtps)
 //wishlist
 router.get('/wishlist', block, userAuth, loadWishlist)

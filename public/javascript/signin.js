@@ -83,7 +83,7 @@ function passwordValidateChecking() {
     error4.style.display = "block";
     error4.innerHTML = "should contain atleast 8 characters";
     return false;
-  } else if (!alpha.test(passVal) ||!digit.test(passVal)) {
+  } else if (!alpha.test(passVal) || !digit.test(passVal)) {
     error4.style.display = "block";
     error4.innerHTML = "password must contain alphabets and digits";
     return false;
@@ -148,7 +148,15 @@ async function handleSignup(event) {
       window.location.href = data.redirectUrl;
     } else {
       if (data.message) {
-        console.error(data.message);
+        if (data.message.toLowerCase().includes("email") || data.message.toLowerCase().includes("exists")) {
+          error2.style.display = "block";
+          error2.innerHTML = data.message;
+        } else if (data.message.toLowerCase().includes("password")) {
+          error5.style.display = "block";
+          error5.innerHTML = data.message;
+        } else {
+          alert(data.message); // Fallback for other errors
+        }
       }
     }
   } catch (error) {
@@ -159,20 +167,20 @@ async function handleSignup(event) {
 }
 
 document.querySelectorAll('.password-icon').forEach(icon => {
-    icon.addEventListener('click', function() {
-        const input = this.previousElementSibling;
-        const iconElement = this.querySelector('i');
-        
-        if (input.type === 'password') {
-            input.type = 'text';
-            iconElement.classList.remove('fa-eye');
-            iconElement.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            iconElement.classList.remove('fa-eye-slash');
-            iconElement.classList.add('fa-eye');
-        }
-    });
+  icon.addEventListener('click', function () {
+    const input = this.previousElementSibling;
+    const iconElement = this.querySelector('i');
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      iconElement.classList.remove('fa-eye');
+      iconElement.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      iconElement.classList.remove('fa-eye-slash');
+      iconElement.classList.add('fa-eye');
+    }
+  });
 });
 
 

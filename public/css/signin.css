@@ -12,7 +12,6 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 90vh;
-  padding: 20px;
   position: relative;
   overflow: hidden;
 }

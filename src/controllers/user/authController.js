@@ -22,12 +22,12 @@ const signup = async (req, res) => {
       });
     }
     if (password != cPassword) {
-      return res.redirect("signup", { message: "Password not match" });
+      return res.status(400).json({ success: false, message: "Passwords do not match" });
     }
     //check the user is already exist
     const existUser = await User.findOne({ email });
     if (existUser) {
-      return res.redirect("/signup");
+      return res.status(409).json({ success: false, message: "User with this email already exists" });
     }
     // Generate and save OTP
     const otp = randomString.generate({ length: 6, charset: "numeric" });
