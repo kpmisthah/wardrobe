@@ -122,6 +122,8 @@ const resendOtp = async (req, res) => {
   try {
     const { email } = req.body;
     const otp = randomString.generate({ length: 6, charset: "numeric" });
+    console.log("THE RESEND OTP IS:", otp);
+    console.log("The resend is " + otp);
     const existingOtp = await Otp.findOneAndUpdate(
       { email },
       { otp },
