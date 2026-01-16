@@ -85,30 +85,53 @@ const loadShoppingPage = async (req, res) => {
     const searchQuery = req.query.search || null;
     const price = req.query.price || null;
     const availability = req.query.availability || null;
-    let limit = 12;
-    const category = await Category.find({ isListed: true })
-    const categoryId = category.map((cat) => cat._id)
-    const subcategory = await Subcategory.find({ isListed: true })
-    const subcategoryIds = subcategory.map((sub => sub._id))
-    let query = { isBlocked: false, category: categoryId, subcategory: subcategoryIds };
-    let sort = {};
+    const categoryFilter = req.query.category || null;
 
-    if (searchQuery) {
-      // First find categories that match the search query
-      const categories = await Category.find({
-        name: { $regex: searchQuery, $options: "i" },
+    let limit = 12;
+
+    // Fetch all listed categories and subcategories to define the valid scope
+    const categories = await Category.find({ isListed: true });
+    const allCategoryIds = categories.map((cat) => cat._id);
+
+    const subcategories = await Subcategory.find({ isListed: true });
+    const allSubcategoryIds = subcategories.map((sub => sub._id));
+
+    // Base query: only show listed/non-blocked items
+    let query = {
+      isBlocked: false,
+      category: { $in: allCategoryIds },
+      subcategory: { $in: allSubcategoryIds }
+    };
+
+    // 1. Apply Specific Category Filter
+    if (categoryFilter) {
+      const selectedCategory = await Category.findOne({
+        name: { $regex: new RegExp("^" + categoryFilter + "$", "i") },
+        isListed: true
       });
 
-      const categoryIds = categories.map((cat) => cat._id);
+      if (selectedCategory) {
+        // Overwrite the 'all categories' check with the specific one
+        query.category = selectedCategory._id;
+      }
+    }
 
+    // 2. Apply Search Filter
+    if (searchQuery) {
+      const searchCategories = await Category.find({
+        name: { $regex: searchQuery, $options: "i" },
+      });
+      const searchCategoryIds = searchCategories.map((cat) => cat._id);
+
+      // Search matches Name OR Description OR Category Name
       query.$or = [
         { name: { $regex: searchQuery, $options: "i" } },
         { description: { $regex: searchQuery, $options: "i" } },
-        { category: { $in: categoryIds } },
+        { category: { $in: searchCategoryIds } },
       ];
     }
 
-    // Rest of your existing price and availability filters
+    // 3. Apply Price Filter
     if (price) {
       if (price === "below-1500") {
         query = { ...query, salePrice: { $lt: 1500 } };
@@ -125,18 +148,18 @@ const loadShoppingPage = async (req, res) => {
       }
     }
 
+    // 4. Apply Availability Filter
     if (availability) {
-      if (availability == "Available") {
+      if (availability === "Available") {
         query = { ...query, isStock: true };
-      } else if (availability == "Unavailable") {
+      } else if (availability === "Unavailable") {
         query = { ...query, isStock: false };
       }
     }
 
-    // Sort options using if-else blocks
-    if (sortOption === "default") {
-      sort = {};
-    } else if (sortOption === "new") {
+    // 5. sorting
+    let sort = {};
+    if (sortOption === "new") {
       sort = { createdAt: -1 };
     } else if (sortOption === "priceLowtoHigh") {
       sort = { salePrice: 1 };
@@ -146,11 +169,10 @@ const loadShoppingPage = async (req, res) => {
       sort = { name: 1 };
     } else if (sortOption === "reverseAlphabetical") {
       sort = { name: -1 };
-    } else {
-      sort = {};
     }
-    // Add population for category
-    let products = await Product.find(query)
+
+    // Execute Query
+    const products = await Product.find(query)
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(limit)
@@ -158,44 +180,62 @@ const loadShoppingPage = async (req, res) => {
       .populate("category");
 
     const count = await Product.countDocuments(query);
-    const totalpage = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / limit);
 
-    // Update stock status
+    // Update stock levels (keeping existing logic)
     for (let product of products) {
-      const isStock = product.sizeOptions.some((option) => option.quantity > 0);
-      if (isStock !== product.isStock) {
-        product.isStock = isStock;
-        await product.save();
+      if (product.sizeOptions && product.sizeOptions.length > 0) {
+        const isStock = product.sizeOptions.some((option) => option.quantity > 0);
+        if (isStock !== product.isStock) {
+          product.isStock = isStock;
+          await product.save();
+        }
       }
     }
 
-    let user = req.session.user;
-    if (user) {
-      let userData = await User.findOne({ _id: user });
-      return res.render("user/shop", {
-        user: userData,
+    const user = req.session.user;
+
+    // Check for AJAX request
+    const isAjax = req.xhr ||
+      (req.headers.accept && req.headers.accept.indexOf('json') > -1) ||
+      req.query.ajax === 'true';
+
+    if (isAjax) {
+      return res.status(200).json({
         products,
-        totalpage,
-        page,
-        sortOption,
-        searchQuery,
-        price,
-        availability
-      });
-    } else {
-      return res.render("user/shop", {
-        products,
-        totalpage,
-        page,
-        sortOption,
-        searchQuery,
-        price,
-        availability
+        totalPages, // Sent as 'totalPages' to match frontend expects
+        currentPage: page,
+        totalProducts: count
       });
     }
+
+    const templateData = {
+      products,
+      totalpage: totalPages, // Sent as 'totalpage' for EJS loop
+      page,
+      sortOption,
+      searchQuery,
+      price,
+      availability,
+      category: categoryFilter
+    };
+
+    if (user) {
+      const userData = await User.findOne({ _id: user });
+      return res.render("user/shop", { ...templateData, user: userData });
+    } else {
+      return res.render("user/shop", templateData);
+    }
+
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    console.log("Error in loadShoppingPage:", error);
+
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1) || req.query.ajax === 'true';
+
+    if (isAjax) {
+      return res.status(500).json({ error: "Failed to load products" });
+    }
+    return res.status(500).send("Internal Server Error");
   }
 };
 
@@ -214,7 +254,9 @@ const loadProfile = async (req, res) => {
 
 const addAddress = async (req, res) => {
   try {
-    return res.render("user/addAddress");
+    const userId = req.session.user;
+    const user = await User.findById(userId);
+    return res.render("user/addAddress", { user });
   } catch (error) {
     console.log(error);
 
@@ -260,11 +302,12 @@ const address = async (req, res) => {
 const getAddress = async (req, res) => {
   try {
     const userId = req.session.user;
+    const user = await User.findById(userId);
     const existingAddress = await Address.findOne({ userId });
     if (!existingAddress) {
-      return res.render("user/getAddress", { address: [] });
+      return res.render("user/getAddress", { user, address: [] });
     }
-    return res.render("user/getAddress", { address: existingAddress.address });
+    return res.render("user/getAddress", { user, address: existingAddress.address });
   } catch (error) {
     console.log("The error is" + error);
   }
@@ -274,6 +317,7 @@ const getEditPage = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.session.user;
+    const user = await User.findById(userId);
     const userAddress = await Address.findOne({ userId });
     if (!userAddress) {
       return res.redirect("/getAddress");
@@ -284,7 +328,7 @@ const getEditPage = async (req, res) => {
     if (!address) {
       return res.redirect("/getAddress");
     }
-    return res.render("user/edit-address", { address });
+    return res.render("user/edit-address", { user, address });
   } catch (error) {
     console.log("Error in get eidt page", error);
   }
@@ -337,29 +381,44 @@ const deleteAddress = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const user = req.session.user;
-    const userData = await User.findOne({ _id: user });
-    return res.render("user/updateProfile", { userData });
+    const userId = req.session.user;
+    console.log("Updating profile for user ID:", userId);
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("User not found for ID:", userId);
+      return res.redirect('/login');
+    }
+    return res.render("user/updateProfile", { user, userData: user });
   } catch (error) {
     console.log("The error is" + error);
+    res.status(500).send("Internal Error");
   }
 };
 
 const profileUpdate = async (req, res) => {
   try {
     const userId = req.session.user;
-    const previousMail = await User.findOne({ _id: userId });
-    const oldEmail = previousMail.email;
-    const { email, password } = req.body;
-    const otp = randomString.generate({ length: 6, charset: "numeric" });
-    await Otp.create({ email: oldEmail, otp });
+    const { oldPassword, newPassword } = req.body;
 
-    req.session.updateProfile = { email, password };
-    return res
-      .status(200)
-      .json({ message: "OTP sent to your current email address." });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect old password" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+
   } catch (error) {
     console.log("The error is" + error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -386,24 +445,33 @@ const verifyOtps = async (req, res) => {
     if (otpRecord.otp != otps) {
       return res.status(400).json({ success: false, message: "Invalid OTP." });
     }
+    if (!req.session.updateProfile) {
+      return res.status(400).json({ success: false, message: "Session expired. Please try again." });
+    }
     const { email, password } = req.session.updateProfile;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const updateUser = await User.findByIdAndUpdate(userId, {
+
+    // Use findByIdAndUpdate alone, OR find + save. Do not mix.
+    await User.findByIdAndUpdate(userId, {
       email: email,
       password: hashedPassword,
     });
-    await updateUser.save();
+
+    // Clear the temp session data
+    delete req.session.updateProfile;
+
     return res
       .status(200)
       .json({
         success: true,
-        message: "OTP verified successfully.",
+        message: "Password updated successfully.",
         redirectUrl: "/updateProfile",
-      }); // Example redirect URL
+      });
   } catch (error) {
+    console.error("Verify OTP Error:", error);
     return res
       .status(500)
-      .json({ success: false, message: "An error occured" });
+      .json({ success: false, message: "An error occurred during verification" });
   }
 };
 
