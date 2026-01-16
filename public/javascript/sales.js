@@ -1,26 +1,54 @@
 function createSalesGraph(data) {
-    const xArray = data.orders.map(order => 
-        new Date(order.invoiceDate).toLocaleDateString('en-US') 
+    const xArray = data.orders.map(order =>
+        new Date(order.invoiceDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     );
-    const yArray = data.orders.map(order => 
-        order.finalAmount ? order.finalAmount : order.totalPrice 
+    const yArray = data.orders.map(order =>
+        order.finalAmount ? order.finalAmount : order.totalPrice
     );
 
-    const chartData = [{
-        x: xArray, 
-        y: yArray, 
-        type: "bar", 
-        marker: { color: "rgba(255, 0, 0, 0.6)" }
-    }];
-
-    const layout = {
-        title: "Sales Data (Vertical Bar Chart)", 
-        xaxis: { title: "Date" }, 
-        yaxis: { title: "Amount (₹)" }, 
-        margin: { l: 50, r: 20, t: 50, b: 100 } 
+    const trace1 = {
+        x: xArray,
+        y: yArray,
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Sales',
+        line: {
+            color: '#1a1a1a',
+            width: 3
+        },
+        marker: {
+            size: 8,
+            color: '#1a1a1a'
+        }
     };
 
-    Plotly.newPlot("salesGraph", chartData, layout);
+    const layout = {
+        title: {
+            text: 'Sales Trend Over Time',
+            font: {
+                size: 24,
+                color: '#1a1a1a',
+                family: 'Inter, sans-serif',
+                weight: 700
+            }
+        },
+        xaxis: {
+            title: 'Date',
+            gridcolor: '#f3f4f6',
+            showgrid: true
+        },
+        yaxis: {
+            title: 'Revenue (₹)',
+            gridcolor: '#f3f4f6',
+            showgrid: true
+        },
+        plot_bgcolor: '#ffffff',
+        paper_bgcolor: '#ffffff',
+        margin: { t: 80, r: 40, b: 60, l: 80 },
+        showlegend: false
+    };
+
+    Plotly.newPlot("salesGraph", [trace1], layout, { responsive: true });
 }
 
 
@@ -34,10 +62,10 @@ document.getElementById('applyFilter').addEventListener('click', async () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quickFilter, startDate, endDate })
     });
-    
+
     const data = await response.json();
     console.log(data);
-    
+
     // Update table
     const ordersTableBody = document.getElementById('ordersTableBody');
     ordersTableBody.innerHTML = '';
@@ -68,7 +96,7 @@ window.addEventListener('load', async () => {
     const response = await fetch('/admin/dashboard', {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
             quickFilter: document.getElementById('quickFilter').value
         })
     });

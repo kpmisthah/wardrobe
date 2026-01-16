@@ -1,132 +1,339 @@
 <%- include("../../views/partials/adminPartials/headers") %>
 
-<section class="content-main">
-    <div class="content-header">
-        <div>
-            <h2 class="content-title">Orders List</h2>
-        </div>
-    </div>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <div class="card">
-        <div class="card-body">
+    <style>
+        /* Base Styles */
+        .content-wrapper {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a1a;
+            padding: 2rem;
+            background-color: #f5f7fa;
+            min-height: calc(100vh - 80px);
+        }
 
-            <!-- Order Table -->
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>User</th>
-                            <th>Total Price</th>
-                            <th>Payment Method</th>
-                            <th>Status</th>
-                            <th>view</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (orders && orders.length > 0) { %>
-                            <% orders.forEach((order) => { %>
-                                <tr>
-                                    <td><%= order.orderId %></td>
-                                    <td><%= order.userId.name %></td>
-                                    <td><%= order.finalAmount || order.totalPrice %></td>
-                                    <td><%= order.paymentMethod %></td>
-                                    <td>
-                                        <form id="order-status">
-                                            <select name="status" class="statusSelect" data-order-id="<%= order.orderId %>">
-                                                <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                                                <option value="Canceled" <%= order.status === 'Canceled' ? 'selected' : '' %>>Canceled</option>
-                                                <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                                <option value="Returned" <%= order.status === 'Returned' ? 'selected' : '' %>>Returned</option>
-                                            </select>
-                                        </form>
-                                    </td>
-                                    <td>
-                                        <a href="/admin/view-orders/<%= order._id %>" class="view-link">View</a>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        <% } else { %>
-                            <tr>
-                                <td colspan="7" class="text-center">No orders found.</td>
-                            </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+        }
 
-        </div>
-    </div>
-</section>
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
 
-<div class="container mt-3">
-    <nav aria-label="Page navigation" class="pagination-container">
-        <ul class="pagination justify-content-center">
-            <% for (let i = 1; i <= totalpages; i++) { %>
-                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>
-</div>
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-<!-- Add this before closing body tag -->
-<script src="/javascript/order.js"></script>
-<script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>
-<script src="/admin-assets/js/vendors/bootstrap.bundle.min.js"></script>
-<script src="/admin-assets/js/vendors/select2.min.js"></script>
-<script src="/admin-assets/js/vendors/perfect-scrollbar.js"></script>
-<script src="/admin-assets/js/vendors/jquery.fullscreen.min.js"></script>
-<script src="/admin-assets/js/main.js"></script>
+        .page-title h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
 
-</main> <!-- Close main-wrap -->
-</body>
-</html>
+        .page-title p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
 
-<!-- Custom CSS -->
-<style>
-    .content-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
+        /* Table Card */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #f3f4f6;
+            animation: fadeInUp 0.5s ease-out 0.2s backwards;
+        }
 
-    .badge {
-        font-size: 0.875rem;
-        padding: 0.4em 0.6em;
-    }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-    .statusSelect {
-        width: 100%;
-        padding: 0.3rem;
-        border-radius: 5px;
-    }
-
-    .btn-sm {
-        font-size: 0.875rem;
-        padding: 0.3rem 0.6rem;
-    }
-
-    .table th,
-    .table td {
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    /* Responsive for small screens */
-    @media (max-width: 767px) {
-        .table th,
-        .table td {
-            font-size: 0.875rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .table-responsive {
             overflow-x: auto;
         }
 
-        .content-title {
-            font-size: 1.25rem;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-    }
-</style>
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            color: #1a1a1a;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Status Select */
+        .statusSelect {
+            padding: 0.4rem 0.6rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background-color: white;
+            font-size: 0.85rem;
+            color: #1a1a1a;
+            cursor: pointer;
+            width: 100%;
+            max-width: 140px;
+        }
+
+        .statusSelect:focus {
+            border-color: #1a1a1a;
+            outline: none;
+        }
+
+        /* View Link */
+        .view-link {
+            color: #1a1a1a;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            background: #f3f4f6;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .view-link:hover {
+            background: #e5e7eb;
+        }
+
+        .order-id {
+            font-family: 'Monaco', 'Consolas', monospace;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .page-link {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .page-item.active .page-link {
+            background: #1a1a1a;
+            border-color: #1a1a1a;
+            color: white;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            outline: none;
+            color: #1a1a1a;
+            background: #f9fafb;
+        }
+
+        .search-input:focus {
+            border-color: #1a1a1a;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="page-title">
+                <h2>Orders</h2>
+                <p>Track and manage customer orders</p>
+            </div>
+            <div class="search-container">
+                <form action="/admin/orderList" method="get">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search orders..." name="search"
+                        value="<%= typeof search !== 'undefined' ? search : '' %>"
+                        oninput="if(this.value==='') this.form.submit()">
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>User</th>
+                            <th>Total Price</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length> 0) { %>
+                            <% orders.forEach((order)=> { %>
+                                <tr>
+                                    <td><span class="order-id">#<%= order.orderId %></span></td>
+                                    <td style="font-weight: 600;">
+                                        <%= order.userId.name %>
+                                    </td>
+                                    <td>₹<%= order.finalAmount || order.totalPrice %>
+                                    </td>
+                                    <td>
+                                        <%= order.paymentMethod %>
+                                    </td>
+                                    <td>
+                                        <form id="order-status-<%= order._id %>" style="margin: 0;">
+                                            <select name="status" class="statusSelect"
+                                                data-order-id="<%= order.orderId %>">
+                                                <option value="Pending" <%=order.status==='Pending' ? 'selected' : '' %>
+                                                    >Pending</option>
+                                                <option value="Canceled" <%=order.status==='Canceled' ? 'selected' : ''
+                                                    %>>Canceled</option>
+                                                <option value="Shipped" <%=order.status==='Shipped' ? 'selected' : '' %>
+                                                    >Shipped</option>
+                                                <option value="Delivered" <%=order.status==='Delivered' ? 'selected'
+                                                    : '' %>>Delivered</option>
+                                                <option value="Returned" <%=order.status==='Returned' ? 'selected' : ''
+                                                    %>>Returned</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/view-orders/<%= order._id %>" class="view-link">
+                                            View <i class="fas fa-arrow-right"
+                                                style="font-size: 0.7em; margin-left: 4px;"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; padding: 3rem; color: #6b7280;">
+                                                No orders found.</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <% if (typeof totalpages !=='undefined' && totalpages> 1) { %>
+            <div class="container mt-3">
+                <nav aria-label="Page navigation" class="pagination-container">
+                    <ul class="pagination">
+                        <% for (let i=1; i <=totalpages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                            <% } %>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
+    </div>
+
+    <script src="/javascript/order.js"></script>
+    <script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/admin-assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/admin-assets/js/vendors/select2.min.js"></script>
+    <script src="/admin-assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/admin-assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="/admin-assets/js/main.js"></script>

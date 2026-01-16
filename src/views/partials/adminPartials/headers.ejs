@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>Wardrobe</title>
@@ -13,42 +14,59 @@
     <link rel="shortcut icon" type="image/x-icon" href="#">
     <link href="/admin-assets/css/main.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="/css/ordermanagement.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://kit.fontawesome.com/16d4885483.js" crossorigin="anonymous"></script>
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<style>
-body {
-    background-color: #ffff;
-}
-.navbar {
-    background-color: #ffffff;
-}
-.navbar-aside {
-    background-color: #ffffff;
-}
-.menu-item a.menu-link {
-    color: #6c7dd3;
-}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/16d4885483.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
 
-.menu-item a.menu-link:hover,
-.menu-item a.menu-link.active {
-    background-color: #6e7e6e; 
-    color: #ffffff;
-}
-.dropdown-menu {
-    background-color: #bb9aaf;
-}
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+        }
 
-.dropdown-item:hover {
-    background-color: #33053d;
-    color: #ffffff;
-}
+        .navbar-aside {
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+        }
 
-</style>
+        .menu-item a.menu-link {
+            color: #4b5563;
+            /* Dark gray for readable text */
+            font-weight: 500;
+        }
+
+        .menu-item a.menu-link:hover,
+        .menu-item a.menu-link.active {
+            background-color: #1a1a1a;
+            /* Black for active/hover */
+            color: #ffffff;
+            border-radius: 4px;
+        }
+
+        .dropdown-menu {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dropdown-item {
+            color: #1a1a1a;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+            /* Light gray hover */
+            color: #1a1a1a;
+        }
+    </style>
 </head>
+
 <body>
-     <div class="screen-overlay"></div>
+    <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
             <!-- <a href="#" class="brand-wrap">
@@ -75,11 +93,13 @@ body {
 
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/subcategory"><i class="icon material-icons md-person"></i><span class="text">Sub Category</span></a>
+                    <a class="menu-link" href="/admin/subcategory"><i class="icon material-icons md-person"></i><span
+                            class="text">Sub Category</span></a>
                 </li>
 
                 <li class="menu-item">
-                    <a class="menu-link" href="/admin/size"><i class="icon material-icons md-person"></i><span class="text">size</span></a>
+                    <a class="menu-link" href="/admin/size"><i class="icon material-icons md-person"></i><span
+                            class="text">size</span></a>
                 </li>
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/addProducts"> <i class="icon material-icons md-add_box"></i>
@@ -91,7 +111,7 @@ body {
                         <span class="text">Products</span>
                     </a>
                 </li>
-            
+
                 <li class="menu-item">
                     <a class="menu-link" href="/admin/coupon"> <i class="icon material-icons md-class"></i>
                         <span class="text">Coupon</span> </a>
@@ -110,15 +130,17 @@ body {
             <div class="col-search">
             </div>
             <div class="col-nav">
-                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i class="material-icons md-apps"></i> </button>
+                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> <i
+                        class="material-icons md-apps"></i> </button>
                 <ul class="nav">
                     <li class="dropdown nav-item">
                         <!-- <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> <img class="img-xs rounded-circle" src="/admin-assets/imgs/people/avatar2.png" alt="User"></a> -->
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-danger" href="/admin/logout"><i class="material-icons md-exit_to_app"></i>Logout</a>
+                            <a class="dropdown-item text-danger" href="/admin/logout"><i
+                                    class="material-icons md-exit_to_app"></i>Logout</a>
                         </div>
                     </li>
                 </ul>
-            </div> 
-         </header>  
+            </div>
+        </header>

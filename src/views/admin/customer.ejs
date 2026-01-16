@@ -1,58 +1,387 @@
 <%- include("../../views/partials/adminPartials/headers") %>
-<div class="content-header row">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="content-title card-title">Customers</h2>
-       
-    </div>
-</div>         
-        </div>
-        
-            <header class="card-header text-center mb-20">
-                <form action="/admin/customer" method="get" class="d-inline">
-                    <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px; margin-left: 230px;">
-                        <input type="text" class="form-control border-0 rounded-pill" placeholder="Search customers..." name="search" value="<%=search%>">
-                        <button class="btn  border-0" type="submit">Search</button>
-                    </div>
-                </form>
-            </header>
-            <div class="right mt-5">
-                <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th scope="col"><b>Name</b></th>
-                        <th scope="col"><b>Email</b></th>
-                        <th scope="col"><b>Phone No</b></th>
-                        <th scope="col"><b>Action</b></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <% userData.forEach((user) => { %>
-                        <tr>
-                          <td><%= user.name %></td>
-                          <td><%= user.email %></td>
-                          <td><%= user.phone %></td>
-                         
-                          <td>
-                            <% if (!user.isBlocked) { %>
-                              <a href="/admin/blockUser?id=<%= user._id %>" class="btn btn-danger btn-sm">Block</a>
-                            <% } else { %>
-                              <a href="/admin/unblockUser?id=<%= user._id %>" class="btn btn-success btn-sm">Unblock</a>
-                            <% } %>
-                          </td>
-                        </tr>
-                      <% }) %>
-                    </tbody>
-                  </table>
-        </div>
-        <div class="container mt-3">
-          <nav aria-label="Page navigation" class="pagination-container">
-            <ul class="pagination  justify-content-center">
-              <% for (let i = 1; i <= totalpages; i++) { %>
-                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-              <% } %>
-            </ul>
-          </nav>
-        </div>
 
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* Base Styles matching Dashboard */
+    .content-wrapper {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a1a;
+      padding: 2rem;
+      background-color: #f5f7fa;
+      min-height: calc(100vh - 80px);
+    }
+
+    .page-header {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      animation: slideDown 0.5s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-title h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .page-title p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      margin-bottom: 0;
+    }
+
+    /* Search Bar Styling */
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      outline: none;
+      color: #1a1a1a;
+      background: #f9fafb;
+    }
+
+    .search-input:focus {
+      border-color: #1a1a1a;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+
+    .search-btn {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      bottom: 5px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      padding: 0 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .search-btn:hover {
+      background: #333;
+    }
+
+    /* Table Card Styling */
+    .table-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      border: 1px solid #f3f4f6;
+      animation: fadeInUp 0.5s ease-out 0.2s backwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      padding: 1.25rem 1.5rem;
+      text-align: left;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 1.25rem 1.5rem;
+      color: #1a1a1a;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    /* User Info Styling in Table */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .user-details h4 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .user-details span {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-block {
+      background: white;
+      border: 1px solid #dc2626;
+      color: #dc2626;
+    }
+
+    .btn-block:hover {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-unblock {
+      background: #1a1a1a;
+      border: 1px solid #1a1a1a;
+      color: white;
+    }
+
+    .btn-unblock:hover {
+      background: #333;
+      border-color: #333;
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .status-blocked {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    /* Pagination */
+    .pagination-container {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 0.5rem;
+      list-style: none;
+      padding: 0;
+    }
+
+    .page-link {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      color: #4b5563;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .page-link:hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+
+    .page-item.active .page-link {
+      background: #1a1a1a;
+      border-color: #1a1a1a;
+      color: white;
+    }
+  </style>
+
+  <div class="content-wrapper">
+    <!-- Header Section -->
+    <div class="page-header">
+      <div class="page-title">
+        <h2>Customers</h2>
+        <p>Manage your store's customer base</p>
+      </div>
+      <div class="search-container">
+        <form action="/admin/customer" method="get">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="Search by name or email..." name="search"
+            value="<%= typeof search !== 'undefined' ? search : '' %>">
+          <button type="submit" class="search-btn">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (typeof userData !=='undefined' && userData.length> 0) { %>
+            <% userData.forEach((user)=> { %>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <div class="avatar">
+                      <%= user.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <div class="user-details">
+                      <h4>
+                        <%= user.name %>
+                      </h4>
+                      <span>Joined: <%= new Date(user.createdAt).toLocaleDateString() %></span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <%= user.email %>
+                </td>
+                <td>
+                  <%= user.phone || 'N/A' %>
+                </td>
+                <td>
+                  <% if (!user.isBlocked) { %>
+                    <span class="status-badge status-active">Active</span>
+                    <% } else { %>
+                      <span class="status-badge status-blocked">Blocked</span>
+                      <% } %>
+                </td>
+                <td style="text-align: right;">
+                  <% if (!user.isBlocked) { %>
+                    <a href="/admin/blockUser?id=<%= user._id %>" class="btn-action btn-block">
+                      <i class="fas fa-ban"></i> Block
+                    </a>
+                    <% } else { %>
+                      <a href="/admin/unblockUser?id=<%= user._id %>" class="btn-action btn-unblock">
+                        <i class="fas fa-check"></i> Unblock
+                      </a>
+                      <% } %>
+                </td>
+              </tr>
+              <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">
+                      <div style="color: #6b7280;">No customers found matching your criteria</div>
+                    </td>
+                  </tr>
+                  <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <% if (typeof totalpages !=='undefined' && totalpages> 1) { %>
+      <div class="container mt-3">
+        <nav aria-label="Page navigation" class="pagination-container">
+          <ul class="pagination">
+            <% for (let i=1; i <=totalpages; i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                  <%= i %>
+                </a>
+              </li>
+              <% } %>
+          </ul>
+        </nav>
+      </div>
+      <% } %>
+  </div>

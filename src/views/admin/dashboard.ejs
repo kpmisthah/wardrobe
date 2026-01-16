@@ -1,28 +1,420 @@
 <%- include("../../views/partials/adminPartials/headers") %>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sales Analytics Dashboard</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/css/dashboard.css" />
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-      .graph-container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin: 20px 0;
-}
-    </style>
 
-  </head>
-  <body>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <style>
+    /* Reset and Base Styles for Dashboard Content */
+    .dashboard-content-wrapper {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a1a;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      animation: slideDown 0.5s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-title h1 {
+      font-size: 2.5rem;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .header-title p {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    .download-btn {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      padding: 0.875rem 1.75rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background: #2d2d2d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .download-btn i {
+      margin-right: 0.5rem;
+    }
+
+    .filter-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      outline: none;
+      border-color: #1a1a1a;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    }
+
+    #applyFilter {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      padding: 0.875rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #applyFilter:hover {
+      background: #2d2d2d;
+      transform: translateY(-2px);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border: 1px solid #f3f4f6;
+      animation: fadeInUp 0.5s ease-out backwards;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      border-color: #e5e7eb;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stat-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .stat-card:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .stat-card:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .stat-card:nth-child(4) {
+      animation-delay: 0.25s;
+    }
+
+    .stat-card:nth-child(5) {
+      animation-delay: 0.3s;
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      background: #f9fafb;
+      color: #1a1a1a;
+    }
+
+    .stat-card h3 {
+      color: #6b7280;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .trend.up {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .trend.down {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .graph-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      border: 1px solid #f3f4f6;
+      animation: fadeInUp 0.5s ease-out 0.35s backwards;
+      min-height: 450px;
+    }
+
+    .sales-table {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+      border: 1px solid #f3f4f6;
+      animation: fadeInUp 0.5s ease-out 0.4s backwards;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9fafb;
+    }
+
+    th {
+      padding: 1.25rem 1rem;
+      text-align: left;
+      font-weight: 700;
+      color: #374151;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+
+    tbody tr {
+      transition: all 0.2s ease;
+      background: transparent;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .status {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status.delivered,
+    .status.Delivered {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .status.pending,
+    .status.Pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .status.cancelled,
+    .status.Cancelled {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .top-sellers {
+      animation: fadeInUp 0.5s ease-out 0.45s backwards;
+    }
+
+    .top-sellers-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f3f4f6;
+    }
+
+    .top-sellers-header h2 {
+      font-size: 2rem;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    .top-sellers-header p {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    .top-sellers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 2rem;
+    }
+
+    .top-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f3f4f6;
+      transition: all 0.3s ease;
+    }
+
+    .top-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .top-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #1a1a1a;
+      font-weight: 700;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .subcategory-name {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1a1a1a;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2d2d2d;
+    }
+  </style>
+
+  <div class="dashboard-content-wrapper">
     <div class="container">
       <div class="dashboard-header">
         <div class="header-top">
@@ -30,14 +422,16 @@
             <h1>Sales Analytics</h1>
             <p>Monitor your business performance in real-time</p>
           </div>
-          <button class="download-btn" id="downloadPdfBtn">
-            <i class="fas fa-file-pdf"></i>
-            Export PDF
-          </button>
-          <button class="download-btn" id="downloadExcelBtn">
-            <i class="fas fa-file-excel"></i>
-            Export Excel
-          </button>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="download-btn" id="downloadPdfBtn">
+              <i class="fas fa-file-pdf"></i>
+              Export PDF
+            </button>
+            <button class="download-btn" id="downloadExcelBtn">
+              <i class="fas fa-file-excel"></i>
+              Export Excel
+            </button>
+          </div>
         </div>
         <div class="filter-section">
           <div class="filter-group">
@@ -58,8 +452,8 @@
             <label>End Date</label>
             <input type="date" id="endDate" />
           </div>
-          <button id="applyFilter" style="margin-top: 1.5rem">
-            Apply Filter
+          <button id="applyFilter">
+            <i class="fas fa-filter"></i> Apply Filter
           </button>
         </div>
       </div>
@@ -67,62 +461,69 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-chart-line fa-lg"></i>
+            <i class="fas fa-chart-line fa-2x"></i>
           </div>
           <h3>Total Sales</h3>
-          <div class="value"><%= totalSales %></div>
+          <div class="value">₹<%= typeof totalSales !=='undefined' ? totalSales.toLocaleString('en-IN') : '0' %>
+          </div>
           <div class="trend up">
             <i class="fas fa-arrow-up"></i>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-shopping-cart fa-lg"></i>
+            <i class="fas fa-shopping-cart fa-2x"></i>
           </div>
           <h3>Orders Count</h3>
-          <div class="value"><%= totalOrders %></div>
+          <div class="value">
+            <%= typeof totalOrders !=='undefined' ? totalOrders : '0' %>
+          </div>
           <div class="trend up">
             <i class="fas fa-arrow-up"></i>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-tags fa-lg"></i>
+            <i class="fas fa-users fa-2x"></i>
           </div>
           <h3>Total Users</h3>
-          <div class="value"><%= totalUsers %></div>
-          <div class="trend down">
-            <i class="fas fa-arrow-down"></i>
+          <div class="value">
+            <%= typeof totalUsers !=='undefined' ? totalUsers : '0' %>
           </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fas fa-dollar-sign fa-lg"></i>
-          </div>
-          <h3>Total Products</h3>
-          <div class="value"><%= totalProducts %></div>
           <div class="trend up">
             <i class="fas fa-arrow-up"></i>
           </div>
         </div>
-
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="fas fa-tags fa-lg"></i>
+            <i class="fas fa-box fa-2x"></i>
           </div>
-          <h3>Total DISCOUNT</h3>
-          <div class="value"><%=  totalDiscount %></div>
+          <h3>Total Products</h3>
+          <div class="value">
+            <%= typeof totalProducts !=='undefined' ? totalProducts : '0' %>
+          </div>
+          <div class="trend up">
+            <i class="fas fa-arrow-up"></i>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-tag fa-2x"></i>
+          </div>
+          <h3>Total Discount</h3>
+          <div class="value">₹<%= typeof totalDiscount !=='undefined' ? totalDiscount.toLocaleString('en-IN') : '0' %>
+          </div>
           <div class="trend down">
             <i class="fas fa-arrow-down"></i>
           </div>
         </div>
       </div>
-      <!-- graph -->
+
       <div class="graph-container">
         <div id="salesGraph"></div>
-    </div>
+      </div>
+
       <div class="sales-table">
-        <div class="table-header"></div>
         <table>
           <thead>
             <tr>
@@ -135,137 +536,192 @@
             </tr>
           </thead>
           <tbody id="ordersTableBody">
-            <% orders.forEach(order => { %>
-            <tr>
-              <td><%= order._id %></td>
-              <td>
-                <%= new Date(order.invoiceDate).toLocaleDateString('en-US') %>
-              </td>
-              <td>₹<%= order.totalPrice %></td>
-              <td>₹<%= order.discount %></td>
-              <td>
-                ₹<%=order.finalAmount?order.finalAmount:order.totalPrice %>
-              </td>
-              <td>
-                <span class="status <%= order.status %>">
-                  <%= order.status %>
-                </span>
-              </td>
-            </tr>
-            <% }); %>
+            <% if (typeof orders !=='undefined' && orders.length> 0) { %>
+              <% orders.slice(0, 10).forEach(order=> { %>
+                <tr>
+                  <td>#<%= order._id.toString().slice(-6).toUpperCase() %>
+                  </td>
+                  <td>
+                    <%= new Date(order.invoiceDate).toLocaleDateString('en-US') %>
+                  </td>
+                  <td>₹<%= order.totalPrice %>
+                  </td>
+                  <td>₹<%= order.discount %>
+                  </td>
+                  <td><strong>₹<%= order.finalAmount ? order.finalAmount : order.totalPrice %></strong></td>
+                  <td>
+                    <span class="status <%= order.status %>">
+                      <%= order.status %>
+                    </span>
+                  </td>
+                </tr>
+                <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="6" style="text-align:center;">No recent orders found.</td>
+                    </tr>
+                    <% } %>
           </tbody>
         </table>
       </div>
-      <!-- Top 10 Lists Section -->
-<div class="top-sellers">
-  <div class="top-sellers-header">
-    <h2>Top 10 Best Sellers</h2>
-    <p>See the most popular products, categories, and brands based on sales.</p>
+
+      <div class="top-sellers">
+        <div class="top-sellers-header">
+          <h2>Top 10 Best Sellers</h2>
+          <p>See the most popular products, categories, and brands based on sales</p>
+        </div>
+
+        <div class="top-sellers-grid">
+          <div class="top-card">
+            <h3>Best Selling Products</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Product Name</th>
+                  <th>Sold</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (typeof bestSellingProducts !=='undefined' && bestSellingProducts.length> 0) { %>
+                  <% bestSellingProducts.forEach((product, index)=> { %>
+                    <tr>
+                      <td><span class="rank-badge">
+                          <%= index + 1 %>
+                        </span></td>
+                      <td>
+                        <%= product.productName %>
+                      </td>
+                      <td>
+                        <%= product.totalQuantity %>
+                      </td>
+                      <td>₹<%= product.totalRevenue.toFixed(2) %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="4" style="text-align:center">No sales data yet</td>
+                        </tr>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="top-card">
+            <h3>Best Selling Categories</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Category Name</th>
+                  <th>Sold</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (typeof bestSellingMainCategory !=='undefined' && bestSellingMainCategory.length> 0) { %>
+                  <% bestSellingMainCategory.forEach((category, index)=> { %>
+                    <tr>
+                      <td><span class="rank-badge">
+                          <%= index + 1 %>
+                        </span></td>
+                      <td>
+                        <%= category.categoryName %>
+                      </td>
+                      <td>
+                        <%= category.totalQuantity %>
+                      </td>
+                      <td>₹<%= category.totalRevenue.toFixed(2) %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="4" style="text-align:center">No sales data yet</td>
+                        </tr>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="top-card">
+            <h3>Best Selling Subcategory</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Subcategory</th>
+                  <th>Main Category</th>
+                  <th>Sold</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (typeof bestSellingSubcategories !=='undefined' && bestSellingSubcategories.length> 0) { %>
+                  <% bestSellingSubcategories.forEach((subcategory, index)=> { %>
+                    <tr>
+                      <td><span class="rank-badge">
+                          <%= index + 1 %>
+                        </span></td>
+                      <td>
+                        <div class="subcategory-name">
+                          <%= subcategory.subcategoryName %>
+                        </div>
+                      </td>
+                      <td>
+                        <%= subcategory.mainCategoryName %>
+                      </td>
+                      <td>
+                        <%= subcategory.totalQuantity %>
+                      </td>
+                      <td>₹<%= subcategory.totalRevenue.toFixed(2) %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="5" style="text-align:center">No sales data yet</td>
+                        </tr>
+                        <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="top-card">
+            <h3>Best Selling Brands</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Brand Name</th>
+                  <th>Units Sold</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="rank-badge">1</span></td>
+                  <td>Allen Solly</td>
+                  <td>8</td>
+                  <td>₹78,575</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="top-sellers-grid">
-    <!-- Best Selling Products -->
-    <div class="top-card">
-      <h3>Best Selling Products</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Product Name</th>
-            <th> Sold</th>
-            <th>Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% bestSellingProducts.forEach((product, index) => { %>
-          <tr>
-            <td><%= index + 1 %></td>
-            <td><%= product.productName %></td>
-            <td><%= product.totalQuantity %></td>
-            <td>₹<%=  product.totalRevenue.toFixed(2) %></td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Best Selling Categories -->
-    <div class="top-card">
-      <h3>Best Selling Categories</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Category Name</th>
-            <th> Sold</th>
-            <th>Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% bestSellingMainCategory.forEach((category, index) => { %>
-          <tr>
-            <td><%= index + 1 %></td>
-            <td><%= category.categoryName %></td>
-            <td><%=  category.totalQuantity %></td>
-            <td>₹<%= category.totalRevenue.toFixed(2)  %></td>
-          </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-    <!-- best selling sub categories -->
-     <div class="top-card">
-      <h3>Best Selling subcategory</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>subCateogry Name</th>
-            <th>Main Category</th>
-            <th>Sold</th>
-            <th>Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% bestSellingSubcategories.forEach((subcategory, index) => { %>
-            <tr>
-              <td><span class="rank-badge"><%= index + 1 %></span></td>
-              <td>
-                <div class="subcategory-name"><%= subcategory.subcategoryName %></div>
-              </td>
-              <td><%= subcategory.mainCategoryName %></td>
-              <td><%= subcategory.totalQuantity %></td>
-              <td>₹<%= subcategory.totalRevenue.toFixed(2) %></td>
-            </tr>
-            <% }) %>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="top-card">
-      <h3>Best Selling Brands</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Brand Name</th>
-            <th>Units Sold</th>
-            <th>Revenue</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Allen solly</td>
-            <td>8</td>
-            <td>₹78575</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-
-    </div>
-  </body>
-</html>
-<script src="/javascript/sales.js"></script>
+  <script src="/javascript/sales.js"></script>
+  <script>
+    // Initialize graph with server-side data immediately
+    document.addEventListener('DOMContentLoaded', function () {
+      const initialOrders = <% - JSON.stringify(orders || []) %>;
+      if (typeof createSalesGraph === 'function') {
+        createSalesGraph({ orders: initialOrders });
+      }
+    });
+  </script>

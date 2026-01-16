@@ -3,45 +3,58 @@ import { Product } from "../../models/productSchema.js"
 import { User } from "../../models/userSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 import { Wallet } from "../../models/walletSchema.js"
-const orderList = async(req,res)=>{
+const orderList = async (req, res) => {
     try {
-        let page = parseInt(req.query.page)||1
+        let page = parseInt(req.query.page) || 1
         let limit = 4
-        const orders = await Order.find().populate('userId').skip((page-1)*limit).limit(limit).sort({createdAt:-1})
-        console.log("the user is ",orders);
-        
-        const count = await Order.find().countDocuments()
-        const totalpages = Math.ceil(count/limit)
-        return res.render('admin/order',{orders,currentPage:page,totalpages})
+        let search = req.query.search || "";
+
+        let query = {};
+        if (search) {
+            query = {
+                $or: [
+                    { orderId: { $regex: search, $options: "i" } },
+                    { paymentMethod: { $regex: search, $options: "i" } },
+                    { status: { $regex: search, $options: "i" } }
+                ]
+            };
+        }
+
+        const orders = await Order.find(query).populate('userId').skip((page - 1) * limit).limit(limit).sort({ createdAt: -1 })
+        console.log("the user is ", orders);
+
+        const count = await Order.find(query).countDocuments()
+        const totalpages = Math.ceil(count / limit)
+        return res.render('admin/order', { orders, currentPage: page, totalpages, search })
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).send('An error occurred while fetching orders.');
     }
 }
 
-const orderStatus = async(req,res)=>{
+const orderStatus = async (req, res) => {
     try {
-        const{status,orderId} = req.body
+        const { status, orderId } = req.body
         const orders = await Order.find()
-        const order = await Order.findOneAndUpdate({orderId},{status:status},{new:true})
-        if(order){
-            res.status(200).json({message:"Order is updated successfully"})
-        }else{
-            res.status(401).json({message:"order is not updated"})
+        const order = await Order.findOneAndUpdate({ orderId }, { status: status }, { new: true })
+        if (order) {
+            res.status(200).json({ message: "Order is updated successfully" })
+        } else {
+            res.status(401).json({ message: "order is not updated" })
         }
-        
+
     } catch (error) {
-        console.log("The error is"+error);
-        
+        console.log("The error is" + error);
+
     }
 }
-const viewOrders = async(req,res)=>{
+const viewOrders = async (req, res) => {
     try {
-        const{orderid} = req.params
-        const order = await Order.findOne({_id:orderid}).populate('orderedItems.product')
-         return res.render('admin/viewOrder',{order})
-       
-        
+        const { orderid } = req.params
+        const order = await Order.findOne({ _id: orderid }).populate('orderedItems.product')
+        return res.render('admin/viewOrder', { order })
+
+
     } catch (error) {
         console.log(error)
     }
@@ -53,7 +66,7 @@ const viewOrders = async(req,res)=>{
 //         const order = await Order.findOne({ orderId });
 //         const wallet = await Wallet.findOne({userId})
 //         console.log("the wallet is"+wallet);
-        
+
 //         if (!order) {
 //             return res.status(404).json({ error: 'Order not found' });
 //         }
@@ -103,11 +116,11 @@ const handleReturn = async (req, res) => {
     try {
         const userId = req.session.user;
         const { orderId, productId, action } = req.body;
-        
+
         // Find order and wallet
         const order = await Order.findOne({ orderId });
         const wallet = await Wallet.findOne({ userId });
-        
+
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -124,13 +137,13 @@ const handleReturn = async (req, res) => {
         if (action === 'approve') {
             // Calculate refund amount correctly
             const refundAmount = productItem.price * productItem.quantity;
-            
+
             // Update product status
             productItem.returnStatus = 'Approved';
-            
+
             // Update wallet balance
             wallet.balance += refundAmount;
-            
+
             // Add transaction to history
             wallet.transactionHistory.push({
                 transactionType: 'refund',
@@ -168,56 +181,56 @@ const handleReturn = async (req, res) => {
 
     } catch (error) {
         console.error("Error in handleReturn:", error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: 'Something went wrong',
-            details: error.message 
+            details: error.message
         });
     }
 };
-const orderCancelled = async(req,res)=>{
-     try {
-            const { orderId,productId} = req.body;  
-    
-            const orderedProducts = await Order.findOne({orderId})
-    
-            // Find the specific item using its _id
-            const itemIndex = orderedProducts.orderedItems.findIndex(
-                item => item._id.toString() === productId
-            );
-    
-            if (itemIndex === -1) {
-                return res.status(404).json({ message: "Item not found" });
-            }
-    
-            //items that want to be removed stored here .it has size and quantity so compare it with our size schema
-            const items = orderedProducts.orderedItems[itemIndex];
-    
-            //so now we want to increase the stock count for specific product
-             items.cancelStatus = 'canceled'
-            if(items.cancelStatus == 'canceled'){
-                const size = await Size.findOne({product:items.product,size:items.size})
-                size.quantity+=items.quantity
-                await size.save()
-            }
-            const allItemsCancelled = orderedProducts.orderedItems.every(
-                item => item.cancelStatus === 'canceled'
-            );
-    
-            // If all items are cancelled, update the main order status
-            if (allItemsCancelled) {
-                orderedProducts.status = 'Canceled';
-            }
-            // Update total price
-            orderedProducts.totalPrice -= items.price * items.quantity;
-    
-            await orderedProducts.save();
-           
-            return res.status(200).json({ message: "Item canceled successfully" });
-    
-        } catch (error) {
-            console.log("Error in productCancel:", error);
-            return res.status(500).json({ message: "Something went wrong" });
+const orderCancelled = async (req, res) => {
+    try {
+        const { orderId, productId } = req.body;
+
+        const orderedProducts = await Order.findOne({ orderId })
+
+        // Find the specific item using its _id
+        const itemIndex = orderedProducts.orderedItems.findIndex(
+            item => item._id.toString() === productId
+        );
+
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: "Item not found" });
         }
+
+        //items that want to be removed stored here .it has size and quantity so compare it with our size schema
+        const items = orderedProducts.orderedItems[itemIndex];
+
+        //so now we want to increase the stock count for specific product
+        items.cancelStatus = 'canceled'
+        if (items.cancelStatus == 'canceled') {
+            const size = await Size.findOne({ product: items.product, size: items.size })
+            size.quantity += items.quantity
+            await size.save()
+        }
+        const allItemsCancelled = orderedProducts.orderedItems.every(
+            item => item.cancelStatus === 'canceled'
+        );
+
+        // If all items are cancelled, update the main order status
+        if (allItemsCancelled) {
+            orderedProducts.status = 'Canceled';
+        }
+        // Update total price
+        orderedProducts.totalPrice -= items.price * items.quantity;
+
+        await orderedProducts.save();
+
+        return res.status(200).json({ message: "Item canceled successfully" });
+
+    } catch (error) {
+        console.log("Error in productCancel:", error);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
 }
 
-export{orderList,orderStatus,handleReturn,orderCancelled,viewOrders}
+export { orderList, orderStatus, handleReturn, orderCancelled, viewOrders }

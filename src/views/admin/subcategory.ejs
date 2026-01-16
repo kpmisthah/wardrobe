@@ -1,93 +1,393 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Category Management</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<%- include("../../views/partials/adminPartials/headers") %>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/subcategory.css">
-</head>
-<body>
-  <%- include("../../views/partials/adminPartials/headers") %>
-  <div class="container">
-    <div class="row">
-      <!-- Form Section -->
-      <div class="col-lg-4 col-md-12 form-container">
-        <h4 class="mb-3">Add Product</h4>
-        <form  id="loadCategory">
-          <div class="mb-3">
-            <label for="categoryName" class="form-label"></label>
-            <input type="text" class="form-control" id="subcategoryName" placeholder="Enter category name" name="name">
+
+  <style>
+    /* Base Styles - Consistent with Category & Dashboard */
+    .content-wrapper {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a1a;
+      padding: 2rem;
+      background-color: #f5f7fa;
+      min-height: calc(100vh - 80px);
+    }
+
+    .page-header {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      animation: slideDown 0.5s ease-out;
+    }
+
+    .page-title h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .page-title p {
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      margin-bottom: 0;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f3f4f6;
+    }
+
+    .card-header h4 {
+      margin: 0 0 1.5rem 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.9rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      outline: none;
+      color: #1a1a1a;
+      background: #f9fafb;
+    }
+
+    .form-control:focus {
+      border-color: #1a1a1a;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      padding: 0.875rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+      background: #333;
+      transform: translateY(-1px);
+    }
+
+    .error-message {
+      color: #dc2626;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Table Styles */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      font-weight: 600;
+      color: #4b5563;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 1rem 1.25rem;
+      color: #1a1a1a;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background-color: #f9fafb;
+    }
+
+    /* Badges & Buttons within Table */
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    .status-active {
+      background: #ecfdf5;
+      color: #059669;
+    }
+
+    .status-inactive {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .btn-sm:hover {
+      background: #e5e7eb;
+    }
+
+    .btn-list {
+      background: white;
+      border: 1px solid #1a1a1a;
+      color: #1a1a1a;
+    }
+
+    .btn-list:hover {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    .btn-unlist {
+      color: #1a1a1a;
+      background: white;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-unlist:hover {
+      border-color: #1a1a1a;
+    }
+
+    .btn-edit {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background: #333;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      outline: none;
+      color: #1a1a1a;
+      background: #f9fafb;
+    }
+
+    .search-input:focus {
+      border-color: #1a1a1a;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .search-container {
+        max-width: 100%;
+      }
+    }
+  </style>
+
+  <div class="content-wrapper">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="page-title">
+        <h2>Subcategory Management</h2>
+        <p>Manage product subcategories</p>
+      </div>
+      <div class="search-container">
+        <form action="/admin/subcategory" method="get">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="Search subcategories..." name="search"
+            value="<%= typeof search !== 'undefined' ? search : '' %>" oninput="if(this.value==='') this.form.submit()">
+        </form>
+      </div>
+    </div>
+
+    <div class="grid-container">
+      <!-- Add Subcategory Form -->
+      <div class="card">
+        <div class="card-header">
+          <h4>Add New Subcategory</h4>
+        </div>
+        <form id="loadCategory">
+          <div class="form-group">
+            <label for="subcategoryName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="subcategoryName" placeholder="e.g. Shirts" name="name">
             <div id="error1" class="error-message"></div>
           </div>
-          <div class="mb-3">
-            <label for="categoryDescription" class="form-label"></label>
-            <textarea class="form-control" id="subcategoryDescription" rows="3" placeholder="Enter description" name="description"></textarea>
+          <div class="form-group">
+            <label for="subcategoryDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="subcategoryDescription" rows="4" placeholder="Enter description..."
+              name="description"></textarea>
             <div id="error2" class="error-message"></div>
           </div>
-          <button type="submit" class="btn btn-primary">Add Product</button>
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-plus"></i> Add Subcategory
+          </button>
         </form>
-
       </div>
-<!-- Table Section -->
-<div class="col-lg-8 col-md-12 table-container">
-  <h4 class="mb-3">Product List</h4>
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-          <th>List/Unlist</th>
-          <th>Status</th>
-          <th>Edit</th>
-        </tr>
-      </thead>
-      <tbody>
-        <%subcategory.forEach((subcategory)=>{%>
-        <tr>
-          <!-- Name -->
-          <td><%=subcategory.name%></td>
 
-          <!-- Description -->
-          <td><%=subcategory.description%></td>
+      <!-- Subcategory List -->
+      <div class="card">
+        <div class="card-header">
+          <h4>All Subcategories</h4>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+                <th>Status</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (typeof subcategory !=='undefined' && subcategory.length> 0) { %>
+                <% subcategory.forEach((subcategory)=>{ %>
+                  <tr>
+                    <td style="font-weight: 500;">
+                      <%= subcategory.name %>
+                    </td>
+                    <td style="color: #6b7280; max-width: 250px;">
+                      <%= subcategory.description %>
+                    </td>
 
+                    <!-- List/Unlist Action -->
+                    <td>
+                      <% if (subcategory.isListed==false) { %>
+                        <a href="/admin/list?id=<%=subcategory._id%>" class="btn-sm btn-list"
+                          style="background: #1a1a1a; color: white;">
+                          <i class="fas fa-eye"></i> List
+                        </a>
+                        <% } else { %>
+                          <a href="/admin/unlist?id=<%=subcategory._id%>" class="btn-sm btn-unlist">
+                            <i class="fas fa-eye-slash"></i> Unlist
+                          </a>
+                          <% } %>
+                    </td>
 
+                    <!-- Status Badge -->
+                    <td>
+                      <% if (subcategory.isListed==true) { %>
+                        <span class="status-badge status-active">Active</span>
+                        <% } else { %>
+                          <span class="status-badge status-inactive">Inactive</span>
+                          <% } %>
+                    </td>
 
-          <!-- List and unlist -->
-          <td>
-            <% if (subcategory.isListed == false) { %>
-              <a href="/admin/list?id=<%=subcategory._id%>" class="btn btn-danger btn-sm">Listed</a>
-            <% } else { %>
-              <a href="/admin/unlist?id=<%=subcategory._id%>" class="btn btn-danger btn-sm">Unlisted</a>
-            <% } %>
-          </td>
-          <td> 
-            <% if (subcategory.isListed ==true) { %>
-              <a  class="btn btn-success btn-sm rounded-pill">Active</a>
-              <% } else { %>
-                <a class="btn btn-danger btn-sm rounded-pill">Inactive</a>
-                <% } %>
-              </td>
-
-           <td>
-              <!-- Edit Button  --> 
-              <a href="/admin/editted?id=<%=subcategory._id%>" class="btn btn-danger btn-sm">Edit</a>
-           </td> 
-        </tr>
-        <%})%>
-      </tbody>
-    </table>
-  </div>
-
-
+                    <!-- Edit Action -->
+                    <td>
+                      <a href="/admin/editted?id=<%=subcategory._id%>" class="btn-sm btn-edit">
+                        <i class="fas fa-pen"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <% }) %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem;">No subcategories found.</td>
+                      </tr>
+                      <% } %>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/javascript/subcategory.js"></script>
 
-</body>
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.js"></script>
+  <script src="/javascript/subcategory.js"></script>
