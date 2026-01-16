@@ -1,12 +1,262 @@
-<%-include('../../views/partials/userPartials/header')%>
-  <title>Order Details</title>
+<%- include('../partials/userPartials/header') %>
   <link rel="stylesheet" href="/css/myaccount.css" />
+
+  <style>
+    /* Improved View Order Page Styles */
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --accent-color: #333;
+      --text-muted: #6c757d;
+      --border-color: #eee;
+    }
+
+    .card-custom {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color);
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .card-header-custom {
+      padding: 20px 25px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fcfcfc;
+    }
+
+    .card-header-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    .card-body-custom {
+      padding: 25px;
+    }
+
+    /* Timeline Enhanced */
+    .stepper-wrapper {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin-bottom: 20px;
+      margin-top: 10px;
+    }
+
+    .stepper-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 30px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #e9ecef;
+      z-index: 0;
+      border-radius: 2px;
+    }
+
+    .stepper-item {
+      position: relative;
+      text-align: center;
+      flex: 1;
+      z-index: 1;
+    }
+
+    .step-counter {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 15px;
+      background: #fff;
+      border: 4px solid #e9ecef;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #ddd;
+      transition: all 0.3s ease;
+    }
+
+    .step-name {
+      font-size: 14px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #999;
+      letter-spacing: 0.5px;
+    }
+
+    .stepper-item.completed .step-counter,
+    .stepper-item.active .step-counter {
+      border-color: #28a745;
+      background: #28a745;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+    }
+
+    .stepper-item.completed::after,
+    .stepper-item.active::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: #28a745;
+      top: 30px;
+      left: -50%;
+      z-index: -1;
+    }
+
+    .stepper-item:first-child::after {
+      content: none;
+    }
+
+    .stepper-item.active .step-name {
+      color: #2c3e50;
+    }
+
+    .stepper-item.completed .step-name {
+      color: #28a745;
+    }
+
+    /* Item Row Enhanced */
+    .item-row {
+      display: flex;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #f9f9f9;
+      gap: 25px;
+      transition: background-color 0.2s;
+    }
+
+    .item-row:last-child {
+      border-bottom: none;
+    }
+
+    .item-row:hover {
+      background-color: #fafafa;
+    }
+
+    .item-image {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .item-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      display: block;
+      text-decoration: none;
+    }
+
+    .item-meta {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .item-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    /* Summary and Address Enhanced */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 20px;
+      margin-top: 10px;
+      border-top: 2px dashed #eee;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary-color);
+    }
+
+    .address-box {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    .info-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #888;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    /* Buttons */
+    .btn-action {
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive Item Row */
+    @media (max-width: 768px) {
+      .item-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .item-actions {
+        margin-top: 15px;
+        width: 100%;
+        text-align: left !important;
+      }
+
+      .step-counter {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+
+      .stepper-wrapper::before,
+      .stepper-item.completed::after,
+      .stepper-item.active::after {
+        top: 20px;
+      }
+
+      .step-name {
+        font-size: 10px;
+      }
+    }
+
+    .main-content {
+      padding-top: 30px;
+    }
+  </style>
+
   <div class="container-fluid">
     <div class="row">
-      <!-- Sidebar -->
       <!-- Sidebar Navigation -->
       <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
         <div class="position-sticky pt-3" style="top: 85px;">
+          <div class="text-center mb-4 d-md-none">
+            <h2 class="logo-text">Wardrobe</h2>
+          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link" href="/myaccount">
@@ -49,149 +299,218 @@
 
       <!-- Main Content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Order Details</h1>
-          <a href="/orders" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-2"></i>Back to Orders
-          </a>
+        <!-- Top Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+          <div>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/orders" class="text-decoration-none text-muted">Orders</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Details</li>
+              </ol>
+            </nav>
+            <h1 class="h2 fw-bold">Order Details</h1>
+          </div>
+          <div>
+            <button class="btn btn-outline-dark btn-action me-2" id="downloadInvoices">
+              <i class="fas fa-file-invoice me-2"></i>Download Invoice
+            </button>
+            <input type="hidden" name="orderId" value="<%=order.orderId%>">
+          </div>
         </div>
 
-        <% if (order) { %>
-          <div class="card shadow-sm mb-4 border-0">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <h6 class="text-muted text-uppercase mb-1">Order ID</h6>
-                  <p class="mb-0 fw-bold">#<%= order.orderId %>
-                  </p>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <h6 class="text-muted text-uppercase mb-1">Date</h6>
-                  <p class="mb-0">
-                    <%= order.invoiceDate.toDateString() %>
-                  </p>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <h6 class="text-muted text-uppercase mb-1">Status</h6>
-                  <span
-                    class="badge bg-<%= order.status.toLowerCase() === 'pending' ? 'warning' : (order.status.toLowerCase() === 'canceled' ? 'danger' : 'success') %>">
-                    <%= order.status %>
-                  </span>
-                </div>
+        <!-- Major Info & Timeline -->
+        <div class="card card-custom">
+          <div class="card-body card-body-custom">
+            <div class="row mb-5">
+              <div class="col-md-6">
+                <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Order ID</h6>
+                <h3 class="mb-0 text-primary fw-bold">#<%= order.orderId %>
+                </h3>
+              </div>
+              <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Placed On</h6>
+                <h4 class="mb-0 text-dark">
+                  <%= new Date(order.invoiceDate).toLocaleDateString(undefined, { weekday: 'long' , year: 'numeric' ,
+                    month: 'long' , day: 'numeric' }) %>
+                </h4>
               </div>
             </div>
-          </div>
 
-          <div class="card shadow-sm mb-4 border-0">
-            <div class="card-header bg-white border-bottom">
-              <h5 class="mb-0 fw-bold">Items</h5>
-            </div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="bg-light">
-                    <tr>
-                      <th class="ps-4">Product</th>
-                      <th class="text-center">Quantity</th>
-                      <th>Price</th>
-                      <th>Return Status</th>
-                      <th class="text-end pe-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% order.orderedItems.forEach((item)=> { %>
-                      <tr>
-                        <td class="ps-4">
-                          <div class="d-flex align-items-center">
-                            <% if (item.product && item.product.productImage && item.product.productImage.length> 0) {
-                              %>
-                              <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
-                                alt="<%= item.product.name %>" class="rounded me-3 shadow-sm" width="60" height="60"
-                                style="object-fit: cover;" />
-                              <% } else { %>
-                                <div class="bg-light rounded d-flex align-items-center justify-content-center me-3"
-                                  style="width: 60px; height: 60px;">
-                                  <i class="fas fa-image text-muted"></i>
-                                </div>
-                                <% } %>
-                                  <span class="fw-medium">
-                                    <%= item.product ? item.product.name : 'Product unavailable' %>
-                                  </span>
+            <!-- Status Timeline -->
+            <% const steps=['Pending', 'Shipped' , 'Delivered' ]; const currentStatus=order.status; let
+              progressIndex=steps.indexOf(currentStatus); if(currentStatus==='Completed' || currentStatus==='Returned' )
+              progressIndex=2; if(currentStatus==='Canceled' ) progressIndex=-1; %>
+
+              <% if(currentStatus==='Canceled' ) { %>
+                <div class="alert alert-danger d-flex align-items-center justify-content-center p-4 rounded-3">
+                  <i class="fas fa-ban fa-2x me-3"></i>
+                  <div>
+                    <h4 class="alert-heading fw-bold mb-1">Order Canceled</h4>
+                    <p class="mb-0">This order has been canceled and will not be delivered.</p>
+                  </div>
+                </div>
+                <% } else { %>
+                  <div class="stepper-wrapper px-md-5">
+                    <div
+                      class="stepper-item <%= progressIndex >= 0 ? 'active' : '' %> <%= progressIndex > 0 ? 'completed' : '' %>">
+                      <div class="step-counter"><i class="fas fa-clipboard-check"></i></div>
+                      <div class="step-name">Order Placed</div>
+                    </div>
+                    <div
+                      class="stepper-item <%= progressIndex >= 1 ? 'active' : '' %> <%= progressIndex > 1 ? 'completed' : '' %>">
+                      <div class="step-counter"><i class="fas fa-shipping-fast"></i></div>
+                      <div class="step-name">Shipped</div>
+                    </div>
+                    <div class="stepper-item <%= progressIndex >= 2 ? 'active' : '' %>">
+                      <div class="step-counter"><i class="fas fa-box-open"></i></div>
+                      <div class="step-name">Delivered</div>
+                    </div>
+                  </div>
+                  <% } %>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Items list -->
+          <div class="col-lg-8">
+            <div class="card card-custom">
+              <div class="card-header card-header-custom">
+                <h5 class="card-header-title">Items in Your Order</h5>
+                <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+                  <%= order.orderedItems.length %> Items
+                </span>
+              </div>
+              <div class="card-body card-body-custom pt-0">
+                <% order.orderedItems.forEach((item)=> { %>
+                  <div class="item-row">
+                    <% if (item.product && item.product.productImage && item.product.productImage.length> 0) { %>
+                      <img src="/uploads/product-images/<%= item.product.productImage[0] %>" class="item-image"
+                        alt="Product">
+                      <% } else { %>
+                        <div class="item-image d-flex align-items-center justify-content-center bg-light text-muted">No
+                          Img</div>
+                        <% } %>
+
+                          <div class="flex-grow-1">
+                            <a href="/productDetails?id=<%= item.product._id %>" class="item-title">
+                              <%= item.product ? item.product.name : 'Unknown Product' %>
+                            </a>
+                            <div class="d-flex flex-wrap gap-3">
+                              <span class="item-meta">Size: <strong class="text-dark">
+                                  <%= item.size %>
+                                </strong></span>
+                              <span class="item-meta">Qty: <strong class="text-dark">
+                                  <%= item.quantity %>
+                                </strong></span>
+                            </div>
+                            <div class="item-price mt-2">₹<%= item.price %>
+                            </div>
                           </div>
-                        </td>
-                        <td class="text-center">
-                          <%= item.quantity %>
-                        </td>
-                        <td>₹<%= item.price %>
-                        </td>
-                        <td>
-                          <% if (item.returnStatus==='Requested' ) { %>
-                            <span class="badge bg-warning text-dark">Requested</span>
-                            <% } else if (item.returnStatus==='Approved' ) { %>
-                              <span class="badge bg-success">Approved</span>
-                              <% } else if (item.returnStatus==='Rejected' ) { %>
-                                <span class="badge bg-danger">Rejected</span>
-                                <% } else { %>
-                                  <span class="badge bg-light text-muted border">None</span>
-                                  <% } %>
-                        </td>
-                        <td class="text-end pe-4">
-                          <% if (order.status==='Pending' || order.status==='Shipped' ) { %>
-                            <% if (item.returnStatus !=="Approved" ) { %>
-                              <% if (item.cancelStatus==='canceled' ) { %>
-                                <span class="badge bg-soft-danger text-danger">Canceled</span>
-                                <% } else { %>
-                                  <button type="button" class="btn btn-sm btn-outline-danger"
-                                    id="cancel-button-<%= item._id%>"
-                                    onclick="cancel('<%= order.orderId %>','<%= item._id %>')">Cancel Item</button>
-                                  <% } %>
-                                    <% } else { %>
-                                      <span class="text-success"><i class="fas fa-check-circle me-1"></i>Returned</span>
-                                      <% } %>
-                                        <% } else if (order.status==='Delivered' || order.status==='Completed' ) { %>
-                                          <% if (item.cancelStatus==='canceled' ) { %>
-                                            <span class="badge bg-soft-danger text-danger">Canceled</span>
-                                            <% } else if (item.returnStatus==='Not Requested' ) { %>
-                                              <button type="button" class="btn btn-sm btn-outline-warning"
-                                                onclick="returnOrder('<%= item._id %>')">Request Return</button>
-                                              <% } else { %>
-                                                <button class="btn btn-sm btn-secondary" disabled>
-                                                  <%= item.returnStatus %>
-                                                </button>
-                                                <% } %>
-                                                  <% } else { %>
-                                                    <span class="text-muted">-</span>
-                                                    <% } %>
-                        </td>
-                      </tr>
-                      <% }); %>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="card-footer bg-white d-flex justify-content-between align-items-center mb-0">
-              <h5 class="mb-0">Total Amount: <span class="fw-bold text-primary">₹<%= order.finalAmount ||
-                    order.totalPrice %></span></h5>
-              <div>
-                <button type="button" class="btn btn-primary-custom" id="downloadInvoices">
-                  <i class="fas fa-file-invoice me-2"></i>Download Invoice
-                </button>
-                <input type="hidden" name="orderId" value="<%=order.orderId%>">
+
+                          <div class="item-actions text-end" style="min-width: 140px;">
+                            <% if (item.cancelStatus==='canceled' ) { %>
+                              <span
+                                class="badge bg-soft-danger text-danger border border-danger px-3 py-2">Canceled</span>
+                              <% } else if (item.returnStatus==='Approved' ) { %>
+                                <span
+                                  class="badge bg-soft-success text-success border border-success px-3 py-2">Returned</span>
+                                <% } else if (order.status==='Pending' || order.status==='Shipped' ) { %>
+                                  <button class="btn btn-outline-danger btn-action w-100"
+                                    onclick="cancel('<%= order.orderId %>', '<%= item._id %>')">
+                                    Cancel Item
+                                  </button>
+                                  <% } else if ((order.status==='Delivered' || order.status==='Completed' ) &&
+                                    item.returnStatus==='Not Requested' ) { %>
+                                    <button class="btn btn-outline-dark btn-action w-100"
+                                      onclick="returnOrder('<%= item._id %>')">
+                                      Return Item
+                                    </button>
+                                    <% } else if (item.returnStatus !=='Not Requested' ) { %>
+                                      <span class="badge bg-warning text-dark px-3 py-2">
+                                        <%= item.returnStatus %>
+                                      </span>
+                                      <% } else { %>
+                                        <!-- Delivered but no return avail or misc state -->
+                                        <% } %>
+                          </div>
+                  </div>
+                  <% }) %>
               </div>
             </div>
           </div>
 
-          <% } else { %>
-            <div class="empty-state">
-              <i class="fas fa-box-open"></i>
-              <h4>No order details available</h4>
+          <!-- Sidebar Info -->
+          <div class="col-lg-4">
+            <!-- Order Summary -->
+            <div class="card card-custom">
+              <div class="card-header card-header-custom">
+                <h5 class="card-header-title">Payment Summary</h5>
+              </div>
+              <div class="card-body card-body-custom">
+                <div class="summary-row">
+                  <span>Item Total</span>
+                  <span class="fw-bold">₹<%= order.totalPrice %></span>
+                </div>
+                <div class="summary-row">
+                  <span>Discount</span>
+                  <span class="text-success">- ₹<%= order.discount %></span>
+                </div>
+                <div class="summary-row">
+                  <span>Delivery Fee</span>
+                  <span class="text-success">Free</span>
+                </div>
+                <div class="summary-total">
+                  <span>Grand Total</span>
+                  <span>₹<%= order.finalAmount || order.totalPrice %></span>
+                </div>
+                <div class="mt-3 pt-3 border-top">
+                  <label class="info-label">Payment Mode</label>
+                  <div class="d-flex align-items-center">
+                    <span class="badge bg-dark text-white me-2 px-3 py-2 text-uppercase">
+                      <%= order.paymentMethod %>
+                    </span>
+                    <span class="<%= order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning' %> fw-bold">
+                      <%= order.paymentStatus %>
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <% } %>
+
+            <!-- Shipping Address -->
+            <div class="card card-custom">
+              <div class="card-header card-header-custom">
+                <h5 class="card-header-title">Shipping Address</h5>
+              </div>
+              <div class="card-body card-body-custom">
+                <div class="address-box">
+                  <h5 class="fw-bold mb-2">
+                    <%= order.address.name %>
+                  </h5>
+                  <p class="mb-1">
+                    <%= order.address.houseNumber %>, <%= order.address.street || '' %>
+                  </p>
+                  <p class="mb-1">
+                    <%= order.address.city %>, <%= order.address.state %>
+                  </p>
+                  <p class="mb-3 fw-bold">
+                    <%= order.address.zipCode %>
+                  </p>
+                  <div class="d-flex align-items-center text-muted">
+                    <i class="fas fa-phone-alt me-2"></i>
+                    <span>
+                      <%= order.address.phone %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="/javascript/viewOrder.js"></script>
-  <%-include('../../views/partials/userPartials/footer')%>
+  <%- include('../partials/userPartials/footer') %>

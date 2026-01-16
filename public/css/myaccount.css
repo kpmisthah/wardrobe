@@ -31,7 +31,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom right, #f8fafc, #e0e7ff);
+    background: #f9fafb;
     color: var(--text-primary);
     min-height: 100vh;
 }

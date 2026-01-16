@@ -7,6 +7,8 @@ import { Order } from "../../models/orderIdSchema.js";
 import bcrypt from "bcrypt";
 import { Otp } from "../../models/otpModels.js";
 import randomString from "randomstring";
+import { Wishlist } from "../../models/wishlistSchema.js";
+import { Wallet } from "../../models/walletSchema.js";
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 //load Home page
@@ -242,10 +244,31 @@ const loadShoppingPage = async (req, res) => {
 //load user Profile page
 const loadProfile = async (req, res) => {
   try {
-    const users = req.session.user;
-    const userProfile = await User.findOne({ _id: users });
-    return res.render("user/myaccount", { user: userProfile });
+    const userId = req.session.user;
+    const [userProfile, orders, wishlist, address, wallet] = await Promise.all([
+      User.findOne({ _id: userId }),
+      Order.find({ userId: userId }).sort({ createdAt: -1 }),
+      Wishlist.findOne({ userId: userId }),
+      Address.findOne({ userId: userId }),
+      Wallet.findOne({ userId: userId })
+    ]);
+
+    const orderCount = orders ? orders.length : 0;
+    const wishlistCount = wishlist ? wishlist.products.length : 0;
+    const addressCount = address ? address.address.length : 0;
+    const walletBalance = wallet ? wallet.balance : 0;
+    const recentOrders = orders ? orders.slice(0, 5) : [];
+
+    return res.render("user/myaccount", {
+      user: userProfile,
+      orderCount,
+      wishlistCount,
+      addressCount,
+      walletBalance,
+      recentOrders
+    });
   } catch (error) {
+    console.error("Error loading profile:", error);
     return res.status(500).send("An error occurred");
   }
 };

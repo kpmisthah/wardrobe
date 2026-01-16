@@ -1,14 +1,190 @@
-<%-include('../../views/partials/userPartials/header')%>
-  <title>Your Orders</title>
+<%- include('../partials/userPartials/header') %>
   <link rel="stylesheet" href="/css/myaccount.css" />
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* Premium Order Card Design */
+    .order-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+    }
+
+    .order-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      border-color: #d0d0d0;
+    }
+
+    .order-header {
+      background-color: #f8f9fa;
+      padding: 15px 25px;
+      border-bottom: 1px solid #eeeeee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .order-id-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .order-id-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #212529;
+    }
+
+    .order-content {
+      padding: 25px;
+    }
+
+    .info-group {
+      margin-bottom: 10px;
+    }
+
+    .info-label {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .price-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #2c3e50;
+    }
+
+    .status-badge-lg {
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .bg-status-pending {
+      background-color: #fff8e1;
+      color: #b78900;
+      border: 1px solid #ffeeba;
+    }
+
+    .bg-status-shipped {
+      background-color: #e3f2fd;
+      color: #0d47a1;
+      border: 1px solid #bbdefb;
+    }
+
+    .bg-status-delivered {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+      border: 1px solid #c8e6c9;
+    }
+
+    .bg-status-canceled {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .bg-status-returned {
+      background-color: #f5f5f5;
+      color: #424242;
+      border: 1px solid #e0e0e0;
+    }
+
+    .product-preview {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .preview-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+
+    .action-area {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 5px;
+    }
+
+    .btn-view-details {
+      padding: 10px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      background-color: #ffffff;
+      color: #333;
+      border: 2px solid #e0e0e0;
+      transition: all 0.2s;
+    }
+
+    .btn-view-details:hover {
+      background-color: #333;
+      color: #fff;
+      border-color: #333;
+    }
+
+    .btn-retry {
+      padding: 10px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    /* Fixed Sidebar overlap fix */
+    .main-content {
+      padding-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .action-area {
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      .btn-view-details {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+
   <div class="container-fluid">
     <div class="row">
-      <!-- Sidebar -->
       <!-- Sidebar Navigation -->
       <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
         <div class="position-sticky pt-3" style="top: 85px;">
+          <div class="text-center mb-4 d-md-none">
+            <h2 class="logo-text">Wardrobe</h2>
+          </div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link" href="/myaccount">
@@ -51,101 +227,137 @@
 
       <!-- Main Content -->
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Your Orders</h1>
+        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
+          <h1 class="h2 fw-bold">My Orders</h1>
+          <span class="text-muted">
+            <%= orders ? orders.length : 0 %> Orders found
+          </span>
         </div>
 
         <% if (orders && orders.length> 0) { %>
-          <div class="card shadow-sm border-0">
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="bg-light">
-                    <tr>
-                      <th class="ps-4">Order ID</th>
-                      <th>Date</th>
-                      <th>Status</th>
-                      <th>Total</th>
-                      <th>Payment</th>
-                      <th class="text-end pe-4">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% orders.forEach((order)=> { %> <% if (order.orderedItems && order.orderedItems.length> 0) { %>
-                        <tr>
-                          <td class="ps-4 fw-bold text-primary">#<%= order.orderId %>
-                          </td>
-                          <td>
-                            <%= order.invoiceDate.toLocaleDateString('en-IN') %>
-                          </td>
-                          <td>
-                            <div class="status-badge">
-                              <span
-                                class="badge rounded-pill bg-soft-<%= order.status.toLowerCase() === 'pending' ? 'warning' : (order.status.toLowerCase() === 'canceled' ? 'danger' : 'success') %> text-<%= order.status.toLowerCase() === 'pending' ? 'dark' : 'white' %>">
-                                <%= order.status %>
-                              </span>
-                            </div>
-                          </td>
-                          <td class="fw-bold">
-                            ₹<%= order.finalAmount || order.totalPrice %>
-                          </td>
-                          <td>
-                            <% if (order.paymentStatus==='Pending' && order.paymentMethod=='razorpay' && order.status
-                              !=='Delivered' && order.status !=='Canceled' ) { %>
-                              <button class="btn btn-sm btn-outline-success"
-                                onclick="retryPayment('<%= order.paymentMethod %>', '<%= order.finalAmount || order.totalPrice %>', '<%= order._id %>')">
-                                Pay Now
-                              </button>
-                              <% } else { %>
-                                <span class="text-muted">
-                                  <%= order.paymentMethod %>
-                                </span>
-                                <% } %>
-                          </td>
-                          <td class="text-end pe-4">
-                            <a href="/user/view-order/<%= order._id %>" class="btn btn-sm btn-light">
-                              <i class="fas fa-eye"></i> View
-                            </a>
-                            <% if (order.status==='Pending' || order.status==='Shipped' ) { %>
-                              <button class="btn btn-sm btn-outline-danger ms-2" onclick="canceled('<%= order._id %>')">
-                                <i class="fas fa-times"></i> Cancel
-                              </button>
-                              <% } %>
-                          </td>
-                        </tr>
-                        <% } %>
-                          <% }) %>
-                  </tbody>
-                </table>
+          <div class="row">
+            <% orders.forEach((order)=> { %>
+              <div class="col-12">
+                <div class="order-card">
+                  <!-- Card Header -->
+                  <div class="order-header">
+                    <div class="d-flex align-items-center">
+                      <div class="me-3">
+                        <div class="p-2 bg-light rounded-circle text-center" style="width: 45px; height: 45px;">
+                          <i class="fas fa-box-open text-secondary fs-5 mt-1"></i>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="order-id-label">Order ID</div>
+                        <div class="order-id-value">#<%= order.orderId %>
+                        </div>
+                      </div>
+                    </div>
+                    <span class="status-badge-lg bg-status-<%= order.status.toLowerCase() %>">
+                      <%= order.status %>
+                    </span>
+                  </div>
+
+                  <!-- Card Body -->
+                  <div class="order-content">
+                    <div class="row align-items-center">
+                      <!-- Order Date -->
+                      <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="info-group">
+                          <span class="info-label">Order Date</span>
+                          <span class="info-value">
+                            <%= new Date(order.invoiceDate).toLocaleDateString('en-IN', { day: 'numeric' , month: 'long'
+                              , year: 'numeric' }) %>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Total Amount -->
+                      <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="info-group">
+                          <span class="info-label">Total Amount</span>
+                          <span class="price-value">₹<%= order.finalAmount || order.totalPrice %></span>
+                        </div>
+                      </div>
+
+                      <!-- Item Preview (Images) -->
+                      <div class="col-md-3 mb-3 mb-md-0">
+                        <div class="info-group">
+                          <span class="info-label mb-2">Items (<%= order.orderedItems.length %>)</span>
+                          <div class="product-preview">
+                            <% order.orderedItems.slice(0, 3).forEach(item=> { %>
+                              <% if (item.product && item.product.productImage && item.product.productImage.length> 0) {
+                                %>
+                                <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
+                                  class="preview-img" alt="Product" title="<%= item.product.name %>">
+                                <% } else { %>
+                                  <div
+                                    class="preview-img bg-light d-flex align-items-center justify-content-center text-muted small">
+                                    <i class="fas fa-image"></i></div>
+                                  <% } %>
+                                    <% }) %>
+                                      <% if (order.orderedItems.length> 3) { %>
+                                        <div
+                                          class="preview-img bg-light d-flex align-items-center justify-content-center text-secondary fw-bold small">
+                                          +<%= order.orderedItems.length - 3 %>
+                                        </div>
+                                        <% } %>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="col-md-3 text-md-end">
+                        <div class="action-area justify-content-md-end">
+                          <% if (order.paymentStatus==='Pending' && order.paymentMethod==='razorpay' && order.status
+                            !=='Delivered' && order.status !=='Canceled' ) { %>
+                            <button class="btn btn-retry btn-success text-white border-0 shadow-sm"
+                              onclick="retryPayment('<%= order.paymentMethod %>', '<%= order.finalAmount || order.totalPrice %>', '<%= order._id %>')">
+                              <i class="fas fa-redo-alt me-2"></i>Retry
+                            </button>
+                            <% } %>
+                              <a href="/user/view-order/<%= order._id %>" class="btn btn-view-details">
+                                View Details
+                              </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+              <% }) %>
           </div>
 
           <!-- Pagination -->
-          <nav aria-label="Page navigation" class="pagination-container mt-4">
-            <ul class="pagination justify-content-center">
-              <% for (let i=1; i <=totalpages; i++) { %>
-                <li class="page-item <%= page === i ? 'active' : '' %>">
-                  <a class="page-link" href="?page=<%= i %>">
-                    <%= i %>
-                  </a>
-                </li>
-                <% } %>
-            </ul>
-          </nav>
-
-          <% } else { %>
-            <div class="empty-state">
-              <i class="fas fa-shopping-basket"></i>
-              <h4>No orders found</h4>
-              <p>Looks like you haven't made your first order yet.</p>
-              <a href="/shop" class="btn btn-primary-custom btn-lg px-5">Start Shopping</a>
-            </div>
+          <% if (totalpages> 1) { %>
+            <nav aria-label="Page navigation" class="mt-5 mb-5">
+              <ul class="pagination justify-content-center">
+                <% for (let i=1; i <=totalpages; i++) { %>
+                  <li class="page-item <%= page === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>">
+                      <%= i %>
+                    </a>
+                  </li>
+                  <% } %>
+              </ul>
+            </nav>
             <% } %>
+
+              <% } else { %>
+                <div class="text-center py-5">
+                  <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-2130356-1800917.png"
+                    alt="No Orders" style="max-width: 250px; opacity: 0.8;">
+                  <h3 class="mt-4 fw-bold text-secondary">No orders yet</h3>
+                  <p class="text-muted fs-5">Looks like you haven't placed any orders yet.</p>
+                  <a href="/shop" class="btn btn-dark btn-lg mt-3 px-5 py-3 rounded-pill shadow-sm">Start Shopping</a>
+                </div>
+                <% } %>
+
       </main>
     </div>
   </div>
-  <script src="/javascript/orders.js"></script>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  <%-include('../../views/partials/userPartials/footer')%>
+  <script src="/javascript/orders.js"></script>
+  <%- include('../partials/userPartials/footer') %>
