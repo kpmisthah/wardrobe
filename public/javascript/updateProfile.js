@@ -1,47 +1,83 @@
 
-  
-  function passwordValidateChecking(password){
-    const error1 = document.getElementById('error1')
-    console.log("the error2 is "+error1)
-     const alpha = /^[a-zA-Z]+$/
-     const digit = /^\d+$/;
-  
-     if(password.length<8){
-      error1.style.display = "block";
-      error1.innerHTML = "should contain atleast 8 characters"
-     }else if(!alpha.test(password) && !digit.test(password)){
-      error1.style.display = "block"
-      error1.innerHTML = "password only contain alphabets and digits"
-     }else{
-      error1.style.display = "none",
-      error1.innerHTML = ""
-     }
-    }
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i');
 
-async function updateProfile(event){
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+function passwordValidateChecking(password) {
+    const error1 = document.getElementById('error1')
+    console.log("the error2 is " + error1)
+
+    if (password.length < 8) {
+        error1.style.display = "block";
+        error1.innerHTML = "should contain atleast 8 characters"
+    } else {
+        error1.style.display = "none",
+            error1.innerHTML = ""
+    }
+}
+
+async function updateProfile(event) {
     event.preventDefault()
 
     const loader = document.getElementById('loader');
-    loader.style.display = 'flex'; 
 
-    const form = document.getElementById('updateProfile')
-    const password = form[0].value
-    const email = form[1].value
+    // Get values safely
+    const oldPassword = document.getElementById('oldPassword').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const emailInput = document.querySelector('input[name="email"]');
+    const email = emailInput ? emailInput.value : '';
+
+    const error0 = document.getElementById('error0');
+    if (!oldPassword) {
+        error0.style.display = "block";
+        error0.innerHTML = "Please enter your old password";
+        return;
+    } else {
+        error0.style.display = "none";
+        error0.innerHTML = "";
+    }
+
+    loader.style.display = 'flex';
+
     passwordValidateChecking(password);
+
+    // Confirm Password Validation
+    const error2 = document.getElementById('error2');
+    if (password !== confirmPassword) {
+        error2.style.display = "block";
+        error2.innerHTML = "Passwords do not match";
+        loader.style.display = 'none';
+        return;
+    } else {
+        error2.style.display = "none";
+        error2.innerHTML = "";
+    }
+
     const error1 = document.getElementById('error1');
-    if(error1.innerHTML){
-        loader.style.display = 'none'; 
+    if (error1.innerHTML && error1.style.display !== 'none') {
+        loader.style.display = 'none';
         return
     }
 
-   
     try {
         const response = await fetch('/update-profile', {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, oldPassword, newPassword: password }),
         });
-        loader.style.display = 'none'; 
+        loader.style.display = 'none';
         if (response.ok) {
             const result = await response.json();
             await Swal.fire({
@@ -50,17 +86,27 @@ async function updateProfile(event){
                 icon: 'success',
                 confirmButtonText: 'OK',
             });
-            window.location.href = '/otp'; 
+            // Clear input fields instead of reloading
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
         } else {
             const error = await response.json();
-            await Swal.fire({
-                title: 'Error!',
-                text: error.message,
-                icon: 'error',
-                confirmButtonText: 'OK',
-            });
+            if (error.message && error.message.toLowerCase().includes('old password')) {
+                const error0 = document.getElementById('error0');
+                error0.style.display = "block";
+                error0.innerHTML = error.message;
+            } else {
+                await Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
+            }
         }
     } catch (error) {
+        loader.style.display = 'none';
         console.log("Error:", error);
         await Swal.fire({
             title: 'Error!',
@@ -68,5 +114,5 @@ async function updateProfile(event){
             icon: 'error',
             confirmButtonText: 'OK',
         });
-    } 
+    }
 }

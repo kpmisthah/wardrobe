@@ -50,6 +50,7 @@ const signup = async (req, res) => {
 const otpPage = async (req, res) => {
 
   const { email } = req.session.userDetails || {};
+  console.log(email, 'emaillllll=====')
   if (!email) {
     return res.redirect('/signup');
   }

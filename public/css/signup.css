@@ -1,9 +1,9 @@
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f9f9f9;
@@ -13,22 +13,26 @@ body {
     min-height: 100vh;
     padding: 20px;
 }
+
 .login-container {
     background-color: white;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 450px;
     padding: 35px;
 }
+
 .login-header {
     text-align: center;
     margin-bottom: 25px;
 }
+
 .login-header h2 {
     color: #333;
     font-size: 24px;
 }
+
 .main-error {
     color: #ff0000;
     text-align: center;
@@ -38,15 +42,18 @@ body {
     border-radius: 4px;
     display: none;
 }
+
 .form-group {
     margin-bottom: 20px;
     position: relative;
 }
+
 .form-group label {
     display: block;
     margin-bottom: 8px;
     color: #555;
 }
+
 .form-group input {
     width: 100%;
     padding: 12px;
@@ -54,10 +61,12 @@ body {
     border-radius: 6px;
     transition: border-color 0.3s;
 }
+
 .form-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #6366f1;
 }
+
 .password-icon {
     position: absolute;
     right: 15px;
@@ -65,11 +74,13 @@ body {
     cursor: pointer;
     color: #999;
 }
+
 .error-message {
     color: #ff4d4d;
     font-size: 12px;
     margin-top: 5px;
 }
+
 .login-btn {
     width: 100%;
     padding: 12px;
@@ -80,24 +91,30 @@ body {
     cursor: pointer;
     transition: transform 0.2s;
 }
+
 .login-btn:hover {
     transform: scale(1.02);
 }
+
 .forgot-password {
     text-align: right;
     margin-bottom: 15px;
 }
+
 .forgot-password a {
-    color: #667eea;
+    color: #6366f1;
     text-decoration: none;
 }
+
 .or-continue {
     text-align: center;
     margin: 20px 0;
     color: #777;
     position: relative;
 }
-.or-continue::before, .or-continue::after {
+
+.or-continue::before,
+.or-continue::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -105,12 +122,15 @@ body {
     height: 1px;
     background-color: #ddd;
 }
+
 .or-continue::before {
     left: 0;
 }
+
 .or-continue::after {
     right: 0;
 }
+
 .google-btn {
     display: block;
     width: 100%;
@@ -122,10 +142,12 @@ body {
     border-radius: 6px;
     margin-bottom: 15px;
 }
+
 .signup-link {
     text-align: center;
     margin-top: 15px;
 }
+
 .loader-container {
     display: none;
     justify-content: center;
@@ -135,25 +157,34 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255,255,255,0.8);
+    background: rgba(255, 255, 255, 0.8);
     z-index: 1000;
 }
+
 .spinner {
     width: 50px;
     height: 50px;
     border: 5px solid #f3f3f3;
-    border-top: 5px solid #667eea;
+    border-top: 5px solid #6366f1;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
+
 @media (max-width: 480px) {
     .login-container {
         padding: 20px;
     }
+
     .login-header h2 {
         font-size: 20px;
     }

@@ -100,7 +100,7 @@ body::before {
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #6366f1;
 }
 
 .error-message {
@@ -192,7 +192,7 @@ body::before {
   width: 50px;
   height: 50px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #667eea;
+  border-top: 5px solid #6366f1;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -241,7 +241,7 @@ body::before {
 }
 
 .otp-input input:focus {
-  border-color: #667eea;
+  border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   outline: none;
 }
@@ -266,7 +266,7 @@ body::before {
 }
 
 .resend-link {
-  color: #667eea;
+  color: #6366f1;
   cursor: pointer;
   font-weight: 500;
   transition: color 0.3s;
@@ -278,7 +278,7 @@ body::before {
 }
 
 #timer {
-  color: #667eea;
+  color: #6366f1;
   font-weight: bold;
   margin-left: 5px;
 }
