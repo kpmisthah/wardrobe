@@ -259,7 +259,8 @@
     }
 
     .page-link {
-      width: 36px;
+      min-width: 36px;
+      padding: 0 12px;
       height: 36px;
       display: flex;
       align-items: center;
@@ -373,13 +374,66 @@
       <div class="container mt-3">
         <nav aria-label="Page navigation" class="pagination-container">
           <ul class="pagination">
-            <% for (let i=1; i <=totalpages; i++) { %>
-              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                <a class="page-link" href="?page=<%= i %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
-                  <%= i %>
+            <!-- Previous -->
+            <% if (currentPage> 1) { %>
+              <li class="page-item">
+                <a class="page-link"
+                  href="?page=<%= currentPage - 1 %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                  <i class="fas fa-chevron-left"></i>
                 </a>
               </li>
               <% } %>
+
+                <!-- Pagination Logic -->
+                <% let startPage=Math.max(1, currentPage - 2); let endPage=Math.min(totalpages, currentPage + 2); if
+                  (currentPage <=3) { startPage=1; endPage=Math.min(totalpages, 5); } if (currentPage>= totalpages - 2)
+                  {
+                  startPage = Math.max(1, totalpages - 4);
+                  endPage = totalpages;
+                  }
+
+                  if (startPage > 1) {
+                  %>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=1&search=<%= typeof search !== 'undefined' ? search : '' %>">1</a>
+                  </li>
+                  <% if (startPage> 2) { %>
+                    <li class="page-item disabled"><span class="page-link"
+                        style="border: none; background: transparent;">...</span></li>
+                    <% } %>
+                      <% } %>
+
+                        <% for(let i=startPage; i <=endPage; i++) { %>
+                          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link"
+                              href="?page=<%= i %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                              <%= i %>
+                            </a>
+                          </li>
+                          <% } %>
+
+                            <% if (endPage < totalpages) { %>
+                              <% if (endPage < totalpages - 1) { %>
+                                <li class="page-item disabled"><span class="page-link"
+                                    style="border: none; background: transparent;">...</span></li>
+                                <% } %>
+                                  <li class="page-item">
+                                    <a class="page-link"
+                                      href="?page=<%= totalpages %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                                      <%= totalpages %>
+                                    </a>
+                                  </li>
+                                  <% } %>
+
+                                    <!-- Next -->
+                                    <% if (currentPage < totalpages) { %>
+                                      <li class="page-item">
+                                        <a class="page-link"
+                                          href="?page=<%= currentPage + 1 %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                                          <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                      </li>
+                                      <% } %>
           </ul>
         </nav>
       </div>

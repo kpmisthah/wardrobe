@@ -264,7 +264,8 @@
     }
 
     .page-link {
-      width: 36px;
+      min-width: 36px;
+      padding: 0 12px;
       height: 36px;
       display: flex;
       align-items: center;
@@ -467,23 +468,5 @@
           </table>
         </div>
 
-        <!-- Pagination -->
-        <% if (typeof totalpages !=='undefined' && totalpages> 1) { %>
-          <nav aria-label="Page navigation" class="pagination-container">
-            <ul class="pagination">
-              <% for (let i=1; i <=totalpages; i++) { %>
-                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                  <a class="page-link" href="?page=<%= i %>">
-                    <%= i %>
-                  </a>
-                </li>
-                <% } %>
-            </ul>
-          </nav>
-          <% } %>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.js"></script>
-  <script src="/javascript/category.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.5.0/dist/sweetalert2.min.js"></script>
+        <script src="/javascript/category.js"></script>
