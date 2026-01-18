@@ -13,12 +13,12 @@ const loadCheckout = async (req, res) => {
     let user = req.session.user;
     let userAddress = await Address.findOne({ userId: user });
     const cart = await Cart.findOne({ userId: user }).populate("items.product");
-    console.log("The cart is"+cart);
-    
+    console.log("The cart is" + cart);
+
     const coupon = await Coupon.find();
-    
+
     if (!cart || cart.items.length === 0) {
-      return res.redirect("/cart"); 
+      return res.redirect("/cart");
     }
 
     if (!userAddress) {
@@ -145,27 +145,27 @@ const placeOrder = async (req, res) => {
     const { payment, addressId } = req.body;
     const userId = req.session.user;
     let coupon_code = req.session.coupon;
-    let final_amount = req.session.finalAmount||null;
-    const discount_amount = req.session.discount||0;
+    let final_amount = req.session.finalAmount || null;
+    const discount_amount = req.session.discount || 0;
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-      for (let item of cart.items) {
-        const size = await Size.findOne({ product: item.product, size: item.size });
-        if (size.quantity < item.quantity) {
-          return res.status(400).json({
-            message: `Insufficient stock for ${item.name} in size ${item.size}.only${size.quantity} available`,
-          });
-        }
+    for (let item of cart.items) {
+      const size = await Size.findOne({ product: item.product, size: item.size });
+      if (size.quantity < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for ${item.name} in size ${item.size}.only${size.quantity} available`,
+        });
       }
-  
-      for (let item of cart.items) {
-        const size = await Size.findOne({ product: item.product, size: item.size });
-        size.quantity -= item.quantity;
-        await size.save();
-      }  
+    }
+
+    for (let item of cart.items) {
+      const size = await Size.findOne({ product: item.product, size: item.size });
+      size.quantity -= item.quantity;
+      await size.save();
+    }
     const address = await Address.findOne({ userId, "address._id": addressId });
     if (!address) {
       return res.status(404).json({ message: "Address not found." });
@@ -173,10 +173,10 @@ const placeOrder = async (req, res) => {
     const addressIndex = address.address.findIndex(
       (addr) => addr._id.toString() == addressId
     );
-   
-    
-    console.log("the index of address"+addressIndex);
-    
+
+
+    console.log("the index of address" + addressIndex);
+
     const selectedAddress = address.address[addressIndex];
 
     let orderedItems = [];
@@ -195,7 +195,7 @@ const placeOrder = async (req, res) => {
     }
 
     let totalPrice = cart.bill;
-    if (payment == "COD" &&  final_amount||totalPrice > 1000) {
+    if (payment == "COD" && final_amount || totalPrice > 1000) {
       return res
         .status(400)
         .json({
@@ -242,15 +242,15 @@ const createPendingOrder = async (req, res) => {
   try {
     const { addressId, amount } = req.body;
     const userId = req.session.user;
-    
+
     const cart = await Cart.findOne({ userId });
-    if(!cart || cart.items.length == 0){
-      return res.status(400).json({success:false,message:'cart is empty'})
+    if (!cart || cart.items.length == 0) {
+      return res.status(400).json({ success: false, message: 'cart is empty' })
     }
-    for(let item of cart.items){
-      const size = await Size.findOne({product:item.product,size:item.size})
-      if(size.quantity<item.quantity){
-        return res.status(400).json({success:false ,message: `Insufficient stock for ${item.name} in size ${item.size}.only ${size.quantity} left`})
+    for (let item of cart.items) {
+      const size = await Size.findOne({ product: item.product, size: item.size })
+      if (size.quantity < item.quantity) {
+        return res.status(400).json({ success: false, message: `Insufficient stock for ${item.name} in size ${item.size}.only ${size.quantity} left` })
       }
     }
     const address = await Address.findOne({ userId });
@@ -270,7 +270,7 @@ const createPendingOrder = async (req, res) => {
       price: item.totalPrice,
       couponCode: coupon_code,
       returnStatus: "Not Requested",
-    
+
     }));
 
     const newOrder = new Order({
@@ -298,7 +298,7 @@ const createPendingOrder = async (req, res) => {
     await newOrder.save();
 
     res.json({
-      success:true,
+      success: true,
       status: 200,
       message: "Pending order created",
       mongoOrderId: newOrder._id
@@ -311,22 +311,23 @@ const createPendingOrder = async (req, res) => {
 
 const orderConfirm = async (req, res) => {
   try {
-    const user = req.session.user;
-    const lastOrder = await Order.findOne({ userId: user }).sort({createdAt:-1})
+    const userId = req.session.user;
+    const user = await User.findById(userId);
+    const lastOrder = await Order.findOne({ userId: userId }).sort({ createdAt: -1 })
     if (!lastOrder) {
-      return res.status(404).render('error');
-  }
-    return res.render("user/orderconfirmed", { orderId: lastOrder.orderId});
+      return res.status(404).render('user/pageNotFound');
+    }
+    return res.render("user/orderconfirmed", { orderId: lastOrder.orderId, user: user });
   } catch (error) {
-    console.log("the error for orders is" + orders);
+    console.log("the error for orders is" + error);
   }
 };
 const saveOrder = async (req, res) => {
   try {
     let userId = req.session.user;
-    const { mongoOrderId,addressId, amount } = req.body;
+    const { mongoOrderId, addressId, amount } = req.body;
     const order = await Order.findById(mongoOrderId)
-    
+
     if (!order) {
       throw new Error("Order not found");
     }
@@ -334,24 +335,24 @@ const saveOrder = async (req, res) => {
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Cart is empty" });
     }
-    
 
-      for (let item of cart.items) {
-        const size = await Size.findOne({ product: item.product, size: item.size });
-  
-        if (size.quantity < item.quantity) {
-          return res.status(400).json({
-            message: `Insufficient stock for ${item.name} in size ${item.size} only ${size.quantity} left`,
-          });
-        }
+
+    for (let item of cart.items) {
+      const size = await Size.findOne({ product: item.product, size: item.size });
+
+      if (size.quantity < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for ${item.name} in size ${item.size} only ${size.quantity} left`,
+        });
       }
-      
-  
-      for (let item of cart.items) {
-        const size = await Size.findOne({ product: item.product, size: item.size });
-        size.quantity -= item.quantity;
-        await size.save();
-      }  
+    }
+
+
+    for (let item of cart.items) {
+      const size = await Size.findOne({ product: item.product, size: item.size });
+      size.quantity -= item.quantity;
+      await size.save();
+    }
     order.paymentStatus = 'Success'
     await order.save()
     cart.items = [];
@@ -359,7 +360,7 @@ const saveOrder = async (req, res) => {
     await cart.save()
     delete req.session.coupon;
     delete req.session.finalAmount;
-   
+
     res.json({
       status: 200,
       message: "Order saved successfully",
@@ -373,18 +374,18 @@ const saveOrder = async (req, res) => {
 
 //retrieve order
 const retryPayment = async (req, res) => {
-  
+
   try {
-    const { paymentMethod , amount,originalOrderId} = req.body;
-    
+    const { paymentMethod, amount, originalOrderId } = req.body;
+
     const orders = await Order.findById(originalOrderId)
-  
+
     if (orders.status !== 'Pending' || orders.paymentMethod !== 'razorpay') {
       return res.status(400).json({ success: false, message: 'Invalid order for retry payment.' });
     }
 
     const rzpOrder = await rzp.orders.create({
-      amount: amount* 100,
+      amount: amount * 100,
       currency: "INR",
       receipt: `receipt#${orders._id}`,
       payment_capture: true,
@@ -394,30 +395,32 @@ const retryPayment = async (req, res) => {
       },
     });
 
-    res.json({  razorpayOrderId: rzpOrder.id, razorpayKey: process.env.RAZORPAY_KEY_ID, amount: orders.finalAmount });
+    res.json({ razorpayOrderId: rzpOrder.id, razorpayKey: process.env.RAZORPAY_KEY_ID, amount: orders.finalAmount });
   } catch (error) {
     console.error("Error creating retry payment:", error);
     res.status(500).json({ message: "Failed to create retry payment" });
   }
 };
 
-const completeRetryPayment = async(req,res)=>{
- 
+const completeRetryPayment = async (req, res) => {
+
   try {
-    const{originalOrderId,amount} = req.body
+    const { originalOrderId, amount } = req.body
     const userId = req.session.user
-    const order = await Order.findOneAndUpdate({_id:originalOrderId},{$set:{
-      paymentStatus:'Success'
-    }})
-    
+    const order = await Order.findOneAndUpdate({ _id: originalOrderId }, {
+      $set: {
+        paymentStatus: 'Success'
+      }
+    })
+
     if (!order) {
       throw new Error('Order not found');
     }
-    const cart = await Cart.findOne({userId})
+    const cart = await Cart.findOne({ userId })
     cart.items = [];
     cart.bill = 0;
     await cart.save()
-    res.json({success: true,message: "Payment completed successfully",redirectUrl: `/order-confirmation`});
+    res.json({ success: true, message: "Payment completed successfully", redirectUrl: `/order-confirmation` });
   } catch (error) {
     console.error("Error completing retry payment:", error);
     res.status(500).json({
@@ -426,15 +429,15 @@ const completeRetryPayment = async(req,res)=>{
       error: error.message
     });
   }
-  }
+}
 
 
 // Backend controller for applying coupon
 const applyCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;
-    console.log("teh coupon ocde"+couponCode);
-    
+    console.log("teh coupon ocde" + couponCode);
+
     const userId = req.session.user;
 
     const cart = await Cart.findOne({ userId });
@@ -443,9 +446,9 @@ const applyCoupon = async (req, res) => {
     }
 
 
-    const coupon = await Coupon.findOne({ code: couponCode, startDate: { $lte: new Date() }, endDate: { $gte: new Date() }});
-    console.log("The coupondvsjcknvbdjfslj"+coupon);
-    
+    const coupon = await Coupon.findOne({ code: couponCode, startDate: { $lte: new Date() }, endDate: { $gte: new Date() } });
+    console.log("The coupondvsjcknvbdjfslj" + coupon);
+
     if (!coupon) {
       return res.status(400).json({ message: "Invalid or expired coupon" });
     }
@@ -518,13 +521,13 @@ const removeCoupon = async (req, res) => {
     req.session.finalAmount = cart.bill
     req.session.discount = 0
 
-      // Return the response
-      return res.status(200).json({
-        success: true,
-        originalPrice: cart.bill,
-        message: "Coupon removed successfully, price reverted to original",
-      });
-    
+    // Return the response
+    return res.status(200).json({
+      success: true,
+      originalPrice: cart.bill,
+      message: "Coupon removed successfully, price reverted to original",
+    });
+
   } catch (error) {
     console.error("Error removing coupon:", error);
     return res.status(500).json({
@@ -542,7 +545,7 @@ const generatePdf = async (req, res) => {
     if (!order) {
       return res.status(404).send("Order not found");
     }
-    
+
     if (!order) {
       return res.status(404).send("Order not found");
     }
@@ -598,8 +601,8 @@ const generatePdf = async (req, res) => {
         .fontSize(10)
         .text(item.name, 50, position)
         .text(item.quantity.toString(), 200, position)
-        .text(`₹${(item.price/item.quantity).toFixed(2)}`, 300, position)
-        .text(`₹${( item.price).toFixed(2)}`, 400, position);
+        .text(`₹${(item.price / item.quantity).toFixed(2)}`, 300, position)
+        .text(`₹${(item.price).toFixed(2)}`, 400, position);
       position += 20;
     });
     // Add totals
@@ -618,7 +621,7 @@ const generatePdf = async (req, res) => {
     doc
       .fontSize(12)
       .text("Total:", 300, position)
-      .text(`₹${order.finalAmount?order.finalAmount:order.totalPrice.toFixed(2)}`, 400, position);
+      .text(`₹${order.finalAmount ? order.finalAmount : order.totalPrice.toFixed(2)}`, 400, position);
     // Add payment method
     position += 40;
     doc
