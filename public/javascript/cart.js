@@ -1,6 +1,6 @@
 
-async function addToCart(productId,name,price,stock,size) {
-    if(!size || size == 'Choose an option'){
+async function addToCart(productId, name, price, stock, size) {
+    if (!size || size == 'Choose an option') {
         Swal.fire({
             icon: 'warning',
             title: 'Size Required',
@@ -9,15 +9,15 @@ async function addToCart(productId,name,price,stock,size) {
         return
     }
 
-    const cartItems = {productId,name,price,stock,size}
+    const cartItems = { productId, name, price, stock, size }
     try {
-        const response =await fetch('/add-to-cart',{
-            method:"POST",
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(cartItems)
+        const response = await fetch('/add-to-cart', {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cartItems)
         })
         const responseData = await response.json()
-        if(response.ok){
+        if (response.ok) {
             const updatedCart = await fetch('/cart/count');
             const { count } = await updatedCart.json();
 
@@ -27,21 +27,30 @@ async function addToCart(productId,name,price,stock,size) {
                 title: 'Added to Cart',
                 text: 'Item has been added to your cart successfully!',
                 showConfirmButton: true,
-                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Continue Shopping',
+                showCancelButton: true,
+                cancelButtonText: 'Go to Cart',
+                cancelButtonColor: '#3085d6',
+                confirmButtonColor: '#28a745',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = '/cart';
+                }
             });
-        }else if (responseData.message == `Not enough stock.`){
+        } else if (responseData.message == `Not enough stock.`) {
             Swal.fire({
                 icon: 'error',
                 title: 'Insufficient Stock',
                 text: `Not enough stock left. Only ${responseData.stockLeft} items available.`,
             });
-        }else if(responseData.message == `Cannot add more than 10 units per person.`){
+        } else if (responseData.message == `Cannot add more than 10 units per person.`) {
             Swal.fire({
-                icon:'error',
-                title:`Not Permitted`,
-                text:`Only add 10 units for a product`
+                icon: 'error',
+                title: `Not Permitted`,
+                text: `Only add 10 units for a product`
             })
-        }else{
+        } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Failed to Add',
