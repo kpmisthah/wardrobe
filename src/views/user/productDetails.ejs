@@ -1,4 +1,4 @@
-<%-include('../../views/partials/userPartials/header')%>
+<%- include('../../views/partials/userPartials/header') %>
   <style>
     .flex-container {
       display: flex;
@@ -126,13 +126,18 @@
                   <div class="size-203 flex-c-m respon6">Size</div>
                   <div class="size-204 respon6-next">
                     <div class="rs1-select2 bor8 bg0">
-                      <select class="js-select2" name="time">
+                      <!-- Removed js-select2 class to use standard browser dropdown if plugin is missing/broken -->
+                      <select class="form-control" name="time" style="height: 45px; border: none;">
                         <option>Choose an option</option>
-                        <% value.sizeOptions.forEach(option=> { %>
-                          <option>
-                            <%= option.size %>
-                          </option>
-                          <% }) %>
+                        <% if(value.sizeOptions && value.sizeOptions.length> 0) { %>
+                          <% value.sizeOptions.forEach(option=> { %>
+                            <option value="<%= option.size %>">
+                              <%= option.size %>
+                            </option>
+                            <% }) %>
+                              <% } else { %>
+                                <option disabled>No sizes available</option>
+                                <% } %>
                       </select>
                       <div class="dropDownSelect2"></div>
                     </div>
@@ -153,11 +158,12 @@
                     <div class="flex-container">
                       <button
                         class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail"
-                        onclick="addToCart('<%= value._id %>', '<%= value.name %>', '<%= value.salePrice %>', document.querySelector('.num-product').value, document.querySelector('.js-select2').value)">
-                        Go to cart
+                        data-id="<%= value._id %>" data-name="<%= value.name %>" data-price="<%= value.salePrice %>"
+                        onclick="handleAddToCart(this)">
+                        Add to cart
                       </button>
                       <button class="btn-like"
-                        onclick="likeProduct('<%= value._id %>', document.querySelector('.js-select2').value, document.querySelector('.num-product').value)">
+                        onclick="likeProduct('<%= value._id %>', document.getElementsByName('time')[0].value, document.querySelector('.num-product').value)">
                         <i class="fa fa-heart"></i> Like
                       </button>
                     </div>
@@ -279,4 +285,56 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="/javascript/cart.js"></script>
-  <%-include('../../views/partials/userPartials/footer')%>
+  <script>
+    function handleAddToCart(btn) {
+      console.log("Add to cart clicked");
+      try {
+        const productId = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        const price = btn.getAttribute('data-price');
+
+        // Find quantity input relative to the button or globally
+        // Using closest wrapper to be safe if there are multiple products
+        const wrapper = btn.closest('.col-md-6') || document;
+        const countInput = wrapper.querySelector('.num-product') || document.querySelector('.num-product');
+        const sizeInput = wrapper.querySelector('select[name="time"]') || document.getElementsByName('time')[0];
+
+        if (!countInput) {
+          console.error("Quantity input not found");
+          return;
+        }
+        if (!sizeInput) {
+          console.error("Size input not found");
+          return;
+        }
+
+        const quantity = countInput.value;
+        const size = sizeInput.value;
+
+        console.log(`Adding: ${name}, Price: ${price}, Qty: ${quantity}, Size: ${size}`);
+
+        // Call the original function
+        // Note: cart.js defines it as: addToCart(productId, name, price, stock, size)
+        // We pass 'quantity' as 'stock' because that's what the function expects as 4th arg
+        if (typeof addToCart === 'function') {
+          addToCart(productId, name, price, quantity, size);
+        } else {
+          console.error("addToCart function is missing!");
+          Swal.fire('Error', 'Cart function missing. Please refresh.', 'error');
+        }
+
+      } catch (e) {
+        console.error("Error in handleAddToCart:", e);
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong. Please refresh and try again.'
+          });
+        } else {
+          alert("Something went wrong. Please refresh.");
+        }
+      }
+    }
+  </script>
+  <%- include('../../views/partials/userPartials/footer') %>
