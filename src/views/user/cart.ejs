@@ -379,7 +379,11 @@
 
             if (response.ok) {
               if (result.valid) {
-                window.location.href = "/checkout";
+                 if (window.spaNavigate) {
+                     window.spaNavigate("/checkout");
+                 } else {
+                     window.location.href = "/checkout";
+                 }
               } else {
                 let message = 'The following items have insufficient stock:\n\n';
                 result.invalidItems.forEach(item => {
@@ -498,11 +502,11 @@
               const quantityCell = currentRow.querySelector(".column-4");
 
               quantityInput.value = data.newQuantity;
-              quantityCell.textContent = data.newQuantity;
+              // quantityCell.textContent = data.newQuantity; // REMOVED: This deletes the + - buttons
               totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
               updateCartTotals(data.newCartTotal);
               incrementButton.dataset.quantity = data.newQuantity;
-              CartHandler.dispatchCartUpdate(data.cartCount); // Add this line
+              CartHandler.dispatchCartUpdate(data.cartCount);
               updateCartTotals(data.newCartTotal);
             } else {
               // If increment fails due to stock limit
@@ -551,15 +555,14 @@
               const quantityCell = currentRow.querySelector(".column-4");
 
               quantityInput.value = data.newQuantity;
-              quantityCell.textContent = data.newQuantity;
+              // quantityCell.textContent = data.newQuantity; // REMOVED: This deletes the + - buttons
               totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
               updateCartTotals(data.newCartTotal);
 
               const incrementButton = currentRow.querySelector('.btn-num-product-up');
               incrementButton.dataset.quantity = data.newQuantity;
-              CartHandler.dispatchCartUpdate(data.cartCount); // Add this line
+              CartHandler.dispatchCartUpdate(data.cartCount);
               updateCartTotals(data.newCartTotal);
-              // } else {
               //   Swal.fire({ icon: "error",title: "Error", text: "cannot" });
             }
           } catch (error) {
