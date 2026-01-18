@@ -360,10 +360,51 @@
 
 
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         function validateAndSubmit() {
             if (validateForm()) {
-                document.forms[0].submit();
+                // Show loading state
+                const submitBtn = document.querySelector('.btn-submit');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+                submitBtn.disabled = true;
+
+                // Submit form using fetch to handle response
+                const formData = new FormData(document.forms[0]);
+
+                fetch('/admin/addProducts', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (response.redirected) {
+                            return Swal.fire({
+                                icon: 'success',
+                                title: 'Product Added Successfully!',
+                                text: 'The product has been published.',
+                                showConfirmButton: true,
+                                confirmButtonColor: '#1a1a1a'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = response.url;
+                                }
+                            });
+                        } else {
+                            return response.text().then(text => { throw new Error(text || 'Server Error') })
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Something went wrong! ' + error.message,
+                        });
+                        // Reset button
+                        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Publish Product';
+                        submitBtn.disabled = false;
+                    });
             }
         }
 
@@ -489,16 +530,16 @@
             if (name.trim() === "") {
                 displayErrorMessage('productName-error', 'Please enter a product name.');
                 isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
-                displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
+            } else if (!/^[a-zA-Z0-9\s\-\'\,\.]+$/.test(name.trim())) {
+                displayErrorMessage('productName-error', 'Product name should contain alphabetic characters, numbers, and common punctuation.');
                 isValid = false;
             }
 
             if (description.trim() === "") {
                 displayErrorMessage('description-error', 'Please enter a product description.');
                 isValid = false;
-            } else if (!/^[a-zA-Z\s]+$/.test(description.trim())) {
-                displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
+            } else if (!/^[a-zA-Z0-9\s\-\'\,\.\%\!\&]+$/.test(description.trim())) {
+                displayErrorMessage('description-error', 'Product description should contain alphabetic characters, numbers, and common punctuation.');
                 isValid = false;
             }
             if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
