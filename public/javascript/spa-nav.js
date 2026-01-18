@@ -193,21 +193,10 @@
         // Target Main Menu Links
         const navLinks = '.main-menu a, .logo a, .logo-mobile a';
 
-        $(document).on('click', navLinks, function (e) {
-            const href = $(this).attr('href');
-
-            // Ignore logic
-            if (!href || href.startsWith('#') || href.startsWith('javascript') || href.includes('logout')) return;
-
-            // Allow ctrl+click
-            if (e.metaKey || e.ctrlKey) return;
-
-            e.preventDefault();
-
+        // Expose Navigation Logic
+        window.spaNavigate = function (href) {
             // Visual feedback (Loader)
-            // If there's a loader overlay, show it. Or just opacity.
-            // $('body').css('opacity', '0.6'); // REMOVED to prevent white wash effect
-            $('.animsition-loading-1').show(); // Try to show loader
+            $('.animsition-loading-1').show();
 
             fetch(href)
                 .then(response => response.text())
@@ -222,6 +211,21 @@
                     if (newContent && oldContent) {
                         // Replace content
                         oldContent.innerHTML = newContent.innerHTML;
+
+                        // Execute Scripts in the new content
+                        const scripts = newContent.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            // Copy attributes
+                            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                            // Copy content
+                            newScript.textContent = oldScript.textContent;
+                            // Append to body to execute
+                            document.body.appendChild(newScript);
+                            // Optional: Remove after execution to keep DOM clean, or leave it. 
+                            // Usually leaving it is fine or removing it immediately.
+                            // document.body.removeChild(newScript); 
+                        });
 
                         // Update title
                         document.title = doc.title;
@@ -242,15 +246,13 @@
                             $('#loader').fadeOut();
                         }, 100);
 
-                        // Update Active State in Navbar (Men/Women/Shop)
+                        // Update Active State in Navbar
                         $('.main-menu li').removeClass('active-menu');
-                        // Simple check: match href
                         $('.main-menu a').each(function () {
                             if ($(this).attr('href') === href) {
                                 $(this).parent().addClass('active-menu');
                             }
                         });
-
 
                     } else {
                         // Fallback if id not found
@@ -261,6 +263,19 @@
                     console.log('Nav Error:', err);
                     window.location.href = href;
                 });
+        };
+
+        $(document).on('click', navLinks, function (e) {
+            const href = $(this).attr('href');
+
+            // Ignore logic
+            if (!href || href === '#' || href.startsWith('javascript') || href.includes('logout')) return;
+
+            // Allow ctrl+click
+            if (e.metaKey || e.ctrlKey) return;
+
+            e.preventDefault();
+            window.spaNavigate(href);
         });
 
         window.addEventListener('popstate', function () {
