@@ -1,102 +1,355 @@
-<%-include('../../views/partials/userPartials/header')%>
-    <title>Manage Addresses</title>
-    <link rel="stylesheet" href="/css/myaccount.css" />
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar Navigation -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-                <div class="position-sticky pt-3" style="top: 85px;">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/myaccount">
-                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/orders">
-                                <i class="fas fa-shopping-bag me-2"></i> Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/updateProfile">
-                                <i class="fas fa-user-edit me-2"></i> Update Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wallet">
-                                <i class="fas fa-wallet me-2"></i> Wallet
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wishlist">
-                                <i class="fas fa-heart me-2"></i> Wishlist
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/getAddress">
-                                <i class="fas fa-map-marker-alt me-2"></i> My Address
-                            </a>
-                        </li>
-                        <li class="nav-item mt-5">
-                            <a class="nav-link text-danger" href="/logout">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+<%- include('../partials/userPartials/header') %>
+    <title>Manage Addresses | Luxe Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f8f9fa;
+            --accent-color: #3b82f6;
+            --danger-color: #ef4444;
+            --text-color: #374151;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            z-index: 90;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .nav-link.text-danger:hover {
+            background-color: #fef2f2;
+            color: var(--danger-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .btn-add {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-add:hover {
+            background: #333;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Address Grid */
+        .address-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .address-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .address-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card-header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .addr-name {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--primary-color);
+        }
+
+        .addr-tag {
+            background: #eff6ff;
+            color: #3b82f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .addr-text {
+            color: var(--text-color);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            font-size: 0.95rem;
+        }
+
+        .addr-actions {
+            display: flex;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-edit {
+            background: white;
+            border-color: var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .btn-edit:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: var(--danger-color);
+            border-color: #fee2e2;
+        }
+
+        .btn-delete:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                margin-bottom: 1rem;
+            }
+
+            .nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .address-card {
+                min-height: auto;
+            }
+        }
+    </style>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="nav flex-column" style="list-style: none; padding: 0;">
+                <li class="nav-item">
+                    <a class="nav-link" href="/myaccount">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/updateProfile">
+                        <i class="fas fa-user-edit"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">
+                        <i class="fas fa-wallet"></i> Wallet
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/getAddress">
+                        <i class="fas fa-map-marker-alt"></i> Addresses
+                    </a>
+                </li>
+                <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <a class="nav-link text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Manage Addresses</h1>
+                <a href="/add-address" class="btn-add">
+                    <i class="fas fa-plus"></i> Add New Address
+                </a>
             </div>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Manage Addresses</h1>
-                    <a href="/add-address" class="btn btn-primary-custom"><i class="fas fa-plus me-2"></i>Add New
-                        Address</a>
-                </div>
-
-                <div class="row">
-                    <% if (address && address.length> 0) { %> <% address.forEach((addr)=> { %>
-                            <div class="col-md-6 col-lg-4 mb-4">
-                                <div class="card shadow-sm h-100 border-0">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <h5 class="card-title fw-bold">
-                                                <%= addr.name %>
-                                            </h5>
-                                            <span class="badge bg-light text-dark border">Home</span>
-                                        </div>
-                                        <p class="card-text text-muted small mb-3">
-                                            <%= addr.houseNumber %>, <%= addr.city %><br />
-                                                    <%= addr.district %>, <%= addr.state %><br />
-                                                            Ph: <%= addr.phone %>
-                                        </p>
-                                        <div class="d-flex gap-2">
-                                            <a href="/edit/<%= addr._id %>"
-                                                class="btn btn-sm btn-outline-primary flex-grow-1">
-                                                <i class="fas fa-edit me-1"></i>Edit
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-danger flex-grow-1"
-                                                onclick="deleteAddress('<%= addr._id %>', event)">
-                                                <i class="fas fa-trash-alt me-1"></i>Delete
-                                            </button>
-                                        </div>
-                                    </div>
+            <div class="address-grid">
+                <% if (address && address.length> 0) { %>
+                    <% address.forEach((addr)=> { %>
+                        <div class="address-card">
+                            <div class="card-header-inner">
+                                <div class="addr-name">
+                                    <%= addr.name %>
                                 </div>
+                                <span class="addr-tag">Home</span>
                             </div>
-                            <% }) %>
-                                <% } else { %>
-                                    <div class="col-12 text-center mt-5">
-                                        <h4 class="text-muted">No addresses found</h4>
-                                        <p class="text-muted">Add a shipping address to speed up checkout.</p>
-                                    </div>
-                                    <% } %>
-                </div>
-            </main>
-        </div>
+                            <div class="addr-text">
+                                <%= addr.houseNumber %>, <%= addr.city %><br />
+                                        <%= addr.district %>, <%= addr.state %><br />
+                                                <div style="margin-top: 0.5rem; color: var(--text-muted);">
+                                                    <i class="fas fa-phone-alt me-2" style="font-size: 0.8rem;"></i>
+                                                    <%= addr.phone %>
+                                                </div>
+                            </div>
+                            <div class="addr-actions">
+                                <a href="/edit/<%= addr._id %>" class="btn-action btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button onclick="deleteAddress('<%= addr._id %>', event)" class="btn-action btn-delete">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <div
+                                    style="grid-column: 1 / -1; text-align: center; padding: 5rem 0; background: white; border-radius: var(--radius); border: 1px solid var(--border-color);">
+                                    <i class="fas fa-map-marker-alt"
+                                        style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1.5rem;"></i>
+                                    <h3 style="font-weight: 700; color: var(--primary-color);">No addresses found</h3>
+                                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Add a shipping address to
+                                        speed up checkout.</p>
+                                </div>
+                                <% } %>
+            </div>
+        </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/javascript/deleteAddress.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <%-include('../../views/partials/userPartials/footer')%>
+    <%- include('../partials/userPartials/footer') %>
