@@ -1,187 +1,477 @@
 <%- include('../partials/userPartials/header') %>
-  <link rel="stylesheet" href="/css/myaccount.css" />
+  <title>My Orders | Luxe Store</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+  <style>
+    :root {
+      --primary-color: #1a1a1a;
+      --secondary-color: #f8f9fa;
+      --accent-color: #3b82f6;
+      --danger-color: #ef4444;
+      --text-color: #374151;
+      --text-muted: #9ca3af;
+      --border-color: #e5e7eb;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
 
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
 
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar Navigation -->
-      <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-        <div class="position-sticky pt-3" style="top: 85px;">
-          <div class="text-center mb-4 d-md-none">
-            <h2 class="logo-text">Wardrobe</h2>
-          </div>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="/myaccount">
-                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="/orders">
-                <i class="fas fa-shopping-bag me-2"></i> Orders
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/updateProfile">
-                <i class="fas fa-user-edit me-2"></i> Update Profile
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wallet">
-                <i class="fas fa-wallet me-2"></i> Wallet
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wishlist">
-                <i class="fas fa-heart me-2"></i> Wishlist
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/getAddress">
-                <i class="fas fa-map-marker-alt me-2"></i> My Address
-              </a>
-            </li>
-            <li class="nav-item mt-5">
-              <a class="nav-link text-danger" href="/logout">
-                <i class="fas fa-sign-out-alt me-2"></i> Logout
-              </a>
-            </li>
-          </ul>
-        </div>
+    .dashboard-container {
+      display: flex;
+      min-height: calc(100vh - 80px);
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+      gap: 2rem;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+      border: 1px solid var(--border-color);
+      z-index: 90;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.875rem 1rem;
+      color: var(--text-color);
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      transform: translateX(4px);
+    }
+
+    .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .nav-link i {
+      width: 24px;
+      margin-right: 0.75rem;
+      text-align: center;
+    }
+
+    .nav-link.text-danger:hover {
+      background-color: #fef2f2;
+      color: var(--danger-color);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    /* Order Card Style */
+    .order-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .order-card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .order-header {
+      padding: 1.25rem 1.5rem;
+      background: #f9fafb;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .order-id {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .order-date {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .order-body {
+      padding: 1.5rem;
+    }
+
+    .order-preview-grid {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .preview-img-wrapper {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .preview-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .more-items-badge {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .order-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .detail-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-group p {
+      margin: 0;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .price-tag {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .status-badge {
+      padding: 0.35rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .status-badge.placed,
+    .status-badge.pending {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    /* Blue */
+    .status-badge.shipped {
+      background: #fdf4ff;
+      color: #d946ef;
+    }
+
+    /* Purple */
+    .status-badge.delivered {
+      background: #ecfdf5;
+      color: #10b981;
+    }
+
+    /* Green */
+    .status-badge.cancelled,
+    .status-badge.returned {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    /* Red */
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .btn-custom {
+      padding: 0.6rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-outline {
+      background: white;
+      border-color: var(--border-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .btn-retry {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-retry:hover {
+      background: #059669;
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        margin-bottom: 1rem;
+      }
+
+      .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .nav-item {
+        flex-shrink: 0;
+      }
+
+      .order-details-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .actions {
+        justify-content: flex-start;
+        margin-top: 1rem;
+      }
+    }
+  </style>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <ul class="nav flex-column" style="list-style: none; padding: 0;">
+        <li class="nav-item">
+          <a class="nav-link" href="/myaccount">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/orders">
+            <i class="fas fa-shopping-bag"></i> Orders
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/updateProfile">
+            <i class="fas fa-user-edit"></i> Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wallet">
+            <i class="fas fa-wallet"></i> Wallet
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wishlist">
+            <i class="fas fa-heart"></i> Wishlist
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/getAddress">
+            <i class="fas fa-map-marker-alt"></i> Addresses
+          </a>
+        </li>
+        <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+          <a class="nav-link text-danger" href="/logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">My Orders</h1>
+        <span class="text-muted">
+          <%= orders ? orders.length : 0 %> Orders found
+        </span>
       </div>
 
-      <!-- Main Content -->
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
-          <h1 class="h2 fw-bold">My Orders</h1>
-          <span class="text-muted">
-            <%= orders ? orders.length : 0 %> Orders found
-          </span>
-        </div>
-
-        <% if (orders && orders.length> 0) { %>
-          <div class="row">
-            <% orders.forEach((order)=> { %>
-              <div class="col-12">
-                <div class="order-card">
-                  <!-- Card Header -->
-                  <div class="order-header">
-                    <div class="d-flex align-items-center">
-                      <div class="me-3">
-                        <div class="p-2 bg-light rounded-circle text-center" style="width: 45px; height: 45px;">
-                          <i class="fas fa-box-open text-secondary fs-5 mt-1"></i>
-                        </div>
-                      </div>
-                      <div>
-                        <div class="order-id-label">Order ID</div>
-                        <div class="order-id-value">#<%= order.orderId %>
-                        </div>
-                      </div>
-                    </div>
-                    <span class="status-badge-lg bg-status-<%= order.status.toLowerCase() %>">
-                      <%= order.status %>
-                    </span>
+      <% if (orders && orders.length> 0) { %>
+        <div class="orders-list">
+          <% orders.forEach((order)=> { %>
+            <div class="order-card">
+              <div class="order-header">
+                <div>
+                  <div class="order-id">Order #<%= order.orderId %>
                   </div>
-
-                  <!-- Card Body -->
-                  <div class="order-content">
-                    <div class="row align-items-center">
-                      <!-- Order Date -->
-                      <div class="col-md-3 mb-3 mb-md-0">
-                        <div class="info-group">
-                          <span class="info-label">Order Date</span>
-                          <span class="info-value">
-                            <%= new Date(order.invoiceDate).toLocaleDateString('en-IN', { day: 'numeric' , month: 'long'
-                              , year: 'numeric' }) %>
-                          </span>
-                        </div>
+                  <div class="order-date">Placed on <%= new Date(order.invoiceDate).toLocaleDateString('en-IN', {
+                      day: 'numeric' , month: 'long' , year: 'numeric' }) %>
+                  </div>
+                </div>
+                <span class="status-badge <%= order.status.toLowerCase() %>">
+                  <%= order.status %>
+                </span>
+              </div>
+              <div class="order-body">
+                <!-- Product Images Preview -->
+                <div class="order-preview-grid">
+                  <% order.orderedItems.slice(0, 4).forEach(item=> { %>
+                    <% if (item.product && item.product.productImage && item.product.productImage.length> 0) { %>
+                      <div class="preview-img-wrapper">
+                        <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
+                          alt="<%= item.product.name %>" title="<%= item.product.name %>">
                       </div>
+                      <% } %>
+                        <% }) %>
 
-                      <!-- Total Amount -->
-                      <div class="col-md-3 mb-3 mb-md-0">
-                        <div class="info-group">
-                          <span class="info-label">Total Amount</span>
-                          <span class="price-value">₹<%= order.finalAmount || order.totalPrice %></span>
-                        </div>
-                      </div>
-
-                      <!-- Item Preview (Images) -->
-                      <div class="col-md-3 mb-3 mb-md-0">
-                        <div class="info-group">
-                          <span class="info-label mb-2">Items (<%= order.orderedItems.length %>)</span>
-                          <div class="product-preview">
-                            <% order.orderedItems.slice(0, 3).forEach(item=> { %>
-                              <% if (item.product && item.product.productImage && item.product.productImage.length> 0) {
-                                %>
-                                <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
-                                  class="preview-img" alt="Product" title="<%= item.product.name %>">
-                                <% } else { %>
-                                  <div
-                                    class="preview-img bg-light d-flex align-items-center justify-content-center text-muted small">
-                                    <i class="fas fa-image"></i>
-                                  </div>
-                                  <% } %>
-                                    <% }) %>
-                                      <% if (order.orderedItems.length> 3) { %>
-                                        <div
-                                          class="preview-img bg-light d-flex align-items-center justify-content-center text-secondary fw-bold small">
-                                          +<%= order.orderedItems.length - 3 %>
-                                        </div>
-                                        <% } %>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Actions -->
-                      <div class="col-md-3 text-md-end">
-                        <div class="action-area justify-content-md-end">
-                          <% if (order.paymentStatus==='Pending' && order.paymentMethod==='razorpay' && order.status
-                            !=='Delivered' && order.status !=='Canceled' ) { %>
-                            <button class="btn btn-retry btn-success text-white border-0 shadow-sm"
-                              onclick="retryPayment('<%= order.paymentMethod %>', '<%= order.finalAmount || order.totalPrice %>', '<%= order._id %>')">
-                              <i class="fas fa-redo-alt me-2"></i>Retry
-                            </button>
+                          <% if (order.orderedItems.length> 4) { %>
+                            <div class="more-items-badge">
+                              +<%= order.orderedItems.length - 4 %>
+                            </div>
                             <% } %>
-                              <a href="/user/view-order/<%= order._id %>" class="btn btn-view-details">
-                                View Details
-                              </a>
-                        </div>
-                      </div>
-                    </div>
+                </div>
+
+                <!-- Details and Actions -->
+                <div class="order-details-grid">
+                  <div class="detail-group">
+                    <label>Total Amount</label>
+                    <p class="price-tag">₹<%= order.finalAmount || order.totalPrice %>
+                    </p>
+                  </div>
+                  <div class="detail-group">
+                    <label>Items</label>
+                    <p>
+                      <%= order.orderedItems.length %> Product(s)
+                    </p>
+                  </div>
+                  <div class="actions">
+                    <% if (order.paymentStatus==='Pending' && order.paymentMethod==='razorpay' && order.status
+                      !=='Delivered' && order.status !=='Canceled' ) { %>
+                      <button class="btn-custom btn-retry"
+                        onclick="retryPayment('<%= order.paymentMethod %>', '<%= order.finalAmount || order.totalPrice %>', '<%= order._id %>')">
+                        <i class="fas fa-redo-alt"></i> Retry Payment
+                      </button>
+                      <% } %>
+                        <a href="/user/view-order/<%= order._id %>" class="btn-custom btn-outline">
+                          View Details <i class="fas fa-arrow-right"></i>
+                        </a>
                   </div>
                 </div>
               </div>
-              <% }) %>
-          </div>
+            </div>
+            <% }) %>
+        </div>
 
-          <!-- Pagination -->
-          <% if (totalpages> 1) { %>
-            <nav aria-label="Page navigation" class="mt-5 mb-5">
-              <ul class="pagination justify-content-center">
-                <% for (let i=1; i <=totalpages; i++) { %>
-                  <li class="page-item <%= page === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>">
-                      <%= i %>
-                    </a>
-                  </li>
-                  <% } %>
-              </ul>
-            </nav>
-            <% } %>
-
-              <% } else { %>
-                <div class="text-center py-5">
-                  <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-2130356-1800917.png"
-                    alt="No Orders" style="max-width: 250px; opacity: 0.8;">
-                  <h3 class="mt-4 fw-bold text-secondary">No orders yet</h3>
-                  <p class="text-muted fs-5">Looks like you haven't placed any orders yet.</p>
-                  <a href="/shop" class="btn btn-dark btn-lg mt-3 px-5 py-3 rounded-pill shadow-sm">Start Shopping</a>
-                </div>
+        <!-- Pagination -->
+        <% if (totalpages> 1) { %>
+          <nav aria-label="Page navigation" class="mt-5 mb-5">
+            <ul class="pagination justify-content-center">
+              <% for (let i=1; i <=totalpages; i++) { %>
+                <li class="page-item <%= page === i ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>" style="color: var(--primary-color);">
+                    <%= i %>
+                  </a>
+                </li>
                 <% } %>
+            </ul>
+          </nav>
+          <% } %>
 
-      </main>
-    </div>
+            <% } else { %>
+              <div class="empty-state"
+                style="text-align: center; padding: 5rem 0; background: white; border-radius: var(--radius); border: 1px solid var(--border-color);">
+                <i class="fas fa-shopping-bag" style="font-size: 4rem; color: #e5e7eb; margin-bottom: 1.5rem;"></i>
+                <h3 style="font-weight: 700; color: var(--primary-color);">No orders yet</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't placed any orders yet.
+                </p>
+                <a href="/shop"
+                  style="background: var(--primary-color); color: white; padding: 0.875rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600;">Start
+                  Shopping</a>
+              </div>
+              <% } %>
+    </main>
   </div>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
