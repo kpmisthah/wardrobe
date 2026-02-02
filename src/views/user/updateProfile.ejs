@@ -1,120 +1,338 @@
-<%-include('../../views/partials/userPartials/header')%>
-    <title>Update Profile</title>
-    <link rel="stylesheet" href="/css/myaccount.css" />
+<%- include('../partials/userPartials/header') %>
+    <title>Update Profile | Luxe Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f8f9fa;
+            --accent-color: #3b82f6;
+            --danger-color: #ef4444;
+            --text-color: #374151;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            z-index: 90;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .nav-link.text-danger:hover {
+            background-color: #fef2f2;
+            color: var(--danger-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            padding: 2.5rem;
+            max-width: 600px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group .btn {
+            border-color: var(--border-color);
+            z-index: 0;
+        }
+
+        .input-group .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-submit {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            border: none;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        /* Loader */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--secondary-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                margin-bottom: 1rem;
+            }
+
+            .nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+
     <!-- Loader -->
     <div id="loader" class="loader-container" style="display: none;">
         <div class="spinner"></div>
     </div>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <!-- Sidebar Navigation -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-                <div class="position-sticky pt-3" style="top: 85px;">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/myaccount">
-                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/orders">
-                                <i class="fas fa-shopping-bag me-2"></i> Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/updateProfile">
-                                <i class="fas fa-user-edit me-2"></i> Update Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wallet">
-                                <i class="fas fa-wallet me-2"></i> Wallet
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wishlist">
-                                <i class="fas fa-heart me-2"></i> Wishlist
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/getAddress">
-                                <i class="fas fa-map-marker-alt me-2"></i> My Address
-                            </a>
-                        </li>
-                        <li class="nav-item mt-5">
-                            <a class="nav-link text-danger" href="/logout">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="nav flex-column" style="list-style: none; padding: 0;">
+                <li class="nav-item">
+                    <a class="nav-link" href="/myaccount">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/updateProfile">
+                        <i class="fas fa-user-edit"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">
+                        <i class="fas fa-wallet"></i> Wallet
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/getAddress">
+                        <i class="fas fa-map-marker-alt"></i> Addresses
+                    </a>
+                </li>
+                <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <a class="nav-link text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Security Settings</h1>
             </div>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Update Profile</h1>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-8 col-lg-6">
-                        <div class="card shadow-md">
-                            <div class="card-body p-4">
-                                <form id="updateProfile" onsubmit="updateProfile(event)">
-                                    <div class="mb-4">
-                                        <label for="oldPassword" class="form-label text-muted">Old Password</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control form-control-lg" id="oldPassword"
-                                                placeholder="Enter old password">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                onclick="togglePassword('oldPassword', this)">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </div>
-                                        <div id="error0" class="text-danger mt-1 small"></div>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="password" class="form-label text-muted">New Password</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control form-control-lg" id="password"
-                                                placeholder="Enter new password">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                onclick="togglePassword('password', this)">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </div>
-                                        <div id="error1" class="text-danger mt-1 small"></div>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="confirmPassword" class="form-label text-muted">Confirm New
-                                            Password</label>
-                                        <div class="input-group">
-                                            <input type="password" class="form-control form-control-lg"
-                                                id="confirmPassword" placeholder="Confirm new password">
-                                            <button class="btn btn-outline-secondary" type="button"
-                                                onclick="togglePassword('confirmPassword', this)">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                        </div>
-                                        <div id="error2" class="text-danger mt-1 small"></div>
-                                        <input type="hidden" name="email" value="<%=userData.email%>">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary-custom px-4 py-2 w-100">
-                                        Save Changes
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="form-card">
+                        <h4 style="margin-bottom: 1.5rem; font-weight: 600;">Change Password</h4>
+                        <form id="updateProfile" onsubmit="updateProfile(event)">
+                            <div class="mb-4">
+                                <label for="oldPassword" class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="oldPassword"
+                                        placeholder="Enter current password">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('oldPassword', this)">
+                                        <i class="fa fa-eye"></i>
                                     </button>
-                                </form>
+                                </div>
+                                <div id="error0" class="text-danger mt-1 small"></div>
                             </div>
-                        </div>
+
+                            <div class="mb-4">
+                                <label for="password" class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password"
+                                        placeholder="Enter new password">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('password', this)">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="error1" class="text-danger mt-1 small"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirmPassword"
+                                        placeholder="Confirm new password">
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePassword('confirmPassword', this)">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="error2" class="text-danger mt-1 small"></div>
+                                <input type="hidden" name="email" value="<%=userData.email%>">
+                            </div>
+
+                            <button type="submit" class="btn-submit">
+                                Save Changes
+                            </button>
+                        </form>
                     </div>
                 </div>
-
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/javascript/updateProfile.js"></script>
-    <%-include('../../views/partials/userPartials/footer')%>
+    <%- include('../partials/userPartials/footer') %>
