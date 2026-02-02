@@ -1,10 +1,49 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Only run this logic if we are in the user dashboard context
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('.main-content');
 
     // Only proceed if sidebar actually exists (dashboard pages)
     if (!sidebar || !mainContent) return;
+
+    // Helper: Execute scripts in the new content
+    function executeScripts(container) {
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(script => {
+            const newScript = document.createElement('script');
+
+            // Copy attributes (src, type, etc.)
+            Array.from(script.attributes).forEach(attr => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+
+            // Copy content
+            newScript.textContent = script.textContent;
+
+            // Insert and run
+            script.parentNode.replaceChild(newScript, script);
+        });
+    }
+
+    // Helper: Inject styles from the new page
+    function injectStyles(doc) {
+        // Handle inline <style> tags
+        const styles = doc.querySelectorAll('style');
+        styles.forEach(style => {
+            // Append new styles. We do NOT clear old ones to preserve structure.
+            document.head.appendChild(style.cloneNode(true));
+        });
+
+        // Handle <link> stylesheet tags
+        const links = doc.querySelectorAll('link[rel="stylesheet"]');
+        links.forEach(link => {
+            if (!document.querySelector(`link[href="${link.getAttribute('href')}"]`)) {
+                const newLink = document.createElement('link');
+                newLink.rel = 'stylesheet';
+                newLink.href = link.getAttribute('href');
+                document.head.appendChild(newLink);
+            }
+        });
+    }
 
     // Handle Sidebar Links
     sidebar.addEventListener('click', function (e) {
@@ -23,64 +62,62 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
         link.classList.add('active');
 
-        // Show loading state
-        mainContent.style.opacity = '0.5';
-        mainContent.style.pointerEvents = 'none';
+        // Show loading state with smooth transition
+        mainContent.style.opacity = '0';
+        mainContent.style.transform = 'translateY(10px)';
+        mainContent.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
 
         // Fetch new content
-        fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                // Parse the response
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+        setTimeout(() => {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
 
-                // Get the new main content
-                const newContent = doc.querySelector('.main-content');
+                    // 1. Get new main content
+                    const newContent = doc.querySelector('.main-content');
 
-                if (newContent) {
-                    mainContent.innerHTML = newContent.innerHTML;
+                    if (newContent) {
+                        // 2. Inject Styles (Critical for the UI fix)
+                        injectStyles(doc);
 
-                    // Update URL history
-                    window.history.pushState({ path: url }, '', url);
+                        // 3. Update DOM
+                        mainContent.innerHTML = newContent.innerHTML;
 
-                    // Update Page Title
-                    document.title = doc.title;
+                        // 4. Update Page Title
+                        document.title = doc.title;
 
-                    // Re-initialize specific scripts if needed
-                    // (Note: inline scripts in the fetched HTML won't run automatically via innerHTML)
+                        // 5. Update URL history
+                        window.history.pushState({ path: url }, '', url);
 
-                    // Important: If there are page-specific scripts (like Order View, Wallet), we might need to manually trigger them.
-                    // For now, let's assume standard CSS/Bootstrap handles most things.
+                        // 6. Execute Scripts (Critical for functionality)
+                        executeScripts(mainContent);
 
-                    // Check if new content has scripts that need running?
-                    const scripts = doc.querySelectorAll('script');
-                    scripts.forEach(script => {
-                        // Only run scripts that are page specific and likely found in the body/content
-                        // This is risky, so we'll be minimal.
-                        // Ideally checking for specific IDs to re-init.
-                    });
-
-                } else {
-                    console.error('Could not find .main-content in fetched page');
-                    // Fallback to full reload if something is wrong
-                    window.location.href = url;
-                }
-            })
-            .catch(err => {
-                console.error('Navigation error:', err);
-                window.location.href = url;
-            })
-            .finally(() => {
-                // Restore state
-                mainContent.style.opacity = '1';
-                mainContent.style.pointerEvents = 'all';
-            });
+                    } else {
+                        // Fallback: If for some reason we can't find content, reload.
+                        window.location.href = url;
+                    }
+                })
+                .catch(err => {
+                    console.error('Navigation error:', err);
+                    window.location.href = url; // Fallback to full reload on error
+                })
+                .finally(() => {
+                    // Restore state with animation
+                    setTimeout(() => {
+                        mainContent.style.opacity = '1';
+                        mainContent.style.transform = 'translateY(0)';
+                    }, 50);
+                });
+        }, 200); // Small delay for the fade-out animation
     });
 
     // Handle Back Button
     window.addEventListener('popstate', function () {
-        // Simple fallback: reload to ensure correct state
         window.location.reload();
     });
 });
