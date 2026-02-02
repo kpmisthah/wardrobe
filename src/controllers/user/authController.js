@@ -80,6 +80,7 @@ const verifyOtp = async (req, res) => {
     }
 
     // Verify OTP matches
+    // Verify OTP matches
     if (otpRecord.otp !== otps) {
       return res.status(400).json({
         success: false,
