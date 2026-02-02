@@ -1,110 +1,478 @@
-<%-include('../../views/partials/userPartials/header')%>
-    <title>My Wishlist</title>
-    <link rel="stylesheet" href="/css/myaccount.css" />
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <!-- Sidebar Navigation -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-                <div class="position-sticky pt-3" style="top: 85px;">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/myaccount">
-                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/orders">
-                                <i class="fas fa-shopping-bag me-2"></i> Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/updateProfile">
-                                <i class="fas fa-user-edit me-2"></i> Update Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wallet">
-                                <i class="fas fa-wallet me-2"></i> Wallet
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/wishlist">
-                                <i class="fas fa-heart me-2"></i> Wishlist
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/getAddress">
-                                <i class="fas fa-map-marker-alt me-2"></i> My Address
-                            </a>
-                        </li>
-                        <li class="nav-item mt-5">
-                            <a class="nav-link text-danger" href="/logout">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+<%- include('../../views/partials/userPartials/header') %>
+    <title>My Wishlist | Luxe Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f8f9fa;
+            --accent-color: #3b82f6;
+            /* Modern blue */
+            --danger-color: #ef4444;
+            --text-color: #374151;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+            /* Adjust based on header height */
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            z-index: 90;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .nav-link.text-danger:hover {
+            background-color: #fef2f2;
+            color: var(--danger-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            /* Prevents overflow */
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: #d1d5db;
+        }
+
+        .img-wrapper {
+            position: relative;
+            padding-top: 133%;
+            /* 3:4 Aspect Ratio */
+            overflow: hidden;
+            background: #f3f4f6;
+        }
+
+        .img-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            color: var(--text-muted);
+            transition: var(--transition);
+            z-index: 10;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .product-card:hover .remove-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .remove-btn:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .card-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .prices {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+            margin-top: auto;
+        }
+
+        .current-price {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .original-price {
+            font-size: 0.875rem;
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .add-to-cart-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-text h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .shop-btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .shop-btn:hover {
+            background: #333;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                margin-bottom: 1rem;
+            }
+
+            .nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .nav-item {
+                flex-shrink: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .wishlist-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+
+            .img-wrapper {
+                padding-top: 100%;
+                /* Square on mobile */
+            }
+        }
+    </style>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="nav flex-column" style="list-style: none; padding: 0;">
+                <li class="nav-item">
+                    <a class="nav-link" href="/myaccount">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/updateProfile">
+                        <i class="fas fa-user-edit"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">
+                        <i class="fas fa-wallet"></i> Wallet
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/wishlist">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/getAddress">
+                        <i class="fas fa-map-marker-alt"></i> Addresses
+                    </a>
+                </li>
+                <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <a class="nav-link text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">My Wishlist</h1>
+                <span class="text-muted">
+                    <%= (wishlist && wishlist.items) ? wishlist.items.length : 0 %> Items
+                </span>
             </div>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">My Wishlist</h1>
-                </div>
-
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                    <% if (wishlist && wishlist.items && wishlist.items.length> 0) { %>
+            <div class="wishlist-container">
+                <% if (wishlist && wishlist.items && wishlist.items.length> 0) { %>
+                    <div class="wishlist-grid">
                         <% wishlist.items.forEach(value=> { %>
-                            <div class="col">
-                                <div class="card h-100 shadow-sm border-0 position-relative">
-                                    <img src="/uploads/product-images/<%= value.product.productImage[0] %>"
-                                        class="card-img-top" alt="<%= value.product.name %>"
-                                        style="height: 250px; object-fit: cover;">
-                                    <button type="button"
-                                        class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle"
-                                        onclick="removeCart('<%=value._id%>')" title="Remove from Wishlist">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title text-truncate">
-                                            <%= value.product.name %>
-                                        </h5>
-                                        <p class="card-text text-muted mb-1">Size: <%= value.size || 'N/A' %>
-                                        </p>
-                                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                                            <span class="fs-5 fw-bold text-dark">₹<%= value.product.salePrice %>
-                                            </span>
-                                            <small class="text-decoration-line-through text-muted">₹<%=
-                                                    value.product.regularPrice %></small>
-                                        </div>
-                                        <button type="button" class="btn btn-primary-custom mt-3 w-100"
-                                            onclick="addCart('<%= value.product._id %>','<%= value.product.name %>','<%= value.size %>','<%= value.product.regularPrice %>')">
-                                            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                            <% const isOutOfStock=(typeof value.stockQuantity !=='undefined' && value.stockQuantity <
+                                1); %>
+                                <div class="product-card">
+                                    <div class="img-wrapper">
+                                        <img src="/uploads/product-images/<%= value.product.productImage[0] %>"
+                                            alt="<%= value.product.name %>">
+                                        <button class="remove-btn" onclick="removeCart('<%=value._id%>')"
+                                            title="Remove">
+                                            <i class="fas fa-times"></i>
                                         </button>
                                     </div>
-                                </div>
-                            </div>
-                            <% }) %>
-                                <% } else { %>
-                                    <div class="col-12 text-center py-5">
-                                        <div class="empty-state">
-                                            <i class="fas fa-heart text-muted mb-3"></i>
-                                            <h4>Your wishlist is empty</h4>
-                                            <p class="text-muted">Explore our collection and add your favorite
-                                                items!
-                                            </p>
-                                            <a href="/shop" class="btn btn-primary-custom mt-3">Start Shopping</a>
+                                    <div class="card-content">
+                                        <h3 class="product-name">
+                                            <%= value.product.name %>
+                                        </h3>
+                                        <div class="product-meta">
+                                            Size: <span>
+                                                <%= value.size || 'N/A' %>
+                                            </span>
+                                            <% if (isOutOfStock) { %>
+                                                <span class="text-danger ms-2"
+                                                    style="font-size: 0.8rem; font-weight: bold;">(Out of Stock)</span>
+                                                <% } %>
                                         </div>
+                                        <div class="prices">
+                                            <span class="current-price">₹<%= value.product.salePrice %></span>
+                                            <span class="original-price">₹<%= value.product.regularPrice %></span>
+                                        </div>
+
+                                        <% if (isOutOfStock) { %>
+                                            <button class="add-to-cart-btn" disabled
+                                                style="background-color: #d1d5db; cursor: not-allowed;">
+                                                <i class="fas fa-ban"></i> Out of Stock
+                                            </button>
+                                            <% } else { %>
+                                                <button class="add-to-cart-btn"
+                                                    onclick="addCart('<%= value.product._id %>','<%= value.product.name %>','<%= value.size %>','<%= value.product.salePrice %>', this)">
+                                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                                </button>
+                                                <% } %>
                                     </div>
-                                    <% } %>
-                </div>
-            </main>
-        </div>
+                                </div>
+                                <% }) %>
+                    </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="far fa-heart"></i>
+                            </div>
+                            <div class="empty-text">
+                                <h4>Your wishlist is empty</h4>
+                                <p>Seems like you haven't found your favorites yet.</p>
+                            </div>
+                            <a href="/shop" class="shop-btn">
+                                Explore Collection
+                            </a>
+                        </div>
+                        <% } %>
+            </div>
+        </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/javascript/wishlist.js"></script>
-    <%-include('../../views/partials/userPartials/footer')%>
+    <%- include('../../views/partials/userPartials/footer') %>
