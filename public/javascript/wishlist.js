@@ -1,15 +1,24 @@
-async function addCart(productId, productName, productSize, productPrice) {
+async function addCart(productId, productName, productSize, productPrice, btnElement) {
     try {
-        const response = await fetch('/add-cart', {
+        const response = await fetch('/add-to-cart', {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId, productName, productSize, productPrice })
+            body: JSON.stringify({
+                productId,
+                name: productName,
+                size: productSize,
+                price: productPrice,
+                stock: 1 // Default quantity to add
+            })
         });
 
-        const result = await response.json(); // Await the result properly
+        const result = await response.json();
         console.log("The result is", result);
 
-        if (result.message === "product is already in cart") {
+        // Normalize checks
+        const msg = result.message.toLowerCase();
+
+        if (msg.includes("already in cart")) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Already in Cart',
@@ -17,19 +26,75 @@ async function addCart(productId, productName, productSize, productPrice) {
                 showConfirmButton: true,
                 confirmButtonColor: '#3085d6',
             });
-        } else if (result.message === 'Product is added to cart successfully') {
-            Swal.fire({
+        } else if (msg.includes("added to the cart successfully") || msg.includes("product is added to cart successfully")) {
+
+            // Update cart count using global handler or event
+            if (result.cartCount !== undefined) {
+                if (typeof window.dispatchCartUpdate === 'function') {
+                    window.dispatchCartUpdate(result.cartCount);
+                } else {
+                    const event = new CustomEvent('cartUpdated', { detail: { count: result.cartCount } });
+                    document.dispatchEvent(event);
+                }
+            }
+
+            await Swal.fire({
                 icon: 'success',
                 title: 'Added to Cart',
                 text: 'The product has been added to your cart successfully!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Remove the item from the Wishlist DOM without reloading
+            if (btnElement) {
+                const card = btnElement.closest('.product-card');
+                if (card) {
+                    // Create a fade-out effect for better UX
+                    card.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+                    card.style.opacity = "0";
+                    card.style.transform = "scale(0.9)";
+
+                    setTimeout(() => {
+                        card.remove();
+                        // Update item count header
+                        const countEl = document.querySelector('.page-header .text-muted');
+                        if (countEl) {
+                            const text = countEl.innerText.trim();
+                            const match = text.match(/(\d+)/);
+                            if (match) {
+                                const currentCount = parseInt(match[1]);
+                                const newCount = Math.max(0, currentCount - 1);
+                                countEl.innerText = `${newCount} Items`;
+
+                                // If empty, reload to show empty state (optional)
+                                if (newCount === 0) {
+                                    window.location.reload();
+                                }
+                            }
+                        }
+                    }, 500);
+                } else {
+                    // Fallback if card selection failed logic
+                    window.location.reload();
+                }
+            } else {
+                // Fallback if button element passed is null/undefined
+                window.location.reload();
+            }
+
+        } else if (msg.includes("not enough stock")) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Out of Stock',
+                text: result.message || 'Product is out of stock.',
                 showConfirmButton: true,
-                confirmButtonColor: '#3085d6',
             });
         } else {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Something went wrong. Please try again later!',
+                text: result.message || 'Something went wrong. Please try again later!',
                 showConfirmButton: true,
                 confirmButtonColor: '#d33',
             });
@@ -80,6 +145,5 @@ async function removeCart(productId) {
         }
     } catch (error) {
         console.error('The error is', error);
-
     }
 }
