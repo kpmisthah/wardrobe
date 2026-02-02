@@ -269,7 +269,7 @@
             const href = $(this).attr('href');
 
             // Ignore logic
-            if (!href || href === '#' || href.startsWith('javascript') || href.includes('logout')) return;
+            if (!href || href === '#' || href.startsWith('javascript') || href.includes('logout') || href.includes('wishlist') || href.includes('myaccount') || href.includes('orders') || href.includes('wallet') || href.includes('Address') || href.includes('updateProfile') || href.includes('edit')) return;
 
             // Allow ctrl+click
             if (e.metaKey || e.ctrlKey) return;
