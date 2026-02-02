@@ -254,8 +254,8 @@ const loadProfile = async (req, res) => {
     ]);
 
     const orderCount = orders ? orders.length : 0;
-    const wishlistCount = wishlist ? wishlist.products.length : 0;
-    const addressCount = address ? address.address.length : 0;
+    const wishlistCount = wishlist && wishlist.items ? wishlist.items.length : 0;
+    const addressCount = address && address.address ? address.address.length : 0;
     const walletBalance = wallet ? wallet.balance : 0;
     const recentOrders = orders ? orders.slice(0, 5) : [];
 
