@@ -1,248 +1,566 @@
 <%- include('../partials/userPartials/header') %>
-    <link rel="stylesheet" href="/css/myaccount.css" />
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar Navigation -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-                <div class="position-sticky pt-3" style="top: 85px;">
-                    <div class="text-center mb-4 d-md-none">
-                        <h2 class="logo-text">Wardrobe</h2>
-                    </div>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="/myaccount">
-                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/orders">
-                                <i class="fas fa-shopping-bag me-2"></i> Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/updateProfile">
-                                <i class="fas fa-user-edit me-2"></i> Update Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wallet">
-                                <i class="fas fa-wallet me-2"></i> Wallet
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wishlist">
-                                <i class="fas fa-heart me-2"></i> Wishlist
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/getAddress">
-                                <i class="fas fa-map-marker-alt me-2"></i> My Address
-                            </a>
-                        </li>
-                        <li class="nav-item mt-5">
-                            <a class="nav-link text-danger" href="/logout">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </a>
-                        </li>
-                    </ul>
+    <title>My Dashboard | Luxe Store</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #f8f9fa;
+            --accent-color: #3b82f6;
+            /* Modern blue */
+            --danger-color: #ef4444;
+            --text-color: #374151;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+            /* Adjust based on header height */
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-color);
+            z-index: 90;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 0.75rem;
+            text-align: center;
+        }
+
+        .nav-link.text-danger:hover {
+            background-color: #fef2f2;
+            color: var(--danger-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            /* Prevents overflow */
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            color: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05));
+            transform: skewX(-20deg);
+        }
+
+        .welcome-content h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-content p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.wallet {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .stat-icon.orders {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .stat-icon.wishlist {
+            background: #fff1f2;
+            color: #db2777;
+        }
+
+        .stat-icon.address {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .stat-info p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .action-card:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+        }
+
+        .action-card:hover i {
+            color: white;
+        }
+
+        .action-card i {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .action-card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Recent orders */
+        .recent-activity-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .view-all-btn {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+        }
+
+        .custom-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .custom-table td {
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.placed,
+        .status-badge.pending {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .status-badge.shipped {
+            background: #fdf4ff;
+            color: #d946ef;
+        }
+
+        .status-badge.delivered {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .status-badge.cancelled {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .dashboard-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                margin-bottom: 1rem;
+            }
+
+            .nav {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .nav-item {
+                flex-shrink: 0;
+            }
+        }
+    </style>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="nav flex-column" style="list-style: none; padding: 0;">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/myaccount">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="fas fa-shopping-bag"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/updateProfile">
+                        <i class="fas fa-user-edit"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wallet">
+                        <i class="fas fa-wallet"></i> Wallet
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/getAddress">
+                        <i class="fas fa-map-marker-alt"></i> Addresses
+                    </a>
+                </li>
+                <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <a class="nav-link text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <span class="text-muted">
+                    <i class="far fa-calendar-alt me-2"></i>
+                    <%= new Date().toLocaleDateString('en-US', { weekday: 'long' , year: 'numeric' , month: 'long' ,
+                        day: 'numeric' }) %>
+                </span>
+            </div>
+
+            <!-- Welcome Banner -->
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h2 style="color: white;">Welcome back, <%= user.name %>!</h2>
+                    <p style="color: rgba(255,255,255,0.8);">
+                        <%= user.email %>
+                    </p>
+                    <a href="/updateProfile" class="btn btn-light btn-sm"
+                        style="border-radius: 20px; padding: 0.5rem 1.5rem; font-weight: 600;">Edit Profile</a>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Dashboard</h1>
-                    <div class="text-muted">
-                        <i class="far fa-calendar-alt me-2"></i>
-                        <%= new Date().toLocaleDateString('en-US', { weekday: 'long' , year: 'numeric' , month: 'long' ,
-                            day: 'numeric' }) %>
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon wallet">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>₹<%= (typeof walletBalance !=='undefined' ) ? walletBalance : 0 %>
+                        </h3>
+                        <p>Wallet Balance</p>
                     </div>
                 </div>
 
-                <!-- Profile Header -->
-                <div class="profile-header">
-                    <div class="row align-items-center">
-                        <div class="col-md-auto text-center text-md-start">
-                            <div class="profile-avatar d-inline-flex">
-                                <%= user.name.charAt(0).toUpperCase() %>
-                            </div>
-                        </div>
-                        <div class="col-md text-center text-md-start mt-3 mt-md-0">
-                            <div class="profile-info">
-                                <h2>Welcome back, <%= user.name %>! 👋</h2>
-                                <p class="mb-0">
-                                    <i class="fas fa-envelope me-2"></i>
-                                    <%= user.email %>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-auto text-center text-md-end mt-3 mt-md-0">
-                            <a href="/updateProfile" class="btn btn-light btn-lg">
-                                <i class="fas fa-user-edit me-2"></i>Edit Profile
-                            </a>
-                        </div>
+                <div class="stat-card">
+                    <div class="stat-icon orders">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>
+                            <%= (typeof orderCount !=='undefined' ) ? orderCount : 0 %>
+                        </h3>
+                        <p>Total Orders</p>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="row g-4 mb-5">
-                    <div class="col-md-4">
-                        <a href="/wallet" class="text-decoration-none">
-                            <div class="quick-action-card">
-                                <div class="icon-wrapper icon-wallet">
-                                    <i class="fas fa-wallet"></i>
-                                </div>
-                                <h4>My Wallet</h4>
-                                <p>Check Balance</p>
-                                <span class="text-primary fw-bold">View details →</span>
-                            </div>
-                        </a>
+                <div class="stat-card">
+                    <div class="stat-icon wishlist">
+                        <i class="fas fa-heart"></i>
                     </div>
-                    <div class="col-md-4">
-                        <a href="/orders" class="text-decoration-none">
-                            <div class="quick-action-card">
-                                <div class="icon-wrapper icon-orders">
-                                    <i class="fas fa-shopping-bag"></i>
-                                </div>
-                                <h4>Recent Orders</h4>
-                                <p>Track Status</p>
-                                <span class="text-primary fw-bold">View orders →</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <a href="/getAddress" class="text-decoration-none">
-                            <div class="quick-action-card">
-                                <div class="icon-wrapper icon-address">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <h4>Manage Addresses</h4>
-                                <p>Add or remove shipping addresses</p>
-                                <span class="text-primary fw-bold">Manage →</span>
-                            </div>
-                        </a>
+                    <div class="stat-info">
+                        <h3>
+                            <%= (typeof wishlistCount !=='undefined' ) ? wishlistCount : 0 %>
+                        </h3>
+                        <p>Wishlist Items</p>
                     </div>
                 </div>
 
-                <!-- Statistics -->
-                <h3 class="mb-4 fw-bold">Quick Stats</h3>
-                <div class="row g-4 mb-5">
-                    <div class="col-md-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-box fa-2x text-primary"></i>
-                                </div>
-                                <h3 class="fw-bold mb-1">
-                                    <%= (typeof orderCount !=='undefined' ) ? orderCount : 0 %>
-                                </h3>
-                                <p class="text-muted mb-0">Total Orders</p>
-                            </div>
-                        </div>
+                <div class="stat-card">
+                    <div class="stat-icon address">
+                        <i class="fas fa-map-marker-alt"></i>
                     </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-heart fa-2x" style="color: #f5576c;"></i>
-                                </div>
-                                <h3 class="fw-bold mb-1">
-                                    <%= (typeof wishlistCount !=='undefined' ) ? wishlistCount : 0 %>
-                                </h3>
-                                <p class="text-muted mb-0">Wishlist Items</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-map-marker-alt fa-2x" style="color: #38f9d7;"></i>
-                                </div>
-                                <h3 class="fw-bold mb-1">
-                                    <%= (typeof addressCount !=='undefined' ) ? addressCount : 0 %>
-                                </h3>
-                                <p class="text-muted mb-0">Saved Addresses</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body text-center p-4">
-                                <div class="mb-3">
-                                    <i class="fas fa-wallet fa-2x text-primary"></i>
-                                </div>
-                                <h3 class="fw-bold mb-1">₹<%= (typeof walletBalance !=='undefined' ) ? walletBalance : 0
-                                        %>
-                                </h3>
-                                <p class="text-muted mb-0">Wallet Balance</p>
-                            </div>
-                        </div>
+                    <div class="stat-info">
+                        <h3>
+                            <%= (typeof addressCount !=='undefined' ) ? addressCount : 0 %>
+                        </h3>
+                        <p>Saved Addresses</p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Recent Activity -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h4 class="fw-bold mb-4">
-                                    <i class="fas fa-clock me-2 text-primary"></i>Recent Activity
-                                </h4>
-                                <% if (typeof recentOrders !=='undefined' && recentOrders && recentOrders.length> 0) {
-                                    %>
-                                    <div class="table-responsive">
-                                        <table class="table align-middle mb-0">
-                                            <thead class="bg-light">
-                                                <tr>
-                                                    <th class="border-0">Order ID</th>
-                                                    <th class="border-0">Date</th>
-                                                    <th class="border-0">Status</th>
-                                                    <th class="border-0 text-end">Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <% recentOrders.forEach(order=> { %>
-                                                    <tr>
-                                                        <td><span class="fw-bold">#<%= order.orderId %></span></td>
-                                                        <td>
-                                                            <%= new Date(order.invoiceDate).toLocaleDateString() %>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-light text-dark border">
-                                                                <%= order.status %>
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-end fw-bold">₹<%= order.finalAmount ||
-                                                                order.totalPrice %>
-                                                        </td>
-                                                    </tr>
-                                                    <% }) %>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="text-center mt-3">
-                                        <a href="/orders" class="btn btn-outline-primary btn-sm rounded-pill px-4">View
-                                            All Activity</a>
-                                    </div>
-                                    <% } else { %>
-                                        <div class="text-center py-5">
-                                            <i class="fas fa-history fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
-                                            <p class="text-muted">No recent activity to display</p>
-                                            <a href="/shop" class="btn btn-primary-custom mt-3">
-                                                <i class="fas fa-shopping-cart me-2"></i>Start Shopping
-                                            </a>
-                                        </div>
-                                        <% } %>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Quick Actions -->
+            <div class="quick-actions-grid">
+                <a href="/shop" class="action-card">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h4>Start Shopping</h4>
+                </a>
+                <a href="/orders" class="action-card">
+                    <i class="fas fa-box-open"></i>
+                    <h4>Track Orders</h4>
+                </a>
+                <a href="/wishlist" class="action-card">
+                    <i class="fas fa-heart"></i>
+                    <h4>View Wishlist</h4>
+                </a>
+                <a href="/getAddress" class="action-card">
+                    <i class="fas fa-home"></i>
+                    <h4>Manage Address</h4>
+                </a>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity-card">
+                <div class="card-header">
+                    <h3>Recent Activity</h3>
+                    <a href="/orders" class="view-all-btn">View All Orders</a>
                 </div>
+                <% if (typeof recentOrders !=='undefined' && recentOrders && recentOrders.length> 0) { %>
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentOrders.forEach(order=> { %>
+                                    <tr>
+                                        <td><strong>#<%= order.orderId %></strong></td>
+                                        <td>
+                                            <%= new Date(order.invoiceDate).toLocaleDateString() %>
+                                        </td>
+                                        <td style="font-weight: 600;">₹<%= order.finalAmount || order.totalPrice %>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge <%= order.status.toLowerCase() %>">
+                                                <%= order.status %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fas fa-clipboard-list"
+                                style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p>No recent orders found.</p>
+                        </div>
+                        <% } %>
+            </div>
 
-            </main>
-        </div>
+        </main>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <%- include('../partials/userPartials/footer') %>
