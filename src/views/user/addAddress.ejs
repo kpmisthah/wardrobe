@@ -1,137 +1,294 @@
-<%-include('.. /../views/partials/userPartials/header')%>
-  <title>Add Address</title>
+<%- include('../partials/userPartials/header') %>
+  <title>Add Address | Luxe Store</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/myaccount.css" />
+
   <style>
+    :root {
+      --primary-color: #1a1a1a;
+      --secondary-color: #f8f9fa;
+      --accent-color: #3b82f6;
+      --danger-color: #ef4444;
+      --text-color: #374151;
+      --text-muted: #9ca3af;
+      --border-color: #e5e7eb;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+
+    .dashboard-container {
+      display: flex;
+      min-height: calc(100vh - 80px);
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+      gap: 2rem;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+      border: 1px solid var(--border-color);
+      z-index: 90;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.875rem 1rem;
+      color: var(--text-color);
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      transform: translateX(4px);
+    }
+
+    .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .nav-link i {
+      width: 24px;
+      margin-right: 0.75rem;
+      text-align: center;
+    }
+
+    .nav-link.text-danger:hover {
+      background-color: #fef2f2;
+      color: var(--danger-color);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      padding: 1.5rem 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+    }
+
+    /* Form Card */
+    .form-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .form-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-color);
+    }
+
     .form-control,
     .form-select {
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 0.75rem 1rem;
+      transition: var(--transition);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-primary-custom {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.875rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .btn-primary-custom:hover {
+      background-color: #333;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        margin-bottom: 1rem;
+      }
     }
   </style>
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar -->
-      <!-- Sidebar Navigation -->
-      <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-        <div class="position-sticky pt-3" style="top: 100px; z-index: 90;">
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="/myaccount">
-                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/orders">
-                <i class="fas fa-shopping-bag me-2"></i> Orders
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/updateProfile">
-                <i class="fas fa-user-edit me-2"></i> Update Profile
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wallet">
-                <i class="fas fa-wallet me-2"></i> Wallet
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wishlist">
-                <i class="fas fa-heart me-2"></i> Wishlist
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="/getAddress">
-                <i class="fas fa-map-marker-alt me-2"></i> My Address
-              </a>
-            </li>
-            <li class="nav-item mt-5">
-              <a class="nav-link text-danger" href="/logout">
-                <i class="fas fa-sign-out-alt me-2"></i> Logout
-              </a>
-            </li>
-          </ul>
-        </div>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <ul class="nav flex-column" style="list-style: none; padding: 0;">
+        <li class="nav-item">
+          <a class="nav-link" href="/myaccount">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/orders">
+            <i class="fas fa-shopping-bag"></i> Orders
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/updateProfile">
+            <i class="fas fa-user-edit"></i> Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wallet">
+            <i class="fas fa-wallet"></i> Wallet
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wishlist">
+            <i class="fas fa-heart"></i> Wishlist
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/getAddress">
+            <i class="fas fa-map-marker-alt"></i> Addresses
+          </a>
+        </li>
+        <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+          <a class="nav-link text-danger" href="/logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Add New Address</h1>
+        <a href="/getAddress" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;">
+          <i class="fas fa-arrow-left me-2"></i>Cancel
+        </a>
       </div>
 
-      <!-- Main Content -->
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-        <div
-          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 class="h2">Add New Address</h1>
-          <a href="/getAddress" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left me-2"></i>Cancel
-          </a>
-        </div>
-
-        <div class="card shadow-sm border-0">
-          <div class="card-body p-4">
-            <form class="row g-3" id="address-form" onsubmit="address(event)">
-              <div class="col-md-6">
-                <label for="inputName" class="form-label text-muted">Full Name</label>
-                <input type="text" class="form-control" id="inputName" name="name" placeholder="John Doe">
-                <div id="error1" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-6">
-                <label for="inputEmail" class="form-label text-muted">Email</label>
-                <input type="email" class="form-control" id="inputEmail" name="email" placeholder="john@example.com">
-                <div id="error2" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-6">
-                <label for="inputPhone" class="form-label text-muted">Phone Number</label>
-                <input type="tel" class="form-control" id="inputPhone" name="phone" placeholder="10-digit number">
-                <div id="error3" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-6">
-                <label for="inputHouse" class="form-label text-muted">House No. / Building</label>
-                <input type="text" class="form-control" id="inputHouse" name="houseNumber"
-                  placeholder="Flat No, Apartment">
-                <div id="error4" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-4">
-                <label for="inputCity" class="form-label text-muted">City</label>
-                <input type="text" class="form-control" id="inputCity" name="city">
-                <div id="error6" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-4">
-                <label for="inputDistrict" class="form-label text-muted">District</label>
-                <input type="text" class="form-control" id="inputDistrict" name="district">
-                <div id="error8" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-4">
-                <label for="inputState" class="form-label text-muted">State</label>
-                <select id="inputState" class="form-select" name="state">
-                  <option selected disabled>Choose State...</option>
-                  <option>Andhra Pradesh</option>
-                  <option>Karnataka</option>
-                  <option>Kerala</option>
-                  <option>Maharashtra</option>
-                  <option>Tamil Nadu</option>
-                  <option>Telangana</option>
-                  <option>Delhi</option>
-                  <option>Uttar Pradesh</option>
-                  <option>West Bengal</option>
-                </select>
-                <div id="error7" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-md-2">
-                <label for="inputZip" class="form-label text-muted">Zip Code</label>
-                <input type="text" class="form-control" id="inputZip" name="zipCode">
-                <div id="error9" class="text-danger small mt-1"></div>
-              </div>
-              <div class="col-12 mt-4">
-                <button type="submit" class="btn btn-primary-custom px-4 py-2 w-100">
-                  Save Address
-                </button>
-              </div>
-            </form>
+      <div class="form-card">
+        <form class="row g-3" id="address-form">
+          <div class="col-md-6">
+            <label for="inputName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="inputName" name="name" placeholder="John Doe">
+            <div id="error1" class="text-danger small mt-1"></div>
           </div>
-        </div>
-      </main>
-    </div>
+          <div class="col-md-6">
+            <label for="inputEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="inputEmail" name="email" placeholder="john@example.com">
+            <div id="error2" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-md-6">
+            <label for="inputPhone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="inputPhone" name="phone" placeholder="10-digit number">
+            <div id="error3" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-md-6">
+            <label for="inputHouse" class="form-label">House No. / Building</label>
+            <input type="text" class="form-control" id="inputHouse" name="houseNumber" placeholder="Flat No, Apartment">
+            <div id="error4" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-md-4">
+            <label for="inputCity" class="form-label">City</label>
+            <input type="text" class="form-control" id="inputCity" name="city">
+            <div id="error6" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-md-4">
+            <label for="inputDistrict" class="form-label">District</label>
+            <input type="text" class="form-control" id="inputDistrict" name="district">
+            <div id="error8" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-md-4">
+            <label for="inputState" class="form-label">State</label>
+            <select id="inputState" class="form-select" name="state">
+              <option selected disabled>Choose State...</option>
+              <option>Andhra Pradesh</option>
+              <option>Karnataka</option>
+              <option>Kerala</option>
+              <option>Maharashtra</option>
+              <option>Tamil Nadu</option>
+              <option>Telangana</option>
+              <option>Delhi</option>
+              <option>Uttar Pradesh</option>
+              <option>West Bengal</option>
+            </select>
+            <div id="error7" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-md-2">
+            <label for="inputZip" class="form-label">Zip Code</label>
+            <input type="text" class="form-control" id="inputZip" name="zipCode">
+            <div id="error9" class="text-danger small mt-1"></div>
+          </div>
+          <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary-custom px-4 py-3 w-100">
+              Save Address
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="/javascript/addAddress.js"></script>
-  <%-include('.. /../views/partials/userPartials/footer')%>
+  <%- include('../partials/userPartials/footer') %>
