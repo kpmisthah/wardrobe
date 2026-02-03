@@ -2,6 +2,7 @@ import { User } from "../../models/userSchema.js";
 import { Otp } from "../../models/otpModels.js";
 import bcrypt from "bcrypt";
 import randomString from "randomstring";
+import { sendEmail } from "../../utils/sendEmail.js";
 
 const signupPage = async (req, res) => {
   try {
@@ -131,6 +132,7 @@ const resendOtp = async (req, res) => {
       { otp },
       { upsert: true, new: true }
     );
+    await sendEmail(email, "Resend OTP Verification", otp);
 
     return res.json({ success: true, message: "OTP sent successfully!" });
   } catch (error) {
