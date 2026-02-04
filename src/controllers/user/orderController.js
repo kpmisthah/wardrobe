@@ -54,54 +54,69 @@ const orderCancel = async (req, res) => {
 
     const items = orderedProducts.orderedItems[itemIndex];
 
-    //so now we want to increase the stock count for specific product
+    if (items.cancelStatus === 'canceled') {
+      return res.status(400).json({ message: "Item already canceled" });
+    }
+
+    // Update stock logic
     items.cancelStatus = 'canceled'
-    if (items.cancelStatus == 'canceled') {
-      const size = await Size.findOne({ product: items.product, size: items.size })
+    const size = await Size.findOne({ product: items.product, size: items.size })
+    if (size) {
       size.quantity += items.quantity
       await size.save()
     }
-    // Update total price
-    if (orderedProducts.finalAmount !== undefined && orderedProducts.finalAmount !== null) {
-      orderedProducts.finalAmount -= items.price;
-      if (orderedProducts.finalAmount < 0) {
-        orderedProducts.finalAmount = 0;
-      }
-    } else {
-      orderedProducts.totalPrice -= items.price;
-      if (orderedProducts.totalPrice < 0) {
-        orderedProducts.totalPrice = 0;
-      }
+    const itemTotal = items.price * items.quantity;
+    const currentTotalPrice = orderedProducts.totalPrice;
+    const currentDiscount = orderedProducts.discount || 0;
+    let proportionalDiscount = 0;
+    if (currentTotalPrice > 0 && currentDiscount > 0) {
+      proportionalDiscount = (itemTotal / currentTotalPrice) * currentDiscount;
     }
-    if (orderedProducts.finalAmount < 0 || orderedProducts.totalPrice < 0) {
-      orderedProducts.finalAmount = 0
-      orderedProducts.totalPrice = 0
-    }
-    if (items.cancelStatus == 'canceled' && orderedProducts.paymentMethod != 'COD' && orderedProducts.paymentStatus != 'Pending') {
+
+    // Safety: Discount for item can't exceed item total
+    if (proportionalDiscount > itemTotal) proportionalDiscount = itemTotal;
+
+    const refundAmount = itemTotal - proportionalDiscount;
+
+    console.log(`Cancelling Item: ${items.name}. Total: ${itemTotal}. Prop. Discount: ${proportionalDiscount}. Refund: ${refundAmount}`);
+
+    // Update Order Fields
+    orderedProducts.totalPrice -= itemTotal;
+    orderedProducts.discount -= proportionalDiscount;
+    orderedProducts.finalAmount -= refundAmount;
+
+    // Safety clamps
+    if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;
+    if (orderedProducts.discount < 0) orderedProducts.discount = 0;
+    if (orderedProducts.finalAmount < 0) orderedProducts.finalAmount = 0;
+
+    // Process Refund to Wallet
+    if (orderedProducts.paymentMethod != 'COD' && orderedProducts.paymentStatus != 'Pending') {
       const wallet = await Wallet.findOne({ userId: orderedProducts.userId })
-      const refundAmount = items.price
+
+      const transaction = {
+        transactionType: 'refund',
+        transactionAmount: Math.round(refundAmount * 100) / 100,
+        description: `Refund for canceled item: ${items.name} (Order: ${orderedProducts.orderId})`
+      };
+
       if (wallet) {
         wallet.balance += refundAmount
-        wallet.transactionHistory.push({
-          transactionType: 'refund',
-          transactionAmount: refundAmount,
-          description: `Refund for canceled item from order ${orderedProducts._id}`
-        });
+        wallet.transactionHistory.push(transaction);
         await wallet.save();
       } else {
         const newWallet = new Wallet({
           userId: orderedProducts.userId,
           balance: refundAmount,
-          transactionHistory: [{
-            transactionType: 'refund',
-            transactionAmount: refundAmount,
-            description: `Refund for canceled item from order ${orderedProducts._id}`
-          }]
+          transactionHistory: [transaction]
         });
         await newWallet.save();
       }
     }
+
     await orderedProducts.save();
+
+    // Check if all items are now canceled
     const allProductsCancelled = orderedProducts.orderedItems.every((p => p.cancelStatus == 'canceled'))
     if (allProductsCancelled) {
       orderedProducts.status = 'Canceled'

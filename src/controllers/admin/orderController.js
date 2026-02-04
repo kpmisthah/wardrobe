@@ -35,13 +35,20 @@ const orderList = async (req, res) => {
 const orderStatus = async (req, res) => {
     try {
         const { status, orderId } = req.body
-        const orders = await Order.find()
-        const order = await Order.findOneAndUpdate({ orderId }, { status: status }, { new: true })
-        if (order) {
-            res.status(200).json({ message: "Order is updated successfully" })
-        } else {
-            res.status(401).json({ message: "order is not updated" })
+        const currentOrder = await Order.findOne({ orderId });
+
+        if (!currentOrder) {
+            return res.status(404).json({ message: "Order not found" });
         }
+
+        if (currentOrder.status === 'Canceled' || currentOrder.status === 'Returned') {
+            return res.status(400).json({ message: `Cannot change status. Order is already ${currentOrder.status}.` });
+        }
+
+        currentOrder.status = status;
+        await currentOrder.save();
+
+        res.status(200).json({ message: "Order is updated successfully" })
 
     } catch (error) {
         console.log("The error is" + error);
@@ -135,8 +142,18 @@ const handleReturn = async (req, res) => {
         }
 
         if (action === 'approve') {
-            // Calculate refund amount correctly
-            const refundAmount = productItem.price * productItem.quantity;
+            // Calculate refund amount with discount consideration
+            const itemTotal = productItem.price * productItem.quantity;
+            const currentTotalPrice = order.totalPrice;
+            const currentDiscount = order.discount || 0;
+
+            // Proportional discount for this item
+            let proportionalDiscount = 0;
+            if (currentTotalPrice > 0 && currentDiscount > 0) {
+                proportionalDiscount = (itemTotal / currentTotalPrice) * currentDiscount;
+            }
+
+            const refundAmount = itemTotal - proportionalDiscount;
 
             // Update product status
             productItem.returnStatus = 'Approved';
@@ -147,17 +164,20 @@ const handleReturn = async (req, res) => {
             // Add transaction to history
             wallet.transactionHistory.push({
                 transactionType: 'refund',
-                transactionAmount: refundAmount,
+                transactionAmount: Math.round(refundAmount * 100) / 100,
                 transactionDate: new Date(),
                 description: `Refund for returned item from order ${orderId}`
             });
 
-            // Update order total/final amount
-            if (order.finalAmount) {
-                order.finalAmount -= refundAmount;
-            } else {
-                order.totalPrice -= refundAmount;
-            }
+            // Update order fields
+            order.totalPrice -= itemTotal;
+            order.discount -= proportionalDiscount;
+            order.finalAmount -= refundAmount;
+
+            // Safety clamps
+            if (order.totalPrice < 0) order.totalPrice = 0;
+            if (order.discount < 0) order.discount = 0;
+            if (order.finalAmount < 0) order.finalAmount = 0;
 
             // Save both wallet and order
             await Promise.all([
@@ -220,8 +240,28 @@ const orderCancelled = async (req, res) => {
         if (allItemsCancelled) {
             orderedProducts.status = 'Canceled';
         }
-        // Update total price
-        orderedProducts.totalPrice -= items.price * items.quantity;
+        // Calculate refund/deduction with discount consideration
+        const itemTotal = items.price * items.quantity;
+        const currentTotalPrice = orderedProducts.totalPrice;
+        const currentDiscount = orderedProducts.discount || 0;
+
+        // Proportional discount for this item
+        let proportionalDiscount = 0;
+        if (currentTotalPrice > 0 && currentDiscount > 0) {
+            proportionalDiscount = (itemTotal / currentTotalPrice) * currentDiscount;
+        }
+
+        const refundAmount = itemTotal - proportionalDiscount;
+
+        // Update Order Fields
+        orderedProducts.totalPrice -= itemTotal;
+        orderedProducts.discount -= proportionalDiscount;
+        orderedProducts.finalAmount -= refundAmount;
+
+        // Safety clamps
+        if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;
+        if (orderedProducts.discount < 0) orderedProducts.discount = 0;
+        if (orderedProducts.finalAmount < 0) orderedProducts.finalAmount = 0;
 
         await orderedProducts.save();
 

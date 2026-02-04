@@ -368,36 +368,76 @@
                     </div>
 
                     <!-- Coupon Section Moved Here for Better Flow -->
+                    <!-- Improved Coupon Section -->
                     <div class="coupon-box">
-                        <% if (coupon && coupon.length> 0) { %>
-                            <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px;">Have a coupon?</div>
-                            <div class="coupon-input-group">
-                                <input type="text" id="coupon-code-input" name="coupon" placeholder="Enter code">
-                                <button type="button" id="apply-coupon-btn" class="btn-apply"
-                                    onclick="applyCoupon(event)">Apply</button>
-                                <button type="button" id="remove-coupon-btn" class="btn-remove"
-                                    onclick="removeCoupon()">Remove</button>
-                            </div>
+                        <div
+                            style="font-size: 14px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fa fa-ticket"
+                                    style="margin-right: 8px; color: var(--primary-checkout);"></i>Coupons</span>
+                        </div>
 
-                            <div class="available-coupons">
-                                <div style="font-size: 11px; color: #888; margin-bottom: 5px;">Available Offers:</div>
+                        <!-- Applied Coupon Info (Hidden by default, toggled by JS) -->
+                        <div id="applied-coupon-info"
+                            style="display: none; background: #e6fffa; border: 1px solid #b2f5ea; padding: 10px; border-radius: 6px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 13px; color: #2c7a7b; font-weight: 600;">
+                                    Applied: <span id="applied-coupon-code"></span>
+                                </span>
+                                <button type="button" onclick="removeCoupon()"
+                                    style="background: none; border: none; color: #e53e3e; font-size: 12px; font-weight: 600; cursor: pointer;">
+                                    <i class="fa fa-times-circle"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="coupon-input-group">
+                            <input type="text" id="coupon-code-input" name="coupon" placeholder="Enter coupon code"
+                                style="border: 2px solid #eee;">
+                            <button type="button" id="apply-coupon-btn" class="btn-apply"
+                                onclick="applyCoupon(event)">Apply</button>
+                            <!-- Legacy Remove button kept for JS compatibility but hidden -->
+                            <button type="button" id="remove-coupon-btn" class="btn-remove" onclick="removeCoupon()"
+                                style="display: none;">Remove</button>
+                        </div>
+
+                        <% if (coupon && coupon.length> 0) { %>
+                            <div class="available-coupons"
+                                style="max-height: 250px; overflow-y: auto; padding-right: 5px; margin-top: 15px;">
+                                <div
+                                    style="font-size: 11px; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Available Offers</div>
                                 <% coupon.forEach((c)=> { %>
-                                    <div class="coupon-ticket">
-                                        <div>
-                                            <span class="coupon-code">
-                                                <%= c.code %>
-                                            </span>
-                                            <span style="margin-left:5px;">
-                                                <%= c.discountValue %>
-                                                    <%=c.discountType=='percentage' ?'%':' OFF'%>
-                                            </span>
+                                    <div class="coupon-ticket"
+                                        style="position: relative; padding: 12px; margin-bottom: 10px; border: 1px border #e2e8f0; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: all 0.2s;">
+                                        <div
+                                            style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                            <div>
+                                                <div class="coupon-code"
+                                                    style="font-size: 14px; margin-bottom: 4px; display: inline-block;">
+                                                    <%= c.code %>
+                                                </div>
+                                                <div style="font-size: 12px; color: #4a5568;">
+                                                    <span style="font-weight: 600; color: #2d3748;">
+                                                        <%= c.discountValue %>
+                                                            <%= c.discountType=='percentage' ? '%' : ' OFF' %>
+                                                    </span>
+                                                </div>
+                                                <div style="font-size: 11px; color: #a0aec0; margin-top: 2px;">
+                                                    Min purchase: ₹<%= c.minPurchase %>
+                                                </div>
+                                            </div>
+                                            <button type="button"
+                                                onclick="document.getElementById('coupon-code-input').value = '<%= c.code %>'; applyCoupon(event);"
+                                                style="background: #edf2f7; color: #4a5568; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s;">
+                                                Apply
+                                            </button>
                                         </div>
-                                        <small style="color:#aaa;">Min: ₹<%= c.minPurchase %></small>
                                     </div>
                                     <% }) %>
                             </div>
                             <% } else { %>
-                                <div style="font-size: 13px; color: #999;">No coupons available.</div>
+                                <div style="font-size: 13px; color: #999; text-align: center; margin-top: 10px;">No
+                                    coupons available.</div>
                                 <% } %>
                     </div>
 

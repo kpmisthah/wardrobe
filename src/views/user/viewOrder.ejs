@@ -1,20 +1,97 @@
 <%- include('../partials/userPartials/header') %>
   <link rel="stylesheet" href="/css/myaccount.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
   <style>
-    /* Improved View Order Page Styles */
+    /* Merged Styles from orders.ejs and viewOrder.ejs */
     :root {
-      --primary-color: #2c3e50;
-      --secondary-color: #34495e;
-      --accent-color: #333;
-      --text-muted: #6c757d;
-      --border-color: #eee;
+      --primary-color: #1a1a1a;
+      --secondary-color: #f8f9fa;
+      --accent-color: #3b82f6;
+      --danger-color: #ef4444;
+      --text-color: #374151;
+      --text-muted: #9ca3af;
+      --border-color: #e5e7eb;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --radius: 12px;
+      --transition: all 0.3s ease;
     }
 
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      color: var(--text-color);
+    }
+
+    .dashboard-container {
+      display: flex;
+      min-height: calc(100vh - 80px);
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+      gap: 2rem;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+      border: 1px solid var(--border-color);
+      z-index: 90;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.875rem 1rem;
+      color: var(--text-color);
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      transform: translateX(4px);
+    }
+
+    .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .nav-link i {
+      width: 24px;
+      margin-right: 0.75rem;
+      text-align: center;
+    }
+
+    .nav-link.text-danger:hover {
+      background-color: #fef2f2;
+      color: var(--danger-color);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* View Order Specific Styles */
     .card-custom {
       background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
       border: 1px solid var(--border-color);
       margin-bottom: 30px;
       overflow: hidden;
@@ -26,7 +103,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #fcfcfc;
+      background: #fff;
     }
 
     .card-header-title {
@@ -40,7 +117,7 @@
       padding: 25px;
     }
 
-    /* Timeline Enhanced */
+    /* Timeline */
     .stepper-wrapper {
       display: flex;
       justify-content: space-between;
@@ -93,10 +170,10 @@
 
     .stepper-item.completed .step-counter,
     .stepper-item.active .step-counter {
-      border-color: #28a745;
-      background: #28a745;
+      border-color: #10b981;
+      background: #10b981;
       color: #fff;
-      box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
     }
 
     .stepper-item.completed::after,
@@ -105,7 +182,7 @@
       position: absolute;
       width: 100%;
       height: 4px;
-      background: #28a745;
+      background: #10b981;
       top: 30px;
       left: -50%;
       z-index: -1;
@@ -116,14 +193,14 @@
     }
 
     .stepper-item.active .step-name {
-      color: #2c3e50;
+      color: var(--primary-color);
     }
 
     .stepper-item.completed .step-name {
-      color: #28a745;
+      color: #10b981;
     }
 
-    /* Item Row Enhanced */
+    /* Item Row */
     .item-row {
       display: flex;
       align-items: center;
@@ -147,7 +224,6 @@
       object-fit: cover;
       border-radius: 8px;
       border: 1px solid #eee;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
 
     .item-title {
@@ -171,7 +247,7 @@
       color: #333;
     }
 
-    /* Summary and Address Enhanced */
+    /* Summary */
     .summary-row {
       display: flex;
       justify-content: space-between;
@@ -191,22 +267,6 @@
       color: var(--primary-color);
     }
 
-    .address-box {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #444;
-    }
-
-    .info-label {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      font-weight: 700;
-      color: #888;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    /* Buttons */
     .btn-action {
       padding: 8px 18px;
       border-radius: 6px;
@@ -214,8 +274,19 @@
       font-size: 0.9rem;
     }
 
-    /* Responsive Item Row */
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+
+      .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+        margin-bottom: 1rem;
+      }
+
       .item-row {
         flex-direction: column;
         align-items: flex-start;
@@ -226,289 +297,264 @@
         width: 100%;
         text-align: left !important;
       }
-
-      .step-counter {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-      }
-
-      .stepper-wrapper::before,
-      .stepper-item.completed::after,
-      .stepper-item.active::after {
-        top: 20px;
-      }
-
-      .step-name {
-        font-size: 10px;
-      }
-    }
-
-    .main-content {
-      padding-top: 30px;
     }
   </style>
 
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Sidebar Navigation -->
-      <div class="col-md-3 col-lg-2 d-md-block bg-white sidebar collapse border-end">
-        <div class="position-sticky pt-3" style="top: 85px;">
-          <div class="text-center mb-4 d-md-none">
-            <h2 class="logo-text">Wardrobe</h2>
-          </div>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="/myaccount">
-                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="/orders">
-                <i class="fas fa-shopping-bag me-2"></i> Orders
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/updateProfile">
-                <i class="fas fa-user-edit me-2"></i> Update Profile
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wallet">
-                <i class="fas fa-wallet me-2"></i> Wallet
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wishlist">
-                <i class="fas fa-heart me-2"></i> Wishlist
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/getAddress">
-                <i class="fas fa-map-marker-alt me-2"></i> My Address
-              </a>
-            </li>
-            <li class="nav-item mt-5">
-              <a class="nav-link text-danger" href="/logout">
-                <i class="fas fa-sign-out-alt me-2"></i> Logout
-              </a>
-            </li>
-          </ul>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <ul class="nav flex-column" style="list-style: none; padding: 0;">
+        <li class="nav-item">
+          <a class="nav-link" href="/myaccount">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/orders">
+            <i class="fas fa-shopping-bag"></i> Orders
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/updateProfile">
+            <i class="fas fa-user-edit"></i> Profile
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wallet">
+            <i class="fas fa-wallet"></i> Wallet
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/wishlist">
+            <i class="fas fa-heart"></i> Wishlist
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/getAddress">
+            <i class="fas fa-map-marker-alt"></i> Addresses
+          </a>
+        </li>
+        <li style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+          <a class="nav-link text-danger" href="/logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom"
+        style="background: #fff; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+        <div>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+              <li class="breadcrumb-item"><a href="/orders" class="text-decoration-none text-muted">Orders</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Details</li>
+            </ol>
+          </nav>
+          <h1 class="h2 fw-bold m-0" style="color: var(--primary-color);">Order Details</h1>
+        </div>
+        <div>
+          <button class="btn btn-outline-dark btn-action me-2" id="downloadInvoices">
+            <i class="fas fa-file-invoice me-2"></i>Invoice
+          </button>
+          <input type="hidden" name="orderId" value="<%=order.orderId%>">
         </div>
       </div>
 
-      <!-- Main Content -->
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-        <!-- Top Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-          <div>
-            <nav aria-label="breadcrumb">
-              <ol class="breadcrumb mb-1">
-                <li class="breadcrumb-item"><a href="/orders" class="text-decoration-none text-muted">Orders</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Details</li>
-              </ol>
-            </nav>
-            <h1 class="h2 fw-bold">Order Details</h1>
-          </div>
-          <div>
-            <button class="btn btn-outline-dark btn-action me-2" id="downloadInvoices">
-              <i class="fas fa-file-invoice me-2"></i>Download Invoice
-            </button>
-            <input type="hidden" name="orderId" value="<%=order.orderId%>">
-          </div>
-        </div>
-
-        <!-- Major Info & Timeline -->
-        <div class="card card-custom">
-          <div class="card-body card-body-custom">
-            <div class="row mb-5">
-              <div class="col-md-6">
-                <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Order ID</h6>
-                <h3 class="mb-0 text-primary fw-bold">#<%= order.orderId %>
-                </h3>
-              </div>
-              <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Placed On</h6>
-                <h4 class="mb-0 text-dark">
-                  <%= new Date(order.invoiceDate).toLocaleDateString(undefined, { weekday: 'long' , year: 'numeric' ,
-                    month: 'long' , day: 'numeric' }) %>
-                </h4>
-              </div>
+      <!-- Major Info & Timeline -->
+      <div class="card card-custom">
+        <div class="card-body card-body-custom">
+          <div class="row mb-5">
+            <div class="col-md-6">
+              <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Order ID</h6>
+              <h3 class="mb-0 fw-bold" style="color: var(--primary-color);">#<%= order.orderId %>
+              </h3>
             </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+              <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Placed On</h6>
+              <h4 class="mb-0 text-dark">
+                <%= new Date(order.invoiceDate).toLocaleDateString(undefined, { weekday: 'long' , year: 'numeric' ,
+                  month: 'long' , day: 'numeric' }) %>
+              </h4>
+            </div>
+          </div>
 
-            <!-- Status Timeline -->
-            <% const steps=['Pending', 'Shipped' , 'Delivered' ]; const currentStatus=order.status; let
-              progressIndex=steps.indexOf(currentStatus); if(currentStatus==='Completed' || currentStatus==='Returned' )
-              progressIndex=2; if(currentStatus==='Canceled' ) progressIndex=-1; %>
+          <!-- Status Timeline -->
+          <% const steps=['Pending', 'Shipped' , 'Delivered' ]; const currentStatus=order.status; let
+            progressIndex=steps.indexOf(currentStatus); if(currentStatus==='Completed' || currentStatus==='Returned' )
+            progressIndex=2; if(currentStatus==='Canceled' ) progressIndex=-1; %>
 
-              <% if(currentStatus==='Canceled' ) { %>
-                <div class="alert alert-danger d-flex align-items-center justify-content-center p-4 rounded-3">
-                  <i class="fas fa-ban fa-2x me-3"></i>
-                  <div>
-                    <h4 class="alert-heading fw-bold mb-1">Order Canceled</h4>
-                    <p class="mb-0">This order has been canceled and will not be delivered.</p>
+            <% if(currentStatus==='Canceled' ) { %>
+              <div class="alert alert-danger d-flex align-items-center justify-content-center p-4 rounded-3">
+                <i class="fas fa-ban fa-2x me-3"></i>
+                <div>
+                  <h4 class="alert-heading fw-bold mb-1">Order Canceled</h4>
+                  <p class="mb-0">This order has been canceled and will not be delivered.</p>
+                </div>
+              </div>
+              <% } else { %>
+                <div class="stepper-wrapper px-md-5">
+                  <div
+                    class="stepper-item <%= progressIndex >= 0 ? 'active' : '' %> <%= progressIndex > 0 ? 'completed' : '' %>">
+                    <div class="step-counter"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="step-name">Order Placed</div>
+                  </div>
+                  <div
+                    class="stepper-item <%= progressIndex >= 1 ? 'active' : '' %> <%= progressIndex > 1 ? 'completed' : '' %>">
+                    <div class="step-counter"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="step-name">Shipped</div>
+                  </div>
+                  <div class="stepper-item <%= progressIndex >= 2 ? 'active' : '' %>">
+                    <div class="step-counter"><i class="fas fa-box-open"></i></div>
+                    <div class="step-name">Delivered</div>
                   </div>
                 </div>
-                <% } else { %>
-                  <div class="stepper-wrapper px-md-5">
-                    <div
-                      class="stepper-item <%= progressIndex >= 0 ? 'active' : '' %> <%= progressIndex > 0 ? 'completed' : '' %>">
-                      <div class="step-counter"><i class="fas fa-clipboard-check"></i></div>
-                      <div class="step-name">Order Placed</div>
-                    </div>
-                    <div
-                      class="stepper-item <%= progressIndex >= 1 ? 'active' : '' %> <%= progressIndex > 1 ? 'completed' : '' %>">
-                      <div class="step-counter"><i class="fas fa-shipping-fast"></i></div>
-                      <div class="step-name">Shipped</div>
-                    </div>
-                    <div class="stepper-item <%= progressIndex >= 2 ? 'active' : '' %>">
-                      <div class="step-counter"><i class="fas fa-box-open"></i></div>
-                      <div class="step-name">Delivered</div>
-                    </div>
-                  </div>
-                  <% } %>
-          </div>
+                <% } %>
         </div>
+      </div>
 
-        <div class="row">
-          <!-- Items list -->
-          <div class="col-lg-8">
-            <div class="card card-custom">
-              <div class="card-header card-header-custom">
-                <h5 class="card-header-title">Items in Your Order</h5>
-                <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
-                  <%= order.orderedItems.length %> Items
-                </span>
-              </div>
-              <div class="card-body card-body-custom pt-0">
-                <% order.orderedItems.forEach((item)=> { %>
-                  <div class="item-row">
-                    <% if (item.product && item.product.productImage && item.product.productImage.length> 0) { %>
-                      <img src="/uploads/product-images/<%= item.product.productImage[0] %>" class="item-image"
-                        alt="Product">
-                      <% } else { %>
-                        <div class="item-image d-flex align-items-center justify-content-center bg-light text-muted">No
-                          Img</div>
-                        <% } %>
+      <div class="row">
+        <!-- Items list -->
+        <div class="col-lg-8">
+          <div class="card card-custom">
+            <div class="card-header card-header-custom">
+              <h5 class="card-header-title">Items in Your Order</h5>
+              <span class="badge rounded-pill bg-light text-dark border px-3 py-2">
+                <%= order.orderedItems.length %> Items
+              </span>
+            </div>
+            <div class="card-body card-body-custom pt-0">
+              <% order.orderedItems.forEach((item)=> { %>
+                <div class="item-row">
+                  <% if (item.product && item.product.productImage && item.product.productImage.length> 0) { %>
+                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>" class="item-image"
+                      alt="Product">
+                    <% } else { %>
+                      <div class="item-image d-flex align-items-center justify-content-center bg-light text-muted">No
+                        Img</div>
+                      <% } %>
 
-                          <div class="flex-grow-1">
-                            <a href="/productDetails?id=<%= item.product._id %>" class="item-title">
-                              <%= item.product ? item.product.name : 'Unknown Product' %>
-                            </a>
-                            <div class="d-flex flex-wrap gap-3">
-                              <span class="item-meta">Size: <strong class="text-dark">
-                                  <%= item.size %>
-                                </strong></span>
-                              <span class="item-meta">Qty: <strong class="text-dark">
-                                  <%= item.quantity %>
-                                </strong></span>
-                            </div>
-                            <div class="item-price mt-2">₹<%= item.price %>
-                            </div>
+                        <div class="flex-grow-1">
+                          <a href="/productDetails?id=<%= item.product ? item.product._id : '' %>" class="item-title">
+                            <%= item.product ? item.product.name : 'Unknown Product' %>
+                          </a>
+                          <div class="d-flex flex-wrap gap-3">
+                            <span class="item-meta">Size: <strong class="text-dark">
+                                <%= item.size %>
+                              </strong></span>
+                            <span class="item-meta">Qty: <strong class="text-dark">
+                                <%= item.quantity %>
+                              </strong></span>
                           </div>
+                          <div class="item-price mt-2">₹<%= item.price %>
+                          </div>
+                        </div>
 
-                          <div class="item-actions text-end" style="min-width: 140px;">
-                            <% if (item.cancelStatus==='canceled' ) { %>
-                              <span
-                                class="badge bg-soft-danger text-danger border border-danger px-3 py-2">Canceled</span>
-                              <% } else if (item.returnStatus==='Approved' ) { %>
-                                <span
-                                  class="badge bg-soft-success text-success border border-success px-3 py-2">Returned</span>
-                                <% } else if (order.status==='Pending' || order.status==='Shipped' ) { %>
-                                  <button class="btn btn-outline-danger btn-action w-100"
-                                    onclick="cancel('<%= order.orderId %>', '<%= item._id %>')">
-                                    Cancel Item
+                        <div class="item-actions text-end" style="min-width: 140px;">
+                          <% if (item.cancelStatus==='canceled' ) { %>
+                            <button class="btn btn-outline-danger btn-action w-100" disabled
+                              style="opacity: 0.6; cursor: not-allowed;"><i class="fas fa-ban me-1"></i>
+                              Canceled</button>
+                            <% } else if (item.returnStatus==='Approved' ) { %>
+                              <button class="btn btn-outline-success btn-action w-100" disabled style="opacity: 0.8;"><i
+                                  class="fas fa-check me-1"></i> Returned</button>
+                              <% } else if (order.status==='Pending' || order.status==='Shipped' ) { %>
+                                <button class="btn btn-outline-danger btn-action w-100"
+                                  onclick="cancel('<%= order.orderId %>', '<%= item._id %>')">
+                                  Cancel Item
+                                </button>
+                                <% } else if ((order.status==='Delivered' || order.status==='Completed' ) &&
+                                  item.returnStatus==='Not Requested' ) { %>
+                                  <button class="btn btn-outline-dark btn-action w-100"
+                                    onclick="returnOrder('<%= item._id %>')">
+                                    Return Item
                                   </button>
-                                  <% } else if ((order.status==='Delivered' || order.status==='Completed' ) &&
-                                    item.returnStatus==='Not Requested' ) { %>
-                                    <button class="btn btn-outline-dark btn-action w-100"
-                                      onclick="returnOrder('<%= item._id %>')">
-                                      Return Item
-                                    </button>
-                                    <% } else if (item.returnStatus !=='Not Requested' ) { %>
-                                      <span class="badge bg-warning text-dark px-3 py-2">
-                                        <%= item.returnStatus %>
-                                      </span>
-                                      <% } else { %>
-                                        <!-- Delivered but no return avail or misc state -->
-                                        <% } %>
-                          </div>
-                  </div>
-                  <% }) %>
+                                  <% } else if (item.returnStatus !=='Not Requested' ) { %>
+                                    <span class="badge bg-warning text-dark px-3 py-2">
+                                      <%= item.returnStatus %>
+                                    </span>
+                                    <% } %>
+                        </div>
+                </div>
+                <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+          <!-- Order Summary -->
+          <div class="card card-custom">
+            <div class="card-header card-header-custom">
+              <h5 class="card-header-title">Payment Summary</h5>
+            </div>
+            <div class="card-body card-body-custom">
+              <div class="summary-row">
+                <span>Item Total</span>
+                <span class="fw-bold">₹<%= order.totalPrice %></span>
+              </div>
+              <div class="summary-row">
+                <span>Discount</span>
+                <span class="text-success">- ₹<%= order.discount %></span>
+              </div>
+              <div class="summary-row">
+                <span>Delivery Fee</span>
+                <span class="text-success">Free</span>
+              </div>
+              <div class="summary-total">
+                <span>Grand Total</span>
+                <span>₹<%= order.finalAmount || order.totalPrice %></span>
+              </div>
+              <div class="mt-3 pt-3 border-top">
+                <label class="info-label"
+                  style="font-size: 0.85rem; font-weight: 700; color: #888; text-transform: uppercase;">Payment
+                  Mode</label>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-dark text-white me-2 px-3 py-2 text-uppercase">
+                    <%= order.paymentMethod %>
+                  </span>
+                  <span class="<%= order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning' %> fw-bold">
+                    <%= order.paymentStatus %>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Sidebar Info -->
-          <div class="col-lg-4">
-            <!-- Order Summary -->
-            <div class="card card-custom">
-              <div class="card-header card-header-custom">
-                <h5 class="card-header-title">Payment Summary</h5>
-              </div>
-              <div class="card-body card-body-custom">
-                <div class="summary-row">
-                  <span>Item Total</span>
-                  <span class="fw-bold">₹<%= order.totalPrice %></span>
-                </div>
-                <div class="summary-row">
-                  <span>Discount</span>
-                  <span class="text-success">- ₹<%= order.discount %></span>
-                </div>
-                <div class="summary-row">
-                  <span>Delivery Fee</span>
-                  <span class="text-success">Free</span>
-                </div>
-                <div class="summary-total">
-                  <span>Grand Total</span>
-                  <span>₹<%= order.finalAmount || order.totalPrice %></span>
-                </div>
-                <div class="mt-3 pt-3 border-top">
-                  <label class="info-label">Payment Mode</label>
-                  <div class="d-flex align-items-center">
-                    <span class="badge bg-dark text-white me-2 px-3 py-2 text-uppercase">
-                      <%= order.paymentMethod %>
-                    </span>
-                    <span class="<%= order.paymentStatus === 'Paid' ? 'text-success' : 'text-warning' %> fw-bold">
-                      <%= order.paymentStatus %>
-                    </span>
-                  </div>
-                </div>
-              </div>
+          <!-- Shipping Address -->
+          <div class="card card-custom">
+            <div class="card-header card-header-custom">
+              <h5 class="card-header-title">Shipping Address</h5>
             </div>
-
-            <!-- Shipping Address -->
-            <div class="card card-custom">
-              <div class="card-header card-header-custom">
-                <h5 class="card-header-title">Shipping Address</h5>
-              </div>
-              <div class="card-body card-body-custom">
-                <div class="address-box">
-                  <h5 class="fw-bold mb-2">
-                    <%= order.address.name %>
-                  </h5>
-                  <p class="mb-1">
-                    <%= order.address.houseNumber %>, <%= order.address.street || '' %>
-                  </p>
-                  <p class="mb-1">
-                    <%= order.address.city %>, <%= order.address.state %>
-                  </p>
-                  <p class="mb-3 fw-bold">
-                    <%= order.address.zipCode %>
-                  </p>
-                  <div class="d-flex align-items-center text-muted">
-                    <i class="fas fa-phone-alt me-2"></i>
-                    <span>
-                      <%= order.address.phone %>
-                    </span>
-                  </div>
+            <div class="card-body card-body-custom">
+              <div class="address-box" style="line-height: 1.6; color: #444;">
+                <h5 class="fw-bold mb-2">
+                  <%= order.address.name %>
+                </h5>
+                <p class="mb-1">
+                  <%= order.address.houseNumber %>, <%= order.address.street || '' %>
+                </p>
+                <p class="mb-1">
+                  <%= order.address.city %>, <%= order.address.state %>
+                </p>
+                <p class="mb-3 fw-bold">
+                  <%= order.address.zipCode %>
+                </p>
+                <div class="d-flex align-items-center text-muted">
+                  <i class="fas fa-phone-alt me-2"></i>
+                  <span>
+                    <%= order.address.phone %>
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

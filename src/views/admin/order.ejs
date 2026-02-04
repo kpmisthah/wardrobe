@@ -278,21 +278,24 @@
                                         <%= order.paymentMethod %>
                                     </td>
                                     <td>
-                                        <form id="order-status-<%= order._id %>" style="margin: 0;">
-                                            <select name="status" class="statusSelect"
-                                                data-order-id="<%= order.orderId %>">
-                                                <option value="Pending" <%=order.status==='Pending' ? 'selected' : '' %>
-                                                    >Pending</option>
-                                                <option value="Canceled" <%=order.status==='Canceled' ? 'selected' : ''
-                                                    %>>Canceled</option>
-                                                <option value="Shipped" <%=order.status==='Shipped' ? 'selected' : '' %>
-                                                    >Shipped</option>
-                                                <option value="Delivered" <%=order.status==='Delivered' ? 'selected'
-                                                    : '' %>>Delivered</option>
-                                                <option value="Returned" <%=order.status==='Returned' ? 'selected' : ''
-                                                    %>>Returned</option>
-                                            </select>
-                                        </form>
+                                        <% if (order.status==='Canceled' || order.status==='Returned' ) { %>
+                                            <span
+                                                style="font-weight: 600; color: <%= order.status === 'Canceled' ? '#dc2626' : '#d97706' %>;">
+                                                <%= order.status %>
+                                            </span>
+                                            <% } else { %>
+                                                <form id="order-status-<%= order._id %>" style="margin: 0;">
+                                                    <select name="status" class="statusSelect"
+                                                        data-order-id="<%= order.orderId %>">
+                                                        <option value="Pending" <%=order.status==='Pending' ? 'selected'
+                                                            : '' %>>Pending</option>
+                                                        <option value="Shipped" <%=order.status==='Shipped' ? 'selected'
+                                                            : '' %>>Shipped</option>
+                                                        <option value="Delivered" <%=order.status==='Delivered'
+                                                            ? 'selected' : '' %>>Delivered</option>
+                                                    </select>
+                                                </form>
+                                                <% } %>
                                     </td>
                                     <td>
                                         <a href="/admin/view-orders/<%= order._id %>" class="view-link">
