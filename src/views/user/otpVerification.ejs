@@ -43,17 +43,33 @@
         const timerDisplay = document.getElementById('timer');
         const resendLink = document.querySelector('.resend-link');
         const emailSpan = document.getElementById('email');
-        let timeLeft = 60; // 1 minutes in seconds
+        let timeLeft;
         let timerId;
         let canResend = true;
 
-        // Simulating an email for demonstration
-        //   const res = emailSpan.textContent = "<%=email%>"
-        //   console.log(res);
-
+        // Function to initialize timer from sessionStorage or start fresh
+        function initializeTimer() {
+            const storedExpiry = sessionStorage.getItem('otpExpiry');
+            if (storedExpiry) {
+                const now = Date.now();
+                const diff = Math.floor((parseInt(storedExpiry) - now) / 1000);
+                if (diff > 0) {
+                    timeLeft = diff;
+                } else {
+                    timeLeft = 0;
+                }
+            } else {
+                timeLeft = 60; // 1 minute
+                const expiryTime = Date.now() + timeLeft * 1000;
+                sessionStorage.setItem('otpExpiry', expiryTime);
+            }
+            startTimer();
+        }
 
         function startTimer() {
-            canResend = false
+            canResend = false;
+            if (timerId) clearInterval(timerId);
+
             timerId = setInterval(() => {
                 if (timeLeft <= 0) {
                     clearInterval(timerId);
@@ -61,6 +77,8 @@
                     timerDisplay.classList.add('expired');
                     inputs.forEach(input => input.disabled = true);
                     canResend = true;
+                    // Optionally clear stored expiry if you want refresh to start over only after expiration? 
+                    // No, usually we want it to remain expired until resend.
                 } else {
                     const minutes = Math.floor(timeLeft / 60);
                     const seconds = timeLeft % 60;
@@ -87,6 +105,8 @@
                 if (result.success) {
                     // Reset timer
                     timeLeft = 60;
+                    sessionStorage.setItem('otpExpiry', Date.now() + 60 * 1000);
+
                     inputs.forEach(input => {
                         input.value = '';
                         input.disabled = false;
@@ -181,7 +201,7 @@
             }
         }
 
-        startTimer();
+        initializeTimer();
     </script>
 </body>
 

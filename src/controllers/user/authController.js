@@ -233,9 +233,11 @@ const handleForgotPassword = async (req, res) => {
     console.log("The result of otp  is " + result);
     // Store email in session
     req.session.email = email;
+    sendEmail(email, otp)
     return res.status(200).json({ message: "Otp is created" });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 

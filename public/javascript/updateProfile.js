@@ -33,9 +33,9 @@ async function updateProfile(event) {
     const loader = document.getElementById('loader');
 
     // Get values safely
-    const oldPassword = document.getElementById('oldPassword').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    const oldPassword = document.getElementById('oldPassword').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
     const emailInput = document.querySelector('input[name="email"]');
     const email = emailInput ? emailInput.value : '';
 
