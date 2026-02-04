@@ -84,10 +84,10 @@ const loadShoppingPage = async (req, res) => {
   try {
     let page = parseInt(req.query.page || 1);
     const sortOption = req.query.sort || null;
-    const searchQuery = req.query.search || null;
+    const searchQuery = req.query.search ? req.query.search.trim() : null;
     const price = req.query.price || null;
     const availability = req.query.availability || null;
-    const categoryFilter = req.query.category || null;
+    const categoryFilter = req.query.category ? req.query.category.trim() : null;
 
     let limit = 12;
 

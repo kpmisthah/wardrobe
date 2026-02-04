@@ -1,5 +1,5 @@
 async function validateCouponForm(event) {
-    event.preventDefault(); 
+    event.preventDefault();
 
     // Clear previous error messages
     clearErrorMessages();
@@ -7,7 +7,7 @@ async function validateCouponForm(event) {
     const code = document.getElementById('code').value.trim();
     const discountValue = parseFloat(document.getElementById('discountValue').value);
     const minOrderValue = parseFloat(document.getElementById('minOrderValue').value);
-    const maxDiscount = parseFloat(document.getElementById('maxDiscount').value);  
+    const maxDiscount = parseFloat(document.getElementById('maxDiscount').value);
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     const discountType = document.getElementById('discountType').value
@@ -23,12 +23,19 @@ async function validateCouponForm(event) {
     if (isNaN(discountValue) || discountValue <= 0) {
         document.getElementById('discountValueError').textContent = "Discount value must be a positive number.";
         isValid = false;
+    } else if (discountType === 'percentage' && discountValue > 100) {
+        document.getElementById('discountValueError').textContent = "Percentage discount cannot exceed 100%.";
+        isValid = false;
     }
 
     if (!minOrderValue || minOrderValue <= 0) {
         document.getElementById('minOrderValueError').textContent = "Minimum order value must be a positive number.";
         isValid = false;
+    } else if (discountType === 'flat' && discountValue >= minOrderValue) {
+        document.getElementById('discountValueError').textContent = "Flat discount must be less than minimum order value.";
+        isValid = false;
     }
+
     if (!maxDiscount || maxDiscount <= 0) {
         document.getElementById('maxDiscountError').textContent = "Max discount value must be a positive number.";
         isValid = false;
@@ -39,7 +46,7 @@ async function validateCouponForm(event) {
         isValid = false;
     }
 
- 
+
     if (!discountType) {
         document.getElementById('discountTypeError').textContent = "Please select a discount type.";
         isValid = false;
@@ -48,36 +55,36 @@ async function validateCouponForm(event) {
 
     // Submit form if all validations pass
     if (isValid) {
-            
-    try {
-        const couponData = {
-            code,
-            discountType, 
-            discountValue,
-            minPurchase: minOrderValue, 
-            startDate,
-            endDate,
-            maxDiscount,
-        };
-        
-        const response = await fetch('/admin/coupon',{
-            method:"POST",
-            headers:{'Content-Type':"application/json"},
-            body:JSON.stringify(couponData)
-        })
-        let result = await response.json()
-        if(response.ok){
-            console.log(result)
-            window.location.href = '/admin/coupon'; 
-        }else{
-            console.error(result.message || 'Something went wrong')
+
+        try {
+            const couponData = {
+                code,
+                discountType,
+                discountValue,
+                minPurchase: minOrderValue,
+                startDate,
+                endDate,
+                maxDiscount,
+            };
+
+            const response = await fetch('/admin/coupon', {
+                method: "POST",
+                headers: { 'Content-Type': "application/json" },
+                body: JSON.stringify(couponData)
+            })
+            let result = await response.json()
+            if (response.ok) {
+                console.log(result)
+                window.location.href = '/admin/coupon';
+            } else {
+                console.error(result.message || 'Something went wrong')
+            }
+            return true
+        } catch (error) {
+            console.log("The error is" + error)
         }
-        return true
-    } catch (error) {
-        console.log("The error is"+error)
-    }
     } else {
-        return false; 
+        return false;
     }
 }
 
@@ -85,7 +92,7 @@ async function validateCouponForm(event) {
 function clearErrorMessages() {
     const errorElements = document.querySelectorAll('.text-danger');
     errorElements.forEach(element => {
-        element.textContent = '';  
+        element.textContent = '';
     });
 }
 

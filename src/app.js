@@ -77,3 +77,7 @@ app.use('/', userRouter)
 app.use('/', authRouter)
 app.use('/admin', adminRouter)
 
+app.use("*", (req, res) => {
+    res.status(404).render('user/pageNotFound');
+});
+

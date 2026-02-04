@@ -1,54 +1,60 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <%- include("../../views/partials/adminPartials/headers") %>
-<div class="content-header">
-    <div>
-        <h2 class="content-title card-title">Edit Coupon</h2>
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Edit Coupon</h2>
+        </div>
     </div>
-</div>
 
-<form id="editCouponForm" onsubmit="return validateEditCouponForm(event)">
-    <div class="card-body">
-        <div class="form-group">
-            <label for="code">Coupon Code</label>
-            <input type="text" class="form-control" id="code" name="code" required value="<%= coupon.code %>">
-            <span id="codeError" class="text-danger"></span>
+    <form id="editCouponForm" onsubmit="return validateEditCouponForm(event)">
+        <div class="card-body">
+            <div class="form-group">
+                <label for="code">Coupon Code</label>
+                <input type="text" class="form-control" id="code" name="code" required value="<%= coupon.code %>">
+                <span id="codeError" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="discountType">Discount Type</label>
+                <select class="form-control" id="discountType" name="discountType" required>
+                    <option value="percentage" <%=coupon.discountType==='percentage' ? 'selected' : '' %>>Percentage
+                    </option>
+                    <option value="flat" <%=coupon.discountType==='flat' ? 'selected' : '' %>>Flat</option>
+                </select>
+                <span id="discountTypeError" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="discountValue">Discount Value</label>
+                <input type="number" class="form-control" id="discountValue" name="discountValue" required
+                    value="<%= coupon.discountValue %>">
+                <span id="discountValueError" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="minOrderValue">Minimum Order Value</label>
+                <input type="number" class="form-control" id="minOrderValue" name="minOrderValue" required
+                    value="<%= coupon.minPurchase %>">
+                <span id="minOrderValueError" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="startDate" required
+                    value="<%= new Date(coupon.startDate).toISOString().split('T')[0] %>">
+                <span id="startDateError" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="endDate" required
+                    value="<%= new Date(coupon.endDate).toISOString().split('T')[0] %>">
+                <span id="endDateError" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="maxDiscount">Max Discount</label>
+                <input type="number" class="form-control" id="maxDiscount" name="maxDiscount" required
+                    value="<%= coupon.maxDiscount %>" placeholder="Enter maximum discount value">
+                <span id="maxDiscountError" class="text-danger"></span>
+            </div>
+            <input type="hidden" id="couponId" value="<%= coupon._id %>">
+            <button type="submit" class="btn btn-primary">Update Coupon</button>
         </div>
-        <div class="form-group">
-            <label for="discountType">Discount Type</label>
-            <select class="form-control" id="discountType" name="discountType" required>
-                <option value="percentage" <%= coupon.discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
-                <option value="flat" <%= coupon.discountType === 'flat' ? 'selected' : '' %>>Flat</option>
-            </select>
-            <span id="discountTypeError" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label for="discountValue">Discount Value</label>
-            <input type="number" class="form-control" id="discountValue" name="discountValue" required value="<%= coupon.discountValue %>">
-            <span id="discountValueError" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label for="minOrderValue">Minimum Order Value</label>
-            <input type="number" class="form-control" id="minOrderValue" name="minOrderValue" required value="<%= coupon.minPurchase %>">
-            <span id="minOrderValueError" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label for="startDate">Start Date</label>
-            <input type="date" class="form-control" id="startDate" name="startDate" required value="<%= coupon.startDate.toISOString() %>">
-            <span id="startDateError" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label for="endDate">End Date</label>
-            <input type="date" class="form-control" id="endDate" name="endDate" required value="<%= coupon.endDate.toISOString() %>">
-            <span id="endDateError" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label for="maxDiscount">Max Discount</label>
-            <input type="number" class="form-control" id="maxDiscount" name="maxDiscount" required placeholder="Enter maximum discount value">
-            <span id="maxDiscountError" class="text-danger"></span>
-        </div>
-        <input type="hidden" id="couponId" value="<%= coupon._id %>">
-        <button type="submit" class="btn btn-primary">Update Coupon</button>
-    </div>
-</form>
+    </form>
 
-<script src="/javascript/editCoupon.js"></script>
+    <script src="/javascript/editCoupon.js"></script>
