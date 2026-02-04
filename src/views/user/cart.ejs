@@ -260,7 +260,8 @@
                                 value="<%= product.quantity %>" readonly />
                               <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
                                 data-product-id="<%= product.product._id %>" data-size="<%= product.size %>"
-                                data-quantity="<%= product.quantity %>">
+                                data-quantity="<%= product.quantity %>" data-price="<%= product.price %>">
+                                <!-- Added price data attribute -->
                                 <i class="fs-16 zmdi zmdi-plus"></i>
                               </div>
                             </div>
@@ -379,11 +380,11 @@
 
             if (response.ok) {
               if (result.valid) {
-                 if (window.spaNavigate) {
-                     window.spaNavigate("/checkout");
-                 } else {
-                     window.location.href = "/checkout";
-                 }
+                if (window.spaNavigate) {
+                  window.spaNavigate("/checkout");
+                } else {
+                  window.location.href = "/checkout";
+                }
               } else {
                 let message = 'The following items have insufficient stock:\n\n';
                 result.invalidItems.forEach(item => {
@@ -481,6 +482,8 @@
           });
         });
 
+
+
         async function increment_quantity(productId, size, event) {
           try {
             const currentRow = event.target.closest(".table_row");
@@ -541,6 +544,10 @@
 
         async function decrement_quantity(productId, size, event) {
           try {
+            const currentRow = event.target.closest(".table_row");
+            const quantityInput = currentRow.querySelector(".num-product");
+            let currentQuantity = parseInt(quantityInput.value);
+
             const response = await fetch("/decrement", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -549,13 +556,9 @@
 
             const data = await response.json();
             if (response.ok) {
-              const currentRow = event.target.closest(".table_row");
-              const quantityInput = currentRow.querySelector(".num-product");
               const totalCell = currentRow.querySelector(".column-6");
-              const quantityCell = currentRow.querySelector(".column-4");
 
               quantityInput.value = data.newQuantity;
-              // quantityCell.textContent = data.newQuantity; // REMOVED: This deletes the + - buttons
               totalCell.textContent = `₹${data.newTotalPrice.toFixed(2)}`;
               updateCartTotals(data.newCartTotal);
 
@@ -563,7 +566,18 @@
               incrementButton.dataset.quantity = data.newQuantity;
               CartHandler.dispatchCartUpdate(data.cartCount);
               updateCartTotals(data.newCartTotal);
-              //   Swal.fire({ icon: "error",title: "Error", text: "cannot" });
+            } else {
+              if (data.message && data.message.includes("less than 1")) {
+                if (currentQuantity > 1) {
+                  // Desync: Backend says 1, UI says > 1. Silently update UI to 1.
+                  quantityInput.value = 1;
+                } else {
+                  // Real attempt to go below 1
+                  Swal.fire({ icon: "warning", title: "Minimum Limit", text: data.message });
+                }
+              } else {
+                Swal.fire({ icon: "error", title: "Error", text: data.message });
+              }
             }
           } catch (error) {
             console.error("Error decrementing quantity:", error);

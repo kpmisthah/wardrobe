@@ -51,6 +51,14 @@ const cart = async (req, res) => {
       return res.status(404).json({ message: `Size '${size}' not found for this product.` });
     }
 
+    // Fetch Product to get the real price (Security fix: Don't trust req.body.price)
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    // Use salePrice if available, otherwise regularPrice
+    const realPrice = product.salePrice > 0 ? product.salePrice : product.regularPrice;
+
     let cart = await Cart.findOne({ userId: owner });
     let maxQtyPerPerson = 10;
 
@@ -59,7 +67,7 @@ const cart = async (req, res) => {
     }
 
     let itemIndex = cart.items.findIndex(
-      (item) => item.product.toString() == productId && item.size == productSize.size // Use the found DB size string to ensure consistency
+      (item) => item.product.toString() == productId && item.size == productSize.size
     );
 
     let requestedQuantity = parseInt(stock) || 1;
@@ -82,15 +90,17 @@ const cart = async (req, res) => {
 
     if (itemIndex != -1) {
       cart.items[itemIndex].quantity = totalQuantity;
-      cart.items[itemIndex].totalPrice = price * totalQuantity;
+      // Use realPrice here
+      cart.items[itemIndex].price = realPrice; // Ensure unit price is corrected if it was wrong
+      cart.items[itemIndex].totalPrice = realPrice * totalQuantity;
     } else {
       cart.items.push({
         product: productId,
         name,
         quantity: requestedQuantity,
         size: size,
-        price,
-        totalPrice: price * requestedQuantity,
+        price: realPrice, // Use realPrice here
+        totalPrice: realPrice * requestedQuantity,
       });
     }
 
