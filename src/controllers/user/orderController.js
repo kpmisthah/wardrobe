@@ -44,11 +44,18 @@ const orderCancel = async (req, res) => {
 
     // Find the order containing this specific item._id
     const orderedProducts = await Order.findOne({ orderId })
+
+    if (!orderedProducts) {
+      console.error(`Order with ID ${orderId} not found`);
+      return res.status(404).json({ message: "Order not found" });
+    }
+
     const itemIndex = orderedProducts.orderedItems.findIndex(
       item => item._id.toString() === productId
     );
 
     if (itemIndex === -1) {
+      console.error(`Product with ID ${productId} not found in order ${orderId}`);
       return res.status(404).json({ message: "Item not found" });
     }
 
