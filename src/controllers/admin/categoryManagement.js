@@ -50,8 +50,16 @@ const category = async (req, res) => {
 
 const addCategoryOffer = async (req, res) => {
   try {
-    const percentage = req.body.percentage;
+    const percentage = parseFloat(req.body.percentage);
     const categoryId = req.body.categoryId;
+
+    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+      return res.status(400).json({
+        status: false,
+        message: "Percentage must be between 0 and 100",
+      });
+    }
+
     const category = await Category.findById(categoryId);
     if (!category) {
       return res.status(404).json({

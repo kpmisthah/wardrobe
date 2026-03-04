@@ -2,8 +2,23 @@ import { Coupon } from "../../models/couponSchema.js";
 
 const laodCoupon = async (req, res) => {
   try {
-    const coupon = await Coupon.find();
-    return res.render("admin/coupon", { coupon });
+    let page = parseInt(req.query.page) || 1;
+    let limit = 10;
+    const skip = (page - 1) * limit;
+
+    const coupon = await Coupon.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const count = await Coupon.countDocuments();
+    const totalpages = Math.ceil(count / limit);
+
+    return res.render("admin/coupon", {
+      coupon,
+      currentPage: page,
+      totalpages
+    });
   } catch (error) {
     console.log("The error is " + error);
   }
@@ -14,7 +29,7 @@ const addcoupon = async (req, res) => {
     return res.render("admin/couponAdd");
   } catch (error) {
     console.log(error);
-    
+
   }
 };
 
@@ -41,7 +56,7 @@ const createCoupon = async (req, res) => {
       startDate,
       endDate,
       discountType,
-      maxDiscount:Number(maxDiscount)
+      maxDiscount: Number(maxDiscount)
     });
     await newCoupon.save();
     res.status(200).json({ message: "coupon is added successfully" });
@@ -63,7 +78,7 @@ const geteditCoupon = async (req, res) => {
 const editCoupon = async (req, res) => {
   try {
     const { edit } = req.params;
-    const {code,discountValue,minPurchase,startDate,endDate,discountType} = req.body;
+    const { code, discountValue, minPurchase, startDate, endDate, discountType } = req.body;
 
     const updateCoupon = await Coupon.findByIdAndUpdate(
       edit,
@@ -82,7 +97,7 @@ const editCoupon = async (req, res) => {
       return res.status(404).json({ message: "Coupon not found" });
     }
     return res.status(200).json({ message: "coupon updated successfully" });
-  } catch (error) {}
+  } catch (error) { }
 };
 
 const deleteCoupon = async (req, res) => {
