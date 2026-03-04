@@ -1,0 +1,17 @@
+export const Messages = {
+    SERVER_ERROR: "Internal Server Error",
+    FIELDS_REQUIRED: "All Fields are required",
+    PASSWORD_MISMATCH: "Passwords do not match",
+    USER_EXISTS: "User with this email already exists",
+    OTP_SENT: "OTP sent successfully!",
+    USER_NOT_FOUND: "User not found",
+    ACCOUNT_BLOCKED: "Your account has been blocked by admin",
+    INCORRECT_PASSWORD: "Incorrect password",
+    LOGIN_SUCCESS: "Login successful",
+    LOGIN_ERROR: "An error occurred during login",
+    OTP_CREATED: "Otp is created",
+    OTP_EXPIRED: "OTP has expired or is invalid.",
+    OTP_INVALID: "Invalid OTP.",
+    OTP_VERIFIED: "OTP verified successfully.",
+    PASSWORD_CHANGED: "password changed successfully",
+};
