@@ -1,14 +1,16 @@
-import { User } from "../../models/userSchema.js";
-import { Otp } from "../../models/otpModels.js";
+import userRepository from "../../repositories/userRepository.js";
+import otpRepository from "../../repositories/otpRepository.js";
 import bcrypt from "bcrypt";
 import randomString from "randomstring";
 import { sendEmail } from "../../utils/sendEmail.js";
+import { StatusCodes, ResponseStatus } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 const signupPage = async (req, res) => {
   try {
     return res.render("user/signup");
   } catch (error) {
-    return res.status(500).send("Server error");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 };
 
@@ -17,22 +19,22 @@ const signup = async (req, res) => {
     const { name, email, password, phone, cPassword } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(403).json({
-        success: "false",
-        message: "All Fields are required",
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: ResponseStatus.ERROR,
+        message: Messages.FIELDS_REQUIRED,
       });
     }
     if (password != cPassword) {
-      return res.status(400).json({ success: false, message: "Passwords do not match" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: ResponseStatus.ERROR, message: Messages.PASSWORD_MISMATCH });
     }
     //check the user is already exist
-    const existUser = await User.findOne({ email });
+    const existUser = await userRepository.findByEmail(email);
     if (existUser) {
-      return res.status(409).json({ success: false, message: "User with this email already exists" });
+      return res.status(StatusCodes.CONFLICT).json({ success: ResponseStatus.ERROR, message: Messages.USER_EXISTS });
     }
     // Generate and save OTP
     const otp = randomString.generate({ length: 6, charset: "numeric" });
-    const result = await Otp.create({ email, otp });
+    const result = await otpRepository.create({ email, otp });
     console.log("THE OTP IS:", otp); // Added for testing
     req.session.userDetails = { name, email, password, phone };
     console.log(
@@ -40,11 +42,11 @@ const signup = async (req, res) => {
       JSON.stringify(req.session.userDetails, null, 2)
     );
 
-    return res.status(200).json({ message: 'redirect to verifiy otp', email: req.session.userDetails.email, redirectUrl: '/verify-otp' })
+    return res.status(StatusCodes.OK).json({ message: 'redirect to verifiy otp', email: req.session.userDetails.email, redirectUrl: '/verify-otp' })
 
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: ResponseStatus.ERROR, error: error.message });
   }
 };
 
@@ -65,27 +67,27 @@ const verifyOtp = async (req, res) => {
 
     // Validate input
     if (!email || !otps) {
-      return res.status(400).json({
-        success: false,
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: ResponseStatus.ERROR,
         message: "Invalid request data. OTP or email missing.",
       });
     }
 
-    const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 });
+    const otpRecord = await otpRepository.findLatestByEmail(email);
 
     if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP record not found.",
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: ResponseStatus.ERROR,
+        message: Messages.OTP_EXPIRED,
       });
     }
 
     // Verify OTP matches
     // Verify OTP matches
     if (otpRecord.otp !== otps) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid OTP.",
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: ResponseStatus.ERROR,
+        message: Messages.OTP_INVALID,
       });
     }
 
@@ -94,29 +96,28 @@ const verifyOtp = async (req, res) => {
     const passwordHash = await bcrypt.hash(user.password, 10)
 
     // Create new user
-    const newUser = new User({
+    const newUser = await userRepository.create({
       name: user.name,
       email: user.email,
       phone: user.phone,
       password: passwordHash
     });
-    await newUser.save();
 
     // Set session
     req.session.user = newUser._id;
 
 
-    return res.status(200).json({
-      success: true,
-      message: "OTP verified successfully.",
+    return res.status(StatusCodes.OK).json({
+      success: ResponseStatus.SUCCESS,
+      message: Messages.OTP_VERIFIED,
       redirectUrl: "/",
     });
   } catch (error) {
     console.error("Error in verifyOtp:", error);
 
     // Send more specific error message
-    return res.status(500).json({
-      success: false,
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: ResponseStatus.ERROR,
       message: "An error occurred during verification",
     });
   }
@@ -127,20 +128,20 @@ const resendOtp = async (req, res) => {
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     console.log("THE RESEND OTP IS:", otp);
     console.log("The resend is " + otp);
-    const existingOtp = await Otp.findOneAndUpdate(
+    const existingOtp = await otpRepository.findOneAndUpdate(
       { email },
       { otp },
       { upsert: true, new: true }
     );
     await sendEmail(email, "Resend OTP Verification", otp);
 
-    return res.json({ success: true, message: "OTP sent successfully!" });
+    return res.json({ success: ResponseStatus.SUCCESS, message: Messages.OTP_SENT });
   } catch (error) {
     console.error("Error while resending OTP:", error);
     return res
-      .status(500)
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
-        success: false,
+        success: ResponseStatus.ERROR,
         message: "Something went wrong. Please try again later.",
       });
   }
@@ -153,7 +154,7 @@ const loadError = async (req, res) => {
     return res.render("user/pageNotFound");
   } catch (error) {
     console.log(error);
-    return res.status(500).send("Server error");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 };
 
@@ -170,42 +171,42 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    let savedUser = await User.findOne({ isAdmin: 0, email });
+    let savedUser = await userRepository.findOne({ isAdmin: 0, email });
 
     // User not found
     if (!savedUser) {
       return res.json({
-        success: false,
-        message: "User not found",
+        success: ResponseStatus.ERROR,
+        message: Messages.USER_NOT_FOUND,
       });
     }
 
     // User is blocked
     if (savedUser.isBlocked) {
       return res.json({
-        success: false,
-        message: "Your account has been blocked by admin",
+        success: ResponseStatus.ERROR,
+        message: Messages.ACCOUNT_BLOCKED,
       });
     }
 
     const matchPassword = await bcrypt.compare(password, savedUser.password);
     if (!matchPassword) {
       return res.json({
-        success: false,
-        message: "Incorrect password",
+        success: ResponseStatus.ERROR,
+        message: Messages.INCORRECT_PASSWORD,
       });
     }
 
     req.session.user = savedUser._id;
     return res.json({
-      success: true,
-      message: "Login successful",
+      success: ResponseStatus.SUCCESS,
+      message: Messages.LOGIN_SUCCESS,
     });
   } catch (error) {
     console.log(error);
     return res.json({
-      success: false,
-      message: "An error occurred during login",
+      success: ResponseStatus.ERROR,
+      message: Messages.LOGIN_ERROR,
     });
   }
 };
@@ -221,23 +222,23 @@ const forgotPassword = async (req, res) => {
 const handleForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await userRepository.findByEmail(email);
     console.log("The user is " + user);
     if (!user) {
       return res
-        .status(404)
-        .json({ success: false, message: "No account found with this email" });
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: ResponseStatus.ERROR, message: "No account found with this email" });
     }
     const otp = randomString.generate({ length: 6, charset: "numeric" });
-    const result = await Otp.create({ email: user.email, otp });
+    const result = await otpRepository.create({ email: user.email, otp });
     console.log("The result of otp  is " + result);
     // Store email in session
     req.session.email = email;
     sendEmail(email, otp)
-    return res.status(200).json({ message: "Otp is created" });
+    return res.status(StatusCodes.OK).json({ message: Messages.OTP_CREATED });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -252,29 +253,29 @@ const verify = async (req, res) => {
   try {
     const { otps } = req.body;
     const email = req.session.email;
-    const otpRecord = await Otp.findOne({ email });
+    const otpRecord = await otpRepository.findOne({ email });
     if (!otpRecord) {
       return res
-        .status(400)
-        .json({ success: false, message: "OTP has expired or is invalid." });
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ success: ResponseStatus.ERROR, message: Messages.OTP_EXPIRED });
     }
     if (otpRecord.otp != otps) {
-      return res.status(400).json({ success: false, message: "Invalid OTP." });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: ResponseStatus.ERROR, message: Messages.OTP_INVALID });
     }
 
     // return res.redirect("/")
     return res
-      .status(200)
+      .status(StatusCodes.OK)
       .json({
-        success: true,
-        message: "OTP verified successfully.",
+        success: ResponseStatus.SUCCESS,
+        message: Messages.OTP_VERIFIED,
         redirectUrl: "/reset-password",
       }); // Example redirect URL
   } catch (error) {
     console.log(error);
     return res
-      .status(500)
-      .json({ success: false, message: "An error occured" });
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: ResponseStatus.ERROR, message: "An error occured" });
   }
 };
 
@@ -291,13 +292,13 @@ const postNewPassword = async (req, res) => {
     const email = req.session.email;
     if (password == confirmPassword) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      await User.updateOne(
+      await userRepository.updateOne(
         { email: email },
         { $set: { password: hashedPassword } }
       );
-      return res.status(200).json({ message: "password changed successfully" });
+      return res.status(StatusCodes.OK).json({ message: Messages.PASSWORD_CHANGED });
     } else {
-      return res.status(400).json({ message: "Passwords do not match" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.PASSWORD_MISMATCH });
     }
   } catch (error) {
     console.log("The error" + error);

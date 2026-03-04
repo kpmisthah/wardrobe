@@ -92,9 +92,6 @@ const wishlistToCart = async (req, res) => {
         const cartIndex = cart.items.findIndex((item) => item.product.toString() == productId && item.size == productSize)
 
         if (cartIndex != -1) {
-            // Check if adding 1 more would exceed stock? 
-            // Usually cart add simply adds, but here we adding from wishlist (qty 1)
-            // If already in cart, we return 'already in cart' message as per generic logic
             return res.status(400).json({ message: "product is already in cart" })
         } else {
             const newItem = {

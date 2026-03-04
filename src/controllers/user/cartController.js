@@ -36,10 +36,8 @@ const cart = async (req, res) => {
 
     const { productId, name, price, stock, size } = req.body;
 
-    // 1. Try exact match
     let productSize = await Size.findOne({ product: productId, size });
 
-    // 2. If not found, try case-insensitive match
     if (!productSize) {
       productSize = await Size.findOne({
         product: productId,
@@ -51,12 +49,10 @@ const cart = async (req, res) => {
       return res.status(404).json({ message: `Size '${size}' not found for this product.` });
     }
 
-    // Fetch Product to get the real price (Security fix: Don't trust req.body.price)
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-    // Use salePrice if available, otherwise regularPrice
     const realPrice = product.salePrice > 0 ? product.salePrice : product.regularPrice;
 
     let cart = await Cart.findOne({ userId: owner });
