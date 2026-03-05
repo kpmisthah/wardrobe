@@ -386,7 +386,7 @@
                 <div>
                   <div class="order-id">Order #<%= order.orderId %>
                   </div>
-                  <div class="order-date">Placed on <%= new Date(order.invoiceDate).toLocaleDateString('en-IN', {
+                  <div class="order-date">Placed on <%= new Date(order.createdAt).toLocaleDateString('en-IN', {
                       day: 'numeric' , month: 'long' , year: 'numeric' }) %>
                   </div>
                 </div>
