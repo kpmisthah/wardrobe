@@ -41,8 +41,8 @@ const orderStatus = async (req, res) => {
             return res.status(404).json({ message: "Order not found" });
         }
 
-        if (currentOrder.status === 'Canceled' || currentOrder.status === 'Returned') {
-            return res.status(400).json({ message: `Cannot change status. Order is already ${currentOrder.status}.` });
+        if ((status === 'Shipped' || status === 'Delivered') && currentOrder.paymentStatus !== 'Success' && currentOrder.paymentMethod !== 'COD') {
+            return res.status(400).json({ message: "Cannot ship or deliver an order that has not been paid for." });
         }
 
         currentOrder.status = status;
@@ -68,12 +68,15 @@ const viewOrders = async (req, res) => {
 }
 const handleReturn = async (req, res) => {
     try {
-        const userId = req.session.user;
         const { orderId, productId, action } = req.body;
 
-        // Find order and wallet
+        // Find order
         const order = await Order.findOne({ orderId });
-        const wallet = await Wallet.findOne({ userId });
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        const wallet = await Wallet.findOne({ userId: order.userId });
 
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
@@ -102,8 +105,19 @@ const handleReturn = async (req, res) => {
 
             const refundAmount = itemTotal - proportionalDiscount;
 
+            if (order.paymentStatus !== 'Success' && order.paymentMethod !== 'COD') {
+                return res.status(400).json({ error: 'Cannot refund an order that was not successfully paid.' });
+            }
+
             // Update product status
             productItem.returnStatus = 'Approved';
+
+            // Increase stock count
+            const size = await Size.findOne({ product: productItem.product, size: productItem.size });
+            if (size) {
+                size.quantity += productItem.quantity;
+                await size.save();
+            }
 
             // Update wallet balance
             wallet.balance += refundAmount;
@@ -209,6 +223,29 @@ const orderCancelled = async (req, res) => {
         if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;
         if (orderedProducts.discount < 0) orderedProducts.discount = 0;
         if (orderedProducts.finalAmount < 0) orderedProducts.finalAmount = 0;
+
+        if (orderedProducts.paymentMethod !== 'COD' && orderedProducts.paymentStatus !== 'Pending') {
+            const wallet = await Wallet.findOne({ userId: orderedProducts.userId });
+            const transaction = {
+                transactionType: 'refund',
+                transactionAmount: Math.round(refundAmount * 100) / 100,
+                transactionDate: new Date(),
+                description: `Refund for canceled item from order ${orderId}`
+            };
+
+            if (wallet) {
+                wallet.balance += refundAmount;
+                wallet.transactionHistory.push(transaction);
+                await wallet.save();
+            } else {
+                const newWallet = new Wallet({
+                    userId: orderedProducts.userId,
+                    balance: refundAmount,
+                    transactionHistory: [transaction]
+                });
+                await newWallet.save();
+            }
+        }
 
         await orderedProducts.save();
 

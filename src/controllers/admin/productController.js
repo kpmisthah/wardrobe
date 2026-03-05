@@ -9,15 +9,15 @@ import fs from 'fs';
 
 const getProductAddPage = async (req, res) => {
   try {
-      //extract category  from dbs
-      const category = await Category.find({ isListed: true });
-      const subcategory = await Subcategory.find({ isListed: true });
-      const size = await Size.find();
-      res.render("admin/product-add", {
-        category,
-        subcategory,
-        size,
-      });
+    //extract category  from dbs
+    const category = await Category.find({ isListed: true });
+    const subcategory = await Subcategory.find({ isListed: true });
+    const size = await Size.find();
+    res.render("admin/product-add", {
+      category,
+      subcategory,
+      size,
+    });
   } catch (error) {
     res.render("admin/pageNotFound");
   }
@@ -53,7 +53,7 @@ const addProducts = async (req, res) => {
       const subcategory = await Subcategory.findById(products.subcategory);
 
       if (!category || !subcategory) {
-        return res.status(400).join("Invalid category name");
+        return res.status(400).json("Invalid category name");
       }
       const newProduct = new Product({
         name: products.productName,
@@ -69,7 +69,7 @@ const addProducts = async (req, res) => {
         sizeOptions: [],
         status: "Available",
       });
-     await newProduct.save();
+      await newProduct.save();
       return res.redirect("/admin/addProducts");
     } else {
       return res
@@ -83,27 +83,27 @@ const addProducts = async (req, res) => {
 
 const getProductPage = async (req, res) => {
   try {
-      const search = req.query.search || "";
-      const page = req.query.page || 1;
-      const limit = 3;
+    const search = req.query.search || "";
+    const page = req.query.page || 1;
+    const limit = 3;
 
-      const searchQuery = {
-        name: { $regex: search, $options: "i" },
-      };
-      const productData = await Product.find(searchQuery)
-        .limit(limit)
-        .skip((page - 1) * limit)
-        .populate({ path: "category", select: "name" })
-        .populate("sizeOptions");
-      const count = await Product.countDocuments(searchQuery);
-      const totalPages = Math.ceil(count / limit);
-      res.render("admin/products", {
-        data: productData,
-        currentPage: page,
-        totalPages,
-        search,
-  
-      });
+    const searchQuery = {
+      name: { $regex: search, $options: "i" },
+    };
+    const productData = await Product.find(searchQuery)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .populate({ path: "category", select: "name" })
+      .populate("sizeOptions");
+    const count = await Product.countDocuments(searchQuery);
+    const totalPages = Math.ceil(count / limit);
+    res.render("admin/products", {
+      data: productData,
+      currentPage: page,
+      totalPages,
+      search,
+
+    });
   } catch (error) {
     console.error(error);
   }
@@ -131,16 +131,16 @@ const unblockProduct = async (req, res) => {
 
 const getEditProduct = async (req, res) => {
   try {
-    
-      const { id } = req.query;
-      const product = await Product.findOne({ _id: id }).populate('category').populate('subcategory').populate('sizeOptions');
-      const category = await Category.find({ isListed: true});
-      const subcategory = await Subcategory.find({ isListed: true});
-      res.render("admin/edit-product", {
-        product,
-        category,
-        subcategory,
-      });
+
+    const { id } = req.query;
+    const product = await Product.findOne({ _id: id }).populate('category').populate('subcategory').populate('sizeOptions');
+    const category = await Category.find({ isListed: true });
+    const subcategory = await Subcategory.find({ isListed: true });
+    res.render("admin/edit-product", {
+      product,
+      category,
+      subcategory,
+    });
 
   } catch (error) {
     res.redirect("/pageNotFound");
@@ -150,90 +150,90 @@ const getEditProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
   try {
-      console.log(req.files);
-      const { id } = req.params;
-      const data = req.body;
-      const existingProduct = await Product.findOne({
-          name: data.productName,
-          _id: { $ne: id },
+    console.log(req.files);
+    const { id } = req.params;
+    const data = req.body;
+    const existingProduct = await Product.findOne({
+      name: data.productName,
+      _id: { $ne: id },
+    });
+
+    if (existingProduct) {
+      return res.status(400).json({
+        error: "Product with this name already exists. please try with another name",
+      });
+    }
+
+    let images = [];
+    if (req.files && req.files.length > 0) {
+      images = req.files.map((file) => file.filename);
+    }
+
+    const category = await Category.findOne({ name: data.category });
+    const subcategory = await Subcategory.findOne({ name: data.subcategory });
+
+    const updateFields = {
+      name: data.productName,
+      description: data.descriptionData,
+      category: category._id,
+      subcategory: subcategory._id,
+      regularPrice: data.regularPrice,
+      salePrice: data.salePrice,
+      color: data.color,
+    };
+
+    if (images.length > 0) {
+
+      updateFields.$push = { productImage: { $each: images } };
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateFields, { new: true });
+
+    if (data.sizes && data.quantities) {
+
+      const sizes = Array.isArray(data.sizes) ? data.sizes : [data.sizes];
+      const quantities = Array.isArray(data.quantities) ? data.quantities : [data.quantities];
+
+      await Size.deleteMany({ product: id });
+
+      const sizePromises = sizes.map((size, index) => {
+        return Size.create({
+          product: id,
+          size: size,
+          quantity: parseInt(quantities[index])
+        });
       });
 
-      if (existingProduct) {
-          return res.status(400).json({
-              error: "Product with this name already exists. please try with another name",
-          });
-      }
+      const newSizes = await Promise.all(sizePromises);
 
-      let images = [];
-      if (req.files && req.files.length > 0) {
-          images = req.files.map((file) => file.filename);
-      }
+      updatedProduct.sizeOptions = newSizes.map(size => size._id);
+      await updatedProduct.save();
+    }
 
-      const category = await Category.findOne({ name: data.category });
-      const subcategory = await Subcategory.findOne({ name: data.subcategory });
-
-      const updateFields = {
-          name: data.productName,
-          description: data.descriptionData,
-          category: category._id,
-          subcategory: subcategory._id,
-          regularPrice: data.regularPrice,
-          salePrice: data.salePrice,
-          color: data.color,
-      };
-
-      if (images.length > 0) {
-         
-          updateFields.$push = {productImage:{$each:images}};
-      }
-
-      const updatedProduct = await Product.findByIdAndUpdate(id, updateFields, { new: true });
-
-      if (data.sizes && data.quantities) {
-
-          const sizes = Array.isArray(data.sizes) ? data.sizes : [data.sizes];
-          const quantities = Array.isArray(data.quantities) ? data.quantities : [data.quantities];
-
-          await Size.deleteMany({ product: id });
-
-          const sizePromises = sizes.map((size, index) => {
-              return Size.create({
-                  product: id,
-                  size: size,
-                  quantity: parseInt(quantities[index])
-              });
-          });
-
-          const newSizes = await Promise.all(sizePromises);
-
-          updatedProduct.sizeOptions = newSizes.map(size => size._id);
-          await updatedProduct.save();
-      }
-
-      res.redirect("/admin/products");
+    res.redirect("/admin/products");
   } catch (error) {
-      console.error(error);
-      res.redirect("/pageerror");
+    console.error(error);
+    res.redirect("/pageerror");
   }
 };
-const deleteSingleImage = async(req,res)=>{
+const deleteSingleImage = async (req, res) => {
   try {
-      
-     const {imageNameToServer,productIdToServer} = req.body;
-     const product = await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}});
-     const imagePath = path.join("public","uploads","re-image",imageNameToServer);
-     if(fs.existsSync(imagePath)){
+
+    const { imageNameToServer, productIdToServer } = req.body;
+    const product = await Product.findByIdAndUpdate(productIdToServer, { $pull: { productImage: imageNameToServer } });
+    const imagePath = path.join("public", "uploads", "re-image", imageNameToServer);
+    if (fs.existsSync(imagePath)) {
       await fs.unlinkSync(imagePath);
       console.log(`Image ${imageNameToServer} deleted successfully`);
 
-     }else{
-        console.log(`Image ${imageNameToServer} not found`);
-     }
-     res.send({status:true});
+    } else {
+      console.log(`Image ${imageNameToServer} not found`);
+    }
+    res.send({ status: true });
 
   } catch (error) {
-      console.log("The delete error is"+error);
-      
+    console.log("The delete error is" + error);
+
   }
 }
 const sizeManagement = async (req, res) => {

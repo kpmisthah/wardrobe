@@ -5,6 +5,7 @@ import { Order } from "../../models/orderIdSchema.js";
 import { Coupon } from "../../models/couponSchema.js";
 import PDFDocument from "pdfkit";
 import { Size } from "../../models/sizeSchema.js";
+import { Product } from "../../models/productSchema.js";
 import { orders } from "./orderController.js";
 import { rzp } from "../../db/razorpay.js";
 
@@ -153,10 +154,17 @@ const placeOrder = async (req, res) => {
     }
 
     for (let item of cart.items) {
-      const size = await Size.findOne({ product: item.product, size: item.size });
-      if (size.quantity < item.quantity) {
+      const product = await Product.findById(item.product);
+      if (product.isBlocked) {
         return res.status(400).json({
-          message: `Insufficient stock for ${item.name} in size ${item.size}.only${size.quantity} available`,
+          message: `Product ${item.name} is currently unavailable. Please remove it from your cart.`,
+        });
+      }
+
+      const size = await Size.findOne({ product: item.product, size: item.size });
+      if (!size || size.quantity < item.quantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for ${item.name} in size ${item.size}. Only ${size ? size.quantity : 0} available.`,
         });
       }
     }
@@ -195,7 +203,7 @@ const placeOrder = async (req, res) => {
     }
 
     let totalPrice = cart.bill;
-    if (payment == "COD" && final_amount || totalPrice > 1000) {
+    if (payment == "COD" && (final_amount || totalPrice) > 1000) {
       return res
         .status(400)
         .json({
@@ -221,7 +229,6 @@ const placeOrder = async (req, res) => {
       finalAmount: final_amount || totalPrice,
       discount: discount_amount,
       paymentStatus: 'Pending',
-      invoiceDate: new Date(),
     });
     await newOrder.save();
 
@@ -248,9 +255,14 @@ const createPendingOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: 'cart is empty' })
     }
     for (let item of cart.items) {
+      const product = await Product.findById(item.product);
+      if (product.isBlocked) {
+        return res.status(400).json({ success: false, message: `Product ${item.name} is currently unavailable.` });
+      }
+
       const size = await Size.findOne({ product: item.product, size: item.size })
-      if (size.quantity < item.quantity) {
-        return res.status(400).json({ success: false, message: `Insufficient stock for ${item.name} in size ${item.size}.only ${size.quantity} left` })
+      if (!size || size.quantity < item.quantity) {
+        return res.status(400).json({ success: false, message: `Insufficient stock for ${item.name} in size ${item.size}. Only ${size ? size.quantity : 0} available.` })
       }
     }
     const address = await Address.findOne({ userId });
@@ -292,7 +304,6 @@ const createPendingOrder = async (req, res) => {
       paymentMethod: "razorpay",
       status: "Pending",
       paymentStatus: "Pending",
-      invoiceDate: new Date(),
     });
 
     await newOrder.save();
@@ -326,7 +337,7 @@ const saveOrder = async (req, res) => {
   try {
     let userId = req.session.user;
     const { mongoOrderId, addressId, amount } = req.body;
-    const order = await Order.findById(mongoOrderId)
+    const order = await Order.findOne({ _id: mongoOrderId, userId })
 
     if (!order) {
       throw new Error("Order not found");
@@ -338,11 +349,16 @@ const saveOrder = async (req, res) => {
 
 
     for (let item of cart.items) {
+      const product = await Product.findById(item.product);
+      if (product.isBlocked) {
+        return res.status(400).json({ message: `Product ${item.name} is currently unavailable.` });
+      }
+
       const size = await Size.findOne({ product: item.product, size: item.size });
 
-      if (size.quantity < item.quantity) {
+      if (!size || size.quantity < item.quantity) {
         return res.status(400).json({
-          message: `Insufficient stock for ${item.name} in size ${item.size} only ${size.quantity} left`,
+          message: `Insufficient stock for ${item.name} in size ${item.size}. Only ${size ? size.quantity : 0} available.`,
         });
       }
     }
@@ -354,6 +370,7 @@ const saveOrder = async (req, res) => {
       await size.save();
     }
     order.paymentStatus = 'Success'
+    order.invoiceDate = new Date() // Set invoice date only on success
     await order.save()
     cart.items = [];
     cart.bill = 0;
@@ -377,10 +394,11 @@ const retryPayment = async (req, res) => {
 
   try {
     const { paymentMethod, amount, originalOrderId } = req.body;
+    const userId = req.session.user;
 
-    const orders = await Order.findById(originalOrderId)
+    const orders = await Order.findOne({ _id: originalOrderId, userId })
 
-    if (orders.status !== 'Pending' || orders.paymentMethod !== 'razorpay') {
+    if (!orders || orders.status !== 'Pending' || orders.paymentMethod !== 'razorpay') {
       return res.status(400).json({ success: false, message: 'Invalid order for retry payment.' });
     }
 
@@ -407,11 +425,12 @@ const completeRetryPayment = async (req, res) => {
   try {
     const { originalOrderId, amount } = req.body
     const userId = req.session.user
-    const order = await Order.findOneAndUpdate({ _id: originalOrderId }, {
+    const order = await Order.findOneAndUpdate({ _id: originalOrderId, userId }, {
       $set: {
-        paymentStatus: 'Success'
+        paymentStatus: 'Success',
+        invoiceDate: new Date() // Set invoice date only on success
       }
-    })
+    }, { new: true })
 
     if (!order) {
       throw new Error('Order not found');
@@ -541,9 +560,10 @@ const removeCoupon = async (req, res) => {
 const generatePdf = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await Order.findOne({ orderId: orderId });
+    const userId = req.session.user;
+    const order = await Order.findOne({ orderId: orderId, userId });
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(404).send("Order not found or unauthorized");
     }
 
     if (!order) {
