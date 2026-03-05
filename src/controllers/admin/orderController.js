@@ -9,13 +9,18 @@ const orderList = async (req, res) => {
         let limit = 4
         let search = req.query.search || "";
 
-        let query = {};
+        let query = { $or: [{ paymentStatus: 'Success' }, { paymentMethod: 'COD' }] };
         if (search) {
             query = {
-                $or: [
-                    { orderId: { $regex: search, $options: "i" } },
-                    { paymentMethod: { $regex: search, $options: "i" } },
-                    { status: { $regex: search, $options: "i" } }
+                $and: [
+                    { $or: [{ paymentStatus: 'Success' }, { paymentMethod: 'COD' }] },
+                    {
+                        $or: [
+                            { orderId: { $regex: search, $options: "i" } },
+                            { paymentMethod: { $regex: search, $options: "i" } },
+                            { status: { $regex: search, $options: "i" } }
+                        ]
+                    }
                 ]
             };
         }
@@ -190,8 +195,10 @@ const orderCancelled = async (req, res) => {
         items.cancelStatus = 'canceled'
         if (items.cancelStatus == 'canceled') {
             const size = await Size.findOne({ product: items.product, size: items.size })
-            size.quantity += items.quantity
-            await size.save()
+            if (size) {
+                size.quantity += items.quantity
+                await size.save()
+            }
         }
         const allItemsCancelled = orderedProducts.orderedItems.every(
             item => item.cancelStatus === 'canceled'
@@ -217,7 +224,7 @@ const orderCancelled = async (req, res) => {
         // Update Order Fields
         orderedProducts.totalPrice -= itemTotal;
         orderedProducts.discount -= proportionalDiscount;
-        orderedProducts.finalAmount -= refundAmount;
+        orderedProducts.finalAmount = (orderedProducts.finalAmount || orderedProducts.totalPrice + itemTotal) - refundAmount;
 
         // Safety clamps
         if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;

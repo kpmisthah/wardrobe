@@ -93,7 +93,7 @@ const orderCancel = async (req, res) => {
     // Update Order Fields
     orderedProducts.totalPrice -= itemTotal;
     orderedProducts.discount -= proportionalDiscount;
-    orderedProducts.finalAmount -= refundAmount;
+    orderedProducts.finalAmount = (orderedProducts.finalAmount || orderedProducts.totalPrice + itemTotal) - refundAmount;
 
     // Safety clamps
     if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;
