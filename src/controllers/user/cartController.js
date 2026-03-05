@@ -53,6 +53,10 @@ const cart = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    if (product.isBlocked) {
+      return res.status(403).json({ message: "This product is currently unavailable" });
+    }
     const realPrice = product.salePrice > 0 ? product.salePrice : product.regularPrice;
 
     let cart = await Cart.findOne({ userId: owner });
