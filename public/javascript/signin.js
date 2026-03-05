@@ -147,6 +147,10 @@ async function handleSignup(event) {
       sessionStorage.setItem("verificationEmail", data.email);
       window.location.href = data.redirectUrl;
     } else {
+      if (!response.ok && response.status === 500) {
+        alert("Server error. Please try again later.");
+        return;
+      }
       if (data.message) {
         if (data.message.toLowerCase().includes("email") || data.message.toLowerCase().includes("exists")) {
           error2.style.display = "block";
