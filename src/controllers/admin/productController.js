@@ -5,12 +5,15 @@ import path from "path";
 import sharp from "sharp";
 import { Size } from "../../models/sizeSchema.js";
 import fs from 'fs';
+import { HTTP_STATUS, MESSAGES, ORDER_STATUS } from "../../constants.js";
+import { productRepository } from "../../repositories/productRepository.js";
+import { categoryRepository } from "../../repositories/categoryRepository.js";
 
 
 const getProductAddPage = async (req, res) => {
   try {
     //extract category  from dbs
-    const category = await Category.find({ isListed: true });
+    const category = await categoryRepository.findCategories({ isListed: true }, 1, 100);
     const subcategory = await Subcategory.find({ isListed: true });
     const size = await Size.find();
     res.render("admin/product-add", {
@@ -26,9 +29,7 @@ const getProductAddPage = async (req, res) => {
 const addProducts = async (req, res) => {
   try {
     const products = req.body;
-    const productExist = await Product.findOne({
-      name: products.productName, //ivide error adikkan chance ind
-    });
+    const productExist = await productRepository.findDuplicateProduct(products.productName);
     if (!productExist) {
       //images handle cheyyan empty array initialise cheyya
       const images = [];
@@ -49,11 +50,11 @@ const addProducts = async (req, res) => {
         }
       }
       //ividathe products form nn varunne aan req.body nn.
-      const category = await Category.findById(products.category);
+      const category = await categoryRepository.findCategoryById(products.category);
       const subcategory = await Subcategory.findById(products.subcategory);
 
       if (!category || !subcategory) {
-        return res.status(400).json("Invalid category name");
+        return res.status(HTTP_STATUS.BAD_REQUEST).json("Invalid category name");
       }
       const newProduct = new Product({
         name: products.productName,
@@ -73,7 +74,7 @@ const addProducts = async (req, res) => {
       return res.redirect("/admin/addProducts");
     } else {
       return res
-        .status(400)
+        .status(HTTP_STATUS.BAD_REQUEST)
         .json("product already exist ,please try with another name");
     }
   } catch (error) {
@@ -90,12 +91,8 @@ const getProductPage = async (req, res) => {
     const searchQuery = {
       name: { $regex: search, $options: "i" },
     };
-    const productData = await Product.find(searchQuery)
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .populate({ path: "category", select: "name" })
-      .populate("sizeOptions");
-    const count = await Product.countDocuments(searchQuery);
+    const productData = await productRepository.findProducts(searchQuery, page, limit);
+    const count = await productRepository.countProducts(searchQuery);
     const totalPages = Math.ceil(count / limit);
     res.render("admin/products", {
       data: productData,
@@ -133,8 +130,8 @@ const getEditProduct = async (req, res) => {
   try {
 
     const { id } = req.query;
-    const product = await Product.findOne({ _id: id }).populate('category').populate('subcategory').populate('sizeOptions');
-    const category = await Category.find({ isListed: true });
+    const product = await productRepository.findProductById(id);
+    const category = await categoryRepository.findCategories({ isListed: true }, 1, 100);
     const subcategory = await Subcategory.find({ isListed: true });
     res.render("admin/edit-product", {
       product,
@@ -153,13 +150,10 @@ const editProduct = async (req, res) => {
     console.log(req.files);
     const { id } = req.params;
     const data = req.body;
-    const existingProduct = await Product.findOne({
-      name: data.productName,
-      _id: { $ne: id },
-    });
+    const existingProduct = await productRepository.findDuplicateProduct(data.productName, id);
 
     if (existingProduct) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         error: "Product with this name already exists. please try with another name",
       });
     }
@@ -169,7 +163,7 @@ const editProduct = async (req, res) => {
       images = req.files.map((file) => file.filename);
     }
 
-    const category = await Category.findOne({ name: data.category });
+    const category = await categoryRepository.findCategoryByName(data.category);
     const subcategory = await Subcategory.findOne({ name: data.subcategory });
 
     const updateFields = {
