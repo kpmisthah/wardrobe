@@ -3,17 +3,19 @@ import { Product } from "../../models/productSchema.js"
 import { User } from "../../models/userSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 import { Wallet } from "../../models/walletSchema.js"
+import { HTTP_STATUS, ORDER_STATUS, PAYMENT_STATUS, CANCEL_STATUS, MESSAGES } from "../../constants.js"
+import { orderRepository } from "../../repositories/orderRepository.js"
 const orderList = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1
         let limit = 4
         let search = req.query.search || "";
 
-        let query = { $or: [{ paymentStatus: 'Success' }, { paymentMethod: 'COD' }] };
+        let query = { $or: [{ paymentStatus: PAYMENT_STATUS.SUCCESS }, { paymentMethod: 'COD' }] };
         if (search) {
             query = {
                 $and: [
-                    { $or: [{ paymentStatus: 'Success' }, { paymentMethod: 'COD' }] },
+                    { $or: [{ paymentStatus: PAYMENT_STATUS.SUCCESS }, { paymentMethod: 'COD' }] },
                     {
                         $or: [
                             { orderId: { $regex: search, $options: "i" } },
@@ -25,15 +27,13 @@ const orderList = async (req, res) => {
             };
         }
 
-        const orders = await Order.find(query).populate('userId').skip((page - 1) * limit).limit(limit).sort({ createdAt: -1 })
-        console.log("the user is ", orders);
-
-        const count = await Order.find(query).countDocuments()
+        const orders = await orderRepository.findOrdersForAdmin(query, page, limit);
+        const count = await orderRepository.countOrders(query);
         const totalpages = Math.ceil(count / limit)
         return res.render('admin/order', { orders, currentPage: page, totalpages, search })
     } catch (error) {
         console.error('Error fetching orders:', error);
-        res.status(500).send('An error occurred while fetching orders.');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send('An error occurred while fetching orders.');
     }
 }
 
@@ -43,32 +43,33 @@ const orderStatus = async (req, res) => {
         const currentOrder = await Order.findOne({ orderId });
 
         if (!currentOrder) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ message: MESSAGES.ORDER_NOT_FOUND });
         }
 
-        if ((status === 'Shipped' || status === 'Delivered') && currentOrder.paymentStatus !== 'Success' && currentOrder.paymentMethod !== 'COD') {
-            return res.status(400).json({ message: "Cannot ship or deliver an order that has not been paid for." });
+        if ((status === ORDER_STATUS.SHIPPED || status === ORDER_STATUS.DELIVERED) &&
+            currentOrder.paymentStatus !== PAYMENT_STATUS.SUCCESS &&
+            currentOrder.paymentMethod !== 'COD') {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: "Cannot ship or deliver an order that has not been paid for." });
         }
 
         currentOrder.status = status;
         await currentOrder.save();
 
-        res.status(200).json({ message: "Order is updated successfully" })
+        res.status(HTTP_STATUS.OK).json({ message: MESSAGES.STATUS_UPDATED })
 
     } catch (error) {
         console.log("The error is" + error);
-
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
     }
 }
 const viewOrders = async (req, res) => {
     try {
         const { orderid } = req.params
-        const order = await Order.findOne({ _id: orderid }).populate('orderedItems.product')
+        const order = await orderRepository.findOrderByIdAdmin(orderid);
         return res.render('admin/viewOrder', { order })
-
-
     } catch (error) {
         console.log(error)
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
     }
 }
 const handleReturn = async (req, res) => {
@@ -192,8 +193,8 @@ const orderCancelled = async (req, res) => {
         const items = orderedProducts.orderedItems[itemIndex];
 
         //so now we want to increase the stock count for specific product
-        items.cancelStatus = 'canceled'
-        if (items.cancelStatus == 'canceled') {
+        items.cancelStatus = CANCEL_STATUS.CANCELED
+        if (items.cancelStatus === CANCEL_STATUS.CANCELED) {
             const size = await Size.findOne({ product: items.product, size: items.size })
             if (size) {
                 size.quantity += items.quantity
@@ -206,7 +207,7 @@ const orderCancelled = async (req, res) => {
 
         // If all items are cancelled, update the main order status
         if (allItemsCancelled) {
-            orderedProducts.status = 'Canceled';
+            orderedProducts.status = ORDER_STATUS.CANCELED;
         }
         // Calculate refund/deduction with discount consideration
         const itemTotal = items.price * items.quantity;
@@ -256,7 +257,7 @@ const orderCancelled = async (req, res) => {
 
         await orderedProducts.save();
 
-        return res.status(200).json({ message: "Item canceled successfully" });
+        return res.status(HTTP_STATUS.OK).json({ message: MESSAGES.ITEM_CANCELED });
 
     } catch (error) {
         console.log("Error in productCancel:", error);

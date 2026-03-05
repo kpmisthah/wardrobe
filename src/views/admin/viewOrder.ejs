@@ -16,121 +16,129 @@
                 <%= order.status %>
             </p>
 
-            <div class="address-details"
-                style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
-                    Delivery Address</h4>
-                <p><strong>Name:</strong>
-                    <%= order.address.name %>
-                </p>
-                <p><strong>Email:</strong>
-                    <%= order.address.email %>
-                </p>
-                <p><strong>Phone:</strong>
-                    <%= order.address.phone %>
-                </p>
-                <p><strong>Address:</strong>
-                    <%= order.address.houseNumber %>, <%= order.address.city %>, <%= order.address.district %>, <%=
-                                    order.address.state %> - <%= order.address.zipCode %>
-                </p>
-            </div>
+            <% if (order.address) { %>
+                <div class="address-details"
+                    style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                    <h4
+                        style="margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                        Delivery Address</h4>
+                    <p><strong>Name:</strong>
+                        <%= order.address.name %>
+                    </p>
+                    <p><strong>Email:</strong>
+                        <%= order.address.email %>
+                    </p>
+                    <p><strong>Phone:</strong>
+                        <%= order.address.phone %>
+                    </p>
+                    <p><strong>Address:</strong>
+                        <%= order.address.houseNumber %>, <%= order.address.city %>, <%= order.address.district %>, <%=
+                                        order.address.state %> - <%= order.address.zipCode %>
+                    </p>
+                </div>
+                <% } else { %>
+                    <p style="color:#888; margin-bottom:1rem;">No address on file for this order.</p>
+                    <% } %>
 
-            <table class="table-shopping-cart">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Return Status</th>
-                        <th>Action</th>
+                        <table class="table-shopping-cart">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Return Status</th>
+                                    <th>Action</th>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    <% order.orderedItems.forEach((item)=> { %>
-                        <tr>
-                            <td>
-                                <div class="product-info">
-                                    <% if (item.product && item.product.productImage &&
-                                        item.product.productImage.length> 0) { %>
-                                        <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
-                                            alt="<%= item.product.name %>" width="50px" height="50px">
-                                        <% } else { %>
-                                            <img src="/uploads/product-images/default-product-image.jpg"
-                                                alt="Product image not available" width="50px" height="50px">
-                                            <% } %>
-                                                <p>
-                                                    <%= item.product ? item.product.name : 'Product not available' %>
-                                                </p>
-                                </div>
-                            </td>
-                            <td>
-                                <%= item.quantity %>
-                            </td>
-                            <td>
-                                <%= item.price %>
-                            </td>
-
-                            <!-- Show return status -->
-                            <td>
-                                <% if (item.returnStatus==='Requested' ) { %>
-                                    <span class="badge bg-warning">Requested</span>
-                                    <% } else if (item.returnStatus==='Approved' ) { %>
-                                        <span class="badge bg-success">Approved</span>
-                                        <% } else if (item.returnStatus==='Rejected' ) { %>
-                                            <span class="badge bg-danger">Rejected</span>
-                                            <% } else { %>
-                                                <span class="badge bg-secondary">Not Requested</span>
-                                                <% } %>
-
-                                                    <!-- Return Item Button -->
-                                                    <% if (item.returnStatus==='Requested' ) { %>
-
-                                                        <button class="btn btn-success btn-sm mx-1"
-                                                            onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'approve')">
-                                                            Approve
-                                                        </button>
-                                                        <button class="btn btn-danger btn-sm mx-1"
-                                                            onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'reject')">
-                                                            Reject
-                                                        </button>
-
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% order.orderedItems.forEach((item)=> { %>
+                                    <tr>
+                                        <td>
+                                            <div class="product-info">
+                                                <% if (item.product && item.product.productImage &&
+                                                    item.product.productImage.length> 0) { %>
+                                                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
+                                                        alt="<%= item.product.name %>" width="50px" height="50px">
+                                                    <% } else { %>
+                                                        <img src="/uploads/product-images/default-product-image.jpg"
+                                                            alt="Product image not available" width="50px"
+                                                            height="50px">
                                                         <% } %>
-                            </td>
+                                                            <p>
+                                                                <%= item.product ? item.product.name
+                                                                    : 'Product not available' %>
+                                                            </p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <%= item.quantity %>
+                                        </td>
+                                        <td>
+                                            <%= item.price %>
+                                        </td>
 
-                            <!-- Cancel Item Button -->
-                            <td>
-                                <% if (order.status==='Pending' || order.status==='Shipped' ) { %>
-                                    <% if (item.returnStatus !=="Approved" ) { %>
-                                        <%if(item.cancelStatus=='canceled' ) { %>
-                                            <span class="badge bg-danger">canceled</span>
-                                            <% }else{%>
-                                                <button type="button" class="btn-cancel"
-                                                    onclick="cancelOrder('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
+                                        <!-- Show return status -->
+                                        <td>
+                                            <% if (item.returnStatus==='Requested' ) { %>
+                                                <span class="badge bg-warning">Requested</span>
+                                                <% } else if (item.returnStatus==='Approved' ) { %>
+                                                    <span class="badge bg-success">Approved</span>
+                                                    <% } else if (item.returnStatus==='Rejected' ) { %>
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-secondary">Not Requested</span>
+                                                            <% } %>
 
-                                                <%}%>
+                                                                <!-- Return Item Button -->
+                                                                <% if (item.returnStatus==='Requested' ) { %>
 
-                                                    <% }else{%>
-                                                        <button type="button" class="btn-cancel">The item is
-                                                            returned</button>
-                                                        <%}%>
-                                                            <% } else { %>
-                                                                <button type="button" class="btn-cancel" disabled>Cannot
-                                                                    Cancel</button>
-                                                                <% } %>
-                            </td>
+                                                                    <button class="btn btn-success btn-sm mx-1"
+                                                                        onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'approve')">
+                                                                        Approve
+                                                                    </button>
+                                                                    <button class="btn btn-danger btn-sm mx-1"
+                                                                        onclick="handleReturn('<%= order.orderId %>', '<%= item._id %>', 'reject')">
+                                                                        Reject
+                                                                    </button>
+
+                                                                    <% } %>
+                                        </td>
+
+                                        <!-- Cancel Item Button -->
+                                        <td>
+                                            <% if (order.status==='Pending' || order.status==='Shipped' ) { %>
+                                                <% if (item.returnStatus !=="Approved" ) { %>
+                                                    <%if(item.cancelStatus=='canceled' ) { %>
+                                                        <span class="badge bg-danger">canceled</span>
+                                                        <% }else{%>
+                                                            <button type="button" class="btn-cancel"
+                                                                onclick="cancelOrder('<%=order.orderId %>','<%=item._id%>')">Cancel</button>
+
+                                                            <%}%>
+
+                                                                <% }else{%>
+                                                                    <button type="button" class="btn-cancel">The item is
+                                                                        returned</button>
+                                                                    <%}%>
+                                                                        <% } else { %>
+                                                                            <button type="button" class="btn-cancel"
+                                                                                disabled>Cannot
+                                                                                Cancel</button>
+                                                                            <% } %>
+                                        </td>
 
 
-                        </tr>
-                        <% }); %>
-                </tbody>
-            </table>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                        </table>
 
-            <h3>Total Amount: <%= order.finalAmount ||order.totalPrice %>
-            </h3>
-            <% } else { %>
-                <p>No order data available.</p>
-                <% } %>
+                        <h3>Total Amount: <%= order.finalAmount ||order.totalPrice %>
+                        </h3>
+                        <% } else { %>
+                            <p>No order data available.</p>
+                            <% } %>
     </div>
 
     <!-- Footer -->

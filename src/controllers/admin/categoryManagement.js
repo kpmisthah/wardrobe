@@ -1,5 +1,6 @@
 import { Category } from "../../models/categoriesSchema.js";
 import { Product } from "../../models/productSchema.js";
+import { HTTP_STATUS, MESSAGES } from "../../constants.js";
 
 const categoryManagement = async (req, res) => {
   try {
@@ -53,17 +54,24 @@ const addCategoryOffer = async (req, res) => {
     const percentage = parseFloat(req.body.percentage);
     const categoryId = req.body.categoryId;
 
-    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-      return res.status(400).json({
+    if (!categoryId || categoryId.trim() === '') {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         status: false,
-        message: "Percentage must be between 0 and 100",
+        message: MESSAGES.OFFER_INVALID_CATEGORY,
+      });
+    }
+
+    if (req.body.percentage === '' || req.body.percentage === null || isNaN(percentage) || percentage < 0 || percentage > 100) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        status: false,
+        message: MESSAGES.OFFER_INVALID_PERCENTAGE,
       });
     }
 
     const category = await Category.findById(categoryId);
     if (!category) {
-      return res.status(404).json({
-        message: "Category not found",
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: MESSAGES.NOT_FOUND,
       });
     }
     category.categoryOffer = Math.abs(percentage)
@@ -79,7 +87,7 @@ const addCategoryOffer = async (req, res) => {
 
   } catch (error) {
     console.log("The error is " + error)
-    res.status(500).json({ status: false, message: "internal server error" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ status: false, message: MESSAGES.INTERNAL_ERROR });
   }
 };
 
