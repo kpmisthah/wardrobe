@@ -2,7 +2,7 @@
 function emailValidateChecking(email) {
   const error1 = document.getElementById('error1');
   const emailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  
+
   if (email == "") {
     error1.style.display = "block";
     error1.innerHTML = "please enter a valid email";
@@ -22,7 +22,7 @@ function passwordValidateChecking(password) {
   const error2 = document.getElementById('error2');
   const alpha = /^[a-zA-Z]/;
   const digit = /^\d/;
-  
+
   if (password.length < 8) {
     error2.style.display = "block";
     error2.innerHTML = "should contain atleast 8 characters";
@@ -71,11 +71,15 @@ async function userLogin(event) {
 
     const data = await response.json();
 
-    if (data.success) {
-      window.location.href = '/'; 
+    if (response.ok && data.success) {
+      window.location.href = '/';
     } else {
       mainError.style.display = 'block';
-      mainError.innerHTML = data.message;
+      if (!response.ok && response.status === 500) {
+        mainError.innerHTML = "Server error. Please try again later.";
+      } else {
+        mainError.innerHTML = data.message || "An error occurred.";
+      }
     }
   } catch (error) {
     mainError.style.display = 'block';
@@ -86,18 +90,18 @@ async function userLogin(event) {
 }
 
 document.querySelectorAll('.password-icon').forEach(icon => {
-  icon.addEventListener('click', function() {
-      const input = this.previousElementSibling;
-      const iconElement = this.querySelector('i');
-      
-      if (input.type === 'password') {
-          input.type = 'text';
-          iconElement.classList.remove('fa-eye');
-          iconElement.classList.add('fa-eye-slash');
-      } else {
-          input.type = 'password';
-          iconElement.classList.remove('fa-eye-slash');
-          iconElement.classList.add('fa-eye');
-      }
+  icon.addEventListener('click', function () {
+    const input = this.previousElementSibling;
+    const iconElement = this.querySelector('i');
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      iconElement.classList.remove('fa-eye');
+      iconElement.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      iconElement.classList.remove('fa-eye-slash');
+      iconElement.classList.add('fa-eye');
+    }
   });
 });
