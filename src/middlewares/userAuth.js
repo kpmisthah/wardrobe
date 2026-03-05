@@ -28,7 +28,7 @@ const block = async (req, res, next) => {
 
         if (user.isBlocked) {
             req.session.destroy()
-            const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1) || req.query.ajax === 'true';
+            const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1) || req.query.ajax === 'true' || req.headers['x-requested-with'] === 'XMLHttpRequest';
             if (isAjax) {
                 return res.status(401).json({ error: 'User Blocked', redirect: '/login' });
             }
