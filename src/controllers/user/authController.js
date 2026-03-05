@@ -52,6 +52,9 @@ const signup = async (req, res) => {
 
 const otpPage = async (req, res) => {
 
+  if (req.session.user) {
+    return res.redirect('/');
+  }
   const { email } = req.session.userDetails || {};
   console.log(email, 'emaillllll=====')
   if (!email) {
@@ -93,6 +96,25 @@ const verifyOtp = async (req, res) => {
 
     // Get user details from session
     const user = req.session.userDetails;
+    if (!user) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: ResponseStatus.ERROR,
+        message: "Session expired. Please signup again.",
+      });
+    }
+
+    // Double check if user was created by a concurrent request
+    const existingUser = await userRepository.findByEmail(user.email);
+    if (existingUser) {
+      req.session.user = existingUser._id;
+      delete req.session.userDetails;
+      return res.status(StatusCodes.OK).json({
+        success: ResponseStatus.SUCCESS,
+        message: Messages.OTP_VERIFIED,
+        redirectUrl: "/",
+      });
+    }
+
     const passwordHash = await bcrypt.hash(user.password, 10)
 
     // Create new user
@@ -105,6 +127,7 @@ const verifyOtp = async (req, res) => {
 
     // Set session
     req.session.user = newUser._id;
+    delete req.session.userDetails; // Important: cleanup
 
 
     return res.status(StatusCodes.OK).json({
