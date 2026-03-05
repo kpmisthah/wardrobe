@@ -10,7 +10,8 @@
                 <%= order.orderId %>
             </p>
             <p><strong>Order Date:</strong>
-                <%= order.invoiceDate.toDateString() %>
+                <%= order.invoiceDate ? order.invoiceDate.toDateString() : order.createdAt ? new
+                    Date(order.createdAt).toDateString() : 'N/A' %>
             </p>
             <p><strong>Status:</strong>
                 <%= order.status %>

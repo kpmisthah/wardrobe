@@ -25,6 +25,16 @@ class UserRepository {
     async updateOne(filter, updateData) {
         return await User.updateOne(filter, updateData);
     }
+    async findPaged(filter = {}, page = 1, limit = 3) {
+        return await User.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip((page - 1) * limit);
+    }
+
+    async count(filter = {}) {
+        return await User.find(filter).countDocuments();
+    }
 }
 
 export default new UserRepository();

@@ -1,4 +1,5 @@
-import { User } from "../../models/userSchema.js"
+import userRepository from "../../repositories/userRepository.js";
+import { HTTP_STATUS, MESSAGES } from "../../constants.js";
 
 const customer = async (req, res) => {
     try {
@@ -8,29 +9,29 @@ const customer = async (req, res) => {
         //pagination
         let page = parseInt(req.query.page) || 1
         let limit = 3
-        let user = await User.find(filter).sort({ createdAt: -1 }).limit(limit).skip((page - 1) * limit)
-        let count = await User.find(filter).countDocuments({ isAdmin: false })
+        let user = await userRepository.findPaged(filter, page, limit);
+        let count = await userRepository.count({ isAdmin: false, name: { $regex: search, $options: "i" } });
         let totalpages = Math.ceil(count / limit)
         res.render('admin/customer', { userData: user, currentPage: page, totalpages, search })
     } catch (error) {
         console.log(error);
-
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
     }
 }
 
 const blockUser = async (req, res) => {
     try {
         const { id } = req.query
-        await User.updateOne({ _id: id }, { $set: { isBlocked: true } })
+        await userRepository.updateById(id, { isBlocked: true })
 
         const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1);
         if (isAjax) {
-            return res.status(200).json({ success: true, message: "User blocked successfully" });
+            return res.status(HTTP_STATUS.OK).json({ success: true, message: "User blocked successfully" });
         }
         res.redirect('/admin/customer')
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_ERROR });
     }
 
 }
@@ -38,16 +39,16 @@ const blockUser = async (req, res) => {
 const unblockUser = async (req, res) => {
     try {
         const { id } = req.query
-        await User.updateOne({ _id: id }, { $set: { isBlocked: false } })
+        await userRepository.updateById(id, { isBlocked: false })
 
         const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1);
         if (isAjax) {
-            return res.status(200).json({ success: true, message: "User unblocked successfully" });
+            return res.status(HTTP_STATUS.OK).json({ success: true, message: "User unblocked successfully" });
         }
         res.redirect('/admin/customer')
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_ERROR });
     }
 
 }

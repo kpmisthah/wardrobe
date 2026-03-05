@@ -1,4 +1,6 @@
 import { Coupon } from "../../models/couponSchema.js";
+import { HTTP_STATUS, MESSAGES } from "../../constants.js";
+import { couponRepository } from "../../repositories/couponRepository.js";
 
 const laodCoupon = async (req, res) => {
   try {
@@ -6,12 +8,8 @@ const laodCoupon = async (req, res) => {
     let limit = 10;
     const skip = (page - 1) * limit;
 
-    const coupon = await Coupon.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const count = await Coupon.countDocuments();
+    const coupon = await couponRepository.findCoupons(page, limit);
+    const count = await couponRepository.countCoupons();
     const totalpages = Math.ceil(count / limit);
 
     return res.render("admin/coupon", {
@@ -21,6 +19,7 @@ const laodCoupon = async (req, res) => {
     });
   } catch (error) {
     console.log("The error is " + error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
   }
 };
 
@@ -45,9 +44,9 @@ const createCoupon = async (req, res) => {
       discountType,
       maxDiscount
     } = req.body;
-    const couponExist = await Coupon.findOne({ code });
+    const couponExist = await couponRepository.findCouponByCode(code);
     if (couponExist) {
-      return res.status(400).json({ message: "coupon is already exist" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: MESSAGES.COUPON_EXISTS });
     }
     const newCoupon = new Coupon({
       code,
@@ -59,20 +58,21 @@ const createCoupon = async (req, res) => {
       maxDiscount: Number(maxDiscount)
     });
     await newCoupon.save();
-    res.status(200).json({ message: "coupon is added successfully" });
+    res.status(HTTP_STATUS.OK).json({ message: MESSAGES.COUPON_ADDED });
   } catch (error) {
     console.log("The erro is " + error);
-    res.status(500).json({ message: "internal server error" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
   }
 };
 
 const geteditCoupon = async (req, res) => {
   try {
     const { edit } = req.params;
-    const coupon = await Coupon.findOne({ _id: edit });
+    const coupon = await couponRepository.findCouponById(edit);
     return res.render("admin/edit-coupon", { coupon });
   } catch (error) {
     console.log("Ther error is" + error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
   }
 };
 const editCoupon = async (req, res) => {
@@ -94,23 +94,25 @@ const editCoupon = async (req, res) => {
     );
 
     if (!updateCoupon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ message: MESSAGES.COUPON_NOT_FOUND });
     }
-    return res.status(200).json({ message: "coupon updated successfully" });
-  } catch (error) { }
+    return res.status(HTTP_STATUS.OK).json({ message: MESSAGES.COUPON_UPDATED });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
+  }
 };
 
 const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const coupon = await Coupon.findByIdAndDelete(id);
+    const coupon = await couponRepository.deleteCoupon(id);
     if (!coupon) {
-      return res.status(401).json({ message: "coupom is not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ message: MESSAGES.COUPON_NOT_FOUND });
     }
-    res.status(200).json({ success: true, message: "Coupon deleted successfully" });
+    res.status(HTTP_STATUS.OK).json({ success: true, message: MESSAGES.COUPON_DELETED });
   } catch (error) {
     console.error("Error deleting coupon:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_ERROR });
   }
 };
 export {
