@@ -92,7 +92,13 @@ async function returnOrder(productId) {
                 timer: 2000,
                 showConfirmButton: false
             });
-            window.location.reload();
+
+            // Dynamically update the return button
+            const returnButton = document.querySelector(`button[onclick="returnOrder('${productId}')"]`);
+            if (returnButton) {
+                const container = returnButton.parentElement;
+                container.innerHTML = `<span class="badge bg-warning text-dark px-3 py-2">Return Processing</span>`;
+            }
         } else {
             throw new Error('Failed to process return request');
         }
@@ -108,6 +114,72 @@ async function returnOrder(productId) {
 }
 document.getElementById('downloadInvoices').addEventListener('click', () => {
     const orderId = document.querySelector('input[name="orderId"]').value;
-       window.location.href = `/orderdetails/download/pdf/${orderId}`;
-   });
-   
+    window.location.href = `/orderdetails/download/pdf/${orderId}`;
+});
+
+async function retryPayment(paymentMethod, amount, originalOrderId) {
+    try {
+        const response = await fetch(`/retry-payment`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentMethod, amount, originalOrderId }),
+        });
+
+        if (response.ok) {
+            const { razorpayOrderId, razorpayKey, amount: orderAmount } = await response.json();
+            const options = {
+                key: razorpayKey,
+                amount: orderAmount * 100,
+                currency: "INR",
+                name: "Luxe Store",
+                description: "Order Payment Retry",
+                order_id: razorpayOrderId,
+                handler: async function (response) {
+                    try {
+                        const saveResponse = await fetch("/complete-retry-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                paymentId: response.razorpay_payment_id,
+                                razorpayOrderId: razorpayOrderId,
+                                signature: response.razorpay_signature,
+                                originalOrderId: originalOrderId,
+                                amount: orderAmount,
+                            }),
+                        });
+                        if (saveResponse.ok) {
+                            const result = await saveResponse.json();
+                            Swal.fire({
+                                title: "Success",
+                                text: "Payment completed successfully!",
+                                icon: "success"
+                            }).then(() => {
+                                window.location.href = result.redirectUrl || "/order-confirmation";
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error saving payment:", error);
+                        Swal.fire("Error", "Failed to complete payment. Please contact support.", "error");
+                    }
+                },
+                prefill: {
+                    name: "User",
+                },
+                theme: { color: "#1a1a1a" },
+                modal: {
+                    ondismiss: function () {
+                        console.log("Payment modal closed");
+                    },
+                },
+            };
+            const rzp = new Razorpay(options);
+            rzp.on("payment.failed", function (response) {
+                Swal.fire("Error", "Payment failed. Please try again.", "error");
+            });
+            rzp.open();
+        }
+    } catch (error) {
+        console.error("Error initiating retry payment:", error);
+        Swal.fire("Error", "Failed to initiate payment. Please try again.", "error");
+    }
+}
