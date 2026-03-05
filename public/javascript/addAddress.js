@@ -74,9 +74,14 @@ function houseValidatechecking(houseNumber) {
 
 function cityValidatechecking(city) {
   const error6 = document.getElementById('error6');
+  const cityPattern = /^[a-zA-Z\s'-]+$/;
   if (city == '') {
     error6.style.display = 'block';
     error6.innerHTML = 'City is required';
+    return false;
+  } else if (!cityPattern.test(city)) {
+    error6.style.display = 'block';
+    error6.innerHTML = 'City can only contain alphabets';
     return false;
   } else {
     error6.style.display = 'none';
@@ -100,9 +105,14 @@ function stateValidatechecking(state) {
 
 function districtValidastechecking(district) {
   const error8 = document.getElementById('error8');
+  const districtPattern = /^[a-zA-Z\s'-]+$/;
   if (district == '') {
     error8.style.display = 'block';
     error8.innerHTML = 'District is required';
+    return false;
+  } else if (!districtPattern.test(district)) {
+    error8.style.display = 'block';
+    error8.innerHTML = 'District can only contain alphabets';
     return false;
   } else {
     error8.style.display = 'none';

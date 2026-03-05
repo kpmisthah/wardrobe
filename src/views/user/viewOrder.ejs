@@ -450,19 +450,23 @@
                       <% } %>
 
                         <div class="flex-grow-1">
-                          <a href="/productDetails?id=<%= item.product ? item.product._id : '' %>" class="item-title">
-                            <%= item.product ? item.product.name : 'Unknown Product' %>
-                          </a>
-                          <div class="d-flex flex-wrap gap-3">
-                            <span class="item-meta">Size: <strong class="text-dark">
-                                <%= item.size %>
-                              </strong></span>
-                            <span class="item-meta">Qty: <strong class="text-dark">
-                                <%= item.quantity %>
-                              </strong></span>
-                          </div>
-                          <div class="item-price mt-2">₹<%= item.price %>
-                          </div>
+                          <% if (item.product) { %>
+                            <a href="/productDetails?id=<%= item.product._id %>" class="item-title">
+                              <%= item.product.name %>
+                            </a>
+                            <% } else { %>
+                              <span class="item-title" style="cursor:default;">Unknown Product</span>
+                              <% } %>
+                                <div class="d-flex flex-wrap gap-3">
+                                  <span class="item-meta">Size: <strong class="text-dark">
+                                      <%= item.size %>
+                                    </strong></span>
+                                  <span class="item-meta">Qty: <strong class="text-dark">
+                                      <%= item.quantity %>
+                                    </strong></span>
+                                </div>
+                                <div class="item-price mt-2">₹<%= item.price %>
+                                </div>
                         </div>
 
                         <div class="item-actions text-end" style="min-width: 140px;">
