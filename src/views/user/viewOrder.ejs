@@ -357,10 +357,12 @@
           <h1 class="h2 fw-bold m-0" style="color: var(--primary-color);">Order Details</h1>
         </div>
         <div>
-          <button class="btn btn-outline-dark btn-action me-2" id="downloadInvoices">
-            <i class="fas fa-file-invoice me-2"></i>Invoice
-          </button>
-          <input type="hidden" name="orderId" value="<%=order.orderId%>">
+          <% if (order.paymentStatus==='Success' ) { %>
+            <button class="btn btn-outline-dark btn-action me-2" id="downloadInvoices">
+              <i class="fas fa-file-invoice me-2"></i>Invoice
+            </button>
+            <% } %>
+              <input type="hidden" name="orderId" value="<%=order.orderId%>">
         </div>
       </div>
 
@@ -376,7 +378,7 @@
             <div class="col-md-6 text-md-end mt-3 mt-md-0">
               <h6 class="text-secondary text-uppercase small fw-bold ls-1 mb-1">Placed On</h6>
               <h4 class="mb-0 text-dark">
-                <%= new Date(order.invoiceDate).toLocaleDateString(undefined, { weekday: 'long' , year: 'numeric' ,
+                <%= new Date(order.createdAt).toLocaleDateString(undefined, { weekday: 'long' , year: 'numeric' ,
                   month: 'long' , day: 'numeric' }) %>
               </h4>
             </div>
@@ -412,7 +414,17 @@
                     <div class="step-name">Delivered</div>
                   </div>
                 </div>
-                <% } %>
+                <% if (order.paymentStatus==='Pending' && order.paymentMethod==='razorpay' && order.status !=='Canceled'
+                  ) { %>
+                  <div class="text-center mt-4">
+                    <button class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-sm"
+                      onclick="retryPayment('<%= order.paymentMethod %>', '<%= order.finalAmount || order.totalPrice %>', '<%= order._id %>')">
+                      <i class="fas fa-redo-alt me-2"></i> Retry Payment Now
+                    </button>
+                    <p class="text-muted small mt-2">Your payment is pending. Click above to complete your order.</p>
+                  </div>
+                  <% } %>
+                    <% } %>
         </div>
       </div>
 
@@ -558,6 +570,7 @@
     </main>
   </div>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="/javascript/viewOrder.js"></script>
   <%- include('../partials/userPartials/footer') %>
