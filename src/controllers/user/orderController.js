@@ -27,26 +27,29 @@ const viewOrder = async (req, res) => {
   try {
     const user = req.session.user
     const { orderid } = req.params
-    const order = await Order.findOne({ _id: orderid }).populate('orderedItems.product')
-    if (user) {
-      const userData = await User.findOne({ _id: user })
-      return res.render('user/viewOrder', { user: userData, order })
+    const order = await Order.findOne({ _id: orderid, userId: user }).populate('orderedItems.product')
+    if (!order) {
+      return res.redirect('/orders')
     }
+    const userData = await User.findOne({ _id: user })
+    return res.render('user/viewOrder', { user: userData, order })
 
   } catch (error) {
     console.log(error)
+    return res.status(500).render('user/pageNotFound')
   }
 }
 
 const orderCancel = async (req, res) => {
   try {
     const { orderId, productId } = req.body;
+    const userId = req.session.user;
 
-    // Find the order containing this specific item._id
-    const orderedProducts = await Order.findOne({ orderId })
+    // Find the order containing this specific item._id and belonging to the user
+    const orderedProducts = await Order.findOne({ orderId, userId })
 
     if (!orderedProducts) {
-      console.error(`Order with ID ${orderId} not found`);
+      console.error(`Order with ID ${orderId} not found or unauthorized`);
       return res.status(404).json({ message: "Order not found" });
     }
 
@@ -132,7 +135,7 @@ const orderCancel = async (req, res) => {
     return res.status(200).json({ message: "Item canceled successfully" });
 
   } catch (error) {
-    console.log("Error in productCancel:", error);
+    console.log("Error in orderCancel:", error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
@@ -140,7 +143,12 @@ const orderCancel = async (req, res) => {
 const cancelOrder = async (req, res) => {
   try {
     const { orderId } = req.body;
-    const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: "Canceled" }, { new: true });
+    const userId = req.session.user;
+    const cancelledOrder = await Order.findOneAndUpdate({ _id: orderId, userId }, { status: "Canceled" }, { new: true });
+
+    if (!cancelledOrder) {
+      return res.status(403).json({ success: false, message: "Unauthorized action" });
+    }
 
     for (let item of cancelledOrder.orderedItems) {
       const size = await Size.findOne({ product: item.product, size: item.size })
@@ -191,7 +199,8 @@ const cancelOrder = async (req, res) => {
 const returnOrder = async (req, res) => {
   try {
     const { productId } = req.body
-    const orders = await Order.findOne({ 'orderedItems._id': productId })
+    const userId = req.session.user
+    const orders = await Order.findOne({ 'orderedItems._id': productId, userId })
     const orderedIndex = orders.orderedItems.findIndex((item) => item._id.toString() == productId)
     if (orderedIndex == -1) {
       return res.status(401).json({ message: "Item not found" })
@@ -235,9 +244,10 @@ const updateOrderStatus = async (req, res) => {
 const createPdf = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await Order.findOne({ orderId: orderId });
+    const userId = req.session.user;
+    const order = await Order.findOne({ orderId: orderId, userId });
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(404).send("Order not found or unauthorized");
     }
     const doc = new PDFDocument({
       size: "A4",
