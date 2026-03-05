@@ -85,6 +85,12 @@
                     timerDisplay.textContent = `(${minutes}:${seconds.toString().padStart(2, '0')})`;
                     timeLeft--;
                 }
+                // Update resend link visibility
+                if (canResend) {
+                    resendLink.classList.remove('disabled');
+                } else {
+                    resendLink.classList.add('disabled');
+                }
             }, 1000);
         }
 
@@ -179,7 +185,7 @@
 
                         if (result.success) {
                             Swal.fire("Success", "OTP Verified Successfully!", "success").then(() => {
-                                window.location.href = result.redirectUrl || '/';
+                                window.location.replace(result.redirectUrl || '/');
                             });
 
                             return
@@ -202,6 +208,8 @@
         }
 
         initializeTimer();
+        // Initial state for resend link
+        if (!canResend) resendLink.classList.add('disabled');
     </script>
 </body>
 
