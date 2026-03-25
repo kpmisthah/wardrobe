@@ -42,7 +42,7 @@ const signup = async (req, res) => {
       JSON.stringify(req.session.userDetails, null, 2)
     );
 
-    return res.status(StatusCodes.OK).json({ message: 'redirect to verifiy otp', email: req.session.userDetails.email, redirectUrl: '/verify-otp' })
+    return res.status(StatusCodes.OK).json({ message: Messages.OTP_REDIRECT, email: req.session.userDetails.email, redirectUrl: '/verify-otp' })
 
   } catch (error) {
     console.log(error.message);
@@ -72,7 +72,7 @@ const verifyOtp = async (req, res) => {
     if (!email || !otps) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: ResponseStatus.ERROR,
-        message: "Invalid request data. OTP or email missing.",
+        message: Messages.INVALID_REQUEST,
       });
     }
 
@@ -99,7 +99,7 @@ const verifyOtp = async (req, res) => {
     if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: ResponseStatus.ERROR,
-        message: "Session expired. Please signup again.",
+        message: Messages.SESSION_EXPIRED_SIGNUP,
       });
     }
 
@@ -141,7 +141,7 @@ const verifyOtp = async (req, res) => {
     // Send more specific error message
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: ResponseStatus.ERROR,
-      message: "An error occurred during verification",
+      message: Messages.VERIFICATION_ERROR,
     });
   }
 };
@@ -165,7 +165,7 @@ const resendOtp = async (req, res) => {
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         success: ResponseStatus.ERROR,
-        message: "Something went wrong. Please try again later.",
+        message: Messages.SOMETHING_WENT_WRONG,
       });
   }
 };
@@ -250,7 +250,7 @@ const handleForgotPassword = async (req, res) => {
     if (!user) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json({ success: ResponseStatus.ERROR, message: "No account found with this email" });
+        .json({ success: ResponseStatus.ERROR, message: Messages.NO_ACCOUNT_FOUND });
     }
     const otp = randomString.generate({ length: 6, charset: "numeric" });
     const result = await otpRepository.create({ email: user.email, otp });
@@ -298,7 +298,7 @@ const verify = async (req, res) => {
     console.log(error);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: ResponseStatus.ERROR, message: "An error occured" });
+      .json({ success: ResponseStatus.ERROR, message: Messages.GENERAL_ERROR });
   }
 };
 

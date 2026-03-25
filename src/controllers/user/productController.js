@@ -1,32 +1,39 @@
-import { Category } from "../../models/categoriesSchema.js"
-import { Product } from "../../models/productSchema.js"
-import { User } from "../../models/userSchema.js"
+import { Category } from "../../models/categoriesSchema.js";
+import { Product } from "../../models/productSchema.js";
+import { User } from "../../models/userSchema.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
-
-let productDetails = async (req, res) => {
+const loadProductDetails = async (req, res) => {
     try {
+        const userId = req.session.user;
+        const productId = req.query.id;
+        const product = await Product.findById(productId)
+            .populate("category")
+            .populate("sizeOptions");
 
-
-        const user = req.session.user
-        const userData = await User.findById(user)
-        const productId = req.query.id
-        const products = await Product.find({ _id: productId, isBlocked: false }).populate('category').populate('sizeOptions')
-        console.log("The products is", products);
-        const categoryInProduct = await Product.findOne({ _id: productId })
-
-        const relatedProducts = await Product.find({
-            category: categoryInProduct.category, _id: { $ne: productId }, isBlocked: false
-        })
-
-        if (user) {
-            return res.render('user/productDetails', { user: userData, products, relatedProducts })
-
+        if (!product) {
+            return res.status(StatusCodes.NOT_FOUND).render("user/pageNotFound");
         }
 
+        const category = product.category._id;
+        const relatedProducts = await Product.find({
+            category: category,
+            _id: { $ne: productId },
+        }).limit(4);
+
+        const userData = userId ? await User.findById(userId) : null;
+
+        return res.render("user/productDetails", {
+            products: [product],
+            product,
+            relatedProducts,
+            user: userData,
+        });
     } catch (error) {
-        console.log("the error is " + error)
+        console.log(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
     }
+};
 
-}
-
-export { productDetails }
+export { loadProductDetails };

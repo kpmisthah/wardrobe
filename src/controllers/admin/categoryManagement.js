@@ -1,5 +1,6 @@
 import { Category } from "../../models/categoriesSchema.js";
-import { Product } from "../../models/productSchema.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 const categoryManagement = async (req, res) => {
   try {
@@ -38,72 +39,15 @@ const category = async (req, res) => {
     const normalizedName = name.toLowerCase();
     const existingCategory = await Category.findOne({ name: normalizedName });
     if (existingCategory) {
-      return res.status(400).json({ error: "Category is already exist" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: Messages.CATEGORY_EXISTS });
     }
     const newCategory = new Category({ name: normalizedName, description });
     await newCategory.save();
-    return res.json({ message: "Successfully category added" });
+    return res.status(StatusCodes.OK).json({ message: Messages.CATEGORY_ADDED });
   } catch (error) {
-    return res.status(500).json({ error: "internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
   }
 };
-
-const addCategoryOffer = async (req, res) => {
-  try {
-    const percentage = parseFloat(req.body.percentage);
-    const categoryId = req.body.categoryId;
-
-    if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-      return res.status(400).json({
-        status: false,
-        message: "Percentage must be between 0 and 100",
-      });
-    }
-
-    const category = await Category.findById(categoryId);
-    if (!category) {
-      return res.status(404).json({
-        message: "Category not found",
-      });
-    }
-    category.categoryOffer = Math.abs(percentage)
-    await category.save()
-    const products = await Product.find({ category: categoryId });
-    for (let product of products) {
-      const discount = product.regularPrice * (percentage / 100)
-      product.salePrice = product.regularPrice - discount
-      await product.save()
-
-    }
-    res.json({ status: true });
-
-  } catch (error) {
-    console.log("The error is " + error)
-    res.status(500).json({ status: false, message: "internal server error" });
-  }
-};
-
-const removeCategoryOffer = async (req, res) => {
-  try {
-    // if (req.session.admin) {
-    const categoryId = req.body.categoryId;
-    const category = await Category.findById(categoryId)
-    if (!category) {
-      res.json({ message: "something went wrong" })
-    }
-    category.categoryOffer = 0
-    await category.save()
-    const products = await Product.find({ category: categoryId })
-    for (let product of products) {
-      product.salePrice = product.regularPrice
-      await product.save()
-    }
-    res.status(200).json({ status: true, message: "Offer removed successfully" })
-  } catch (error) {
-    res.status(500).json({ status: false, message: "Internal server error" });
-  }
-};
-
 
 const isListed = async (req, res) => {
   try {
@@ -122,7 +66,7 @@ const unListed = async (req, res) => {
     res.redirect("/admin/category");
   } catch (error) {
     console.log(error);
-    res.status(500).redirect("/admin/category");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).redirect("/admin/category");
   }
 };
 
@@ -146,27 +90,24 @@ const editCategory = async (req, res) => {
     const { categoryName, description } = req.body
     const existingCategory = await Category.findOne({ name: categoryName })
     if (existingCategory) {
-      return res.status(400).json({ error: "category exist pls choose another name" })
+      return res.status(StatusCodes.BAD_REQUEST).json({ error: Messages.CATEGORY_EDIT_EXISTS })
     }
     const updateCategory = await Category.findByIdAndUpdate(id, {
       name: categoryName,
       description
     }, { new: true })
-    //new true kodutha retrun docs immediate aayitt return allenki ithinte thott update okke ayyirikkun=m varunne
     if (updateCategory) {
       res.redirect('/admin/category')
     } else {
-      res.status(404).json({ error: "Category not found" })
+      res.status(StatusCodes.NOT_FOUND).json({ error: Messages.CATEGORY_NOT_FOUND })
     }
   } catch (error) {
-    res.status(500).json({ error: "Internal Server error" })
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR })
   }
 }
 export {
   categoryManagement,
   category,
-  addCategoryOffer,
-  removeCategoryOffer,
   isListed,
   unListed,
   edit,

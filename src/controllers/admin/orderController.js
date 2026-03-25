@@ -3,6 +3,9 @@ import { Product } from "../../models/productSchema.js"
 import { User } from "../../models/userSchema.js"
 import { Size } from "../../models/sizeSchema.js"
 import { Wallet } from "../../models/walletSchema.js"
+import { StatusCodes } from "../../utils/enums.js"
+import { Messages } from "../../utils/messages.js"
+
 const orderList = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1
@@ -28,7 +31,7 @@ const orderList = async (req, res) => {
         return res.render('admin/order', { orders, currentPage: page, totalpages, search })
     } catch (error) {
         console.error('Error fetching orders:', error);
-        res.status(500).send('An error occurred while fetching orders.');
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
     }
 }
 
@@ -38,17 +41,17 @@ const orderStatus = async (req, res) => {
         const currentOrder = await Order.findOne({ orderId });
 
         if (!currentOrder) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ORDER_NOT_FOUND });
         }
 
         if ((status === 'Shipped' || status === 'Delivered') && currentOrder.paymentStatus !== 'Success' && currentOrder.paymentMethod !== 'COD') {
-            return res.status(400).json({ message: "Cannot ship or deliver an order that has not been paid for." });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.CANNOT_SHIP_UNPAID });
         }
 
         currentOrder.status = status;
         await currentOrder.save();
 
-        res.status(200).json({ message: "Order is updated successfully" })
+        res.status(StatusCodes.OK).json({ message: Messages.ORDER_UPDATED })
 
     } catch (error) {
         console.log("The error is" + error);
@@ -70,34 +73,30 @@ const handleReturn = async (req, res) => {
     try {
         const { orderId, productId, action } = req.body;
 
-        // Find order
         const order = await Order.findOne({ orderId });
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: Messages.ORDER_NOT_FOUND });
         }
 
         const wallet = await Wallet.findOne({ userId: order.userId });
 
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: Messages.ORDER_NOT_FOUND });
         }
 
-        // Find the specific product in the order
         const productItem = order.orderedItems.find(
             item => item._id.toString() === productId
         );
 
         if (!productItem) {
-            return res.status(404).json({ error: 'Product not found in order' });
+            return res.status(StatusCodes.NOT_FOUND).json({ error: Messages.ITEM_NOT_FOUND });
         }
 
         if (action === 'approve') {
-            // Calculate refund amount with discount consideration
             const itemTotal = productItem.price * productItem.quantity;
             const currentTotalPrice = order.totalPrice;
             const currentDiscount = order.discount || 0;
 
-            // Proportional discount for this item
             let proportionalDiscount = 0;
             if (currentTotalPrice > 0 && currentDiscount > 0) {
                 proportionalDiscount = (itemTotal / currentTotalPrice) * currentDiscount;
@@ -106,23 +105,19 @@ const handleReturn = async (req, res) => {
             const refundAmount = itemTotal - proportionalDiscount;
 
             if (order.paymentStatus !== 'Success' && order.paymentMethod !== 'COD') {
-                return res.status(400).json({ error: 'Cannot refund an order that was not successfully paid.' });
+                return res.status(StatusCodes.BAD_REQUEST).json({ error: Messages.CANNOT_REFUND_UNPAID });
             }
 
-            // Update product status
             productItem.returnStatus = 'Approved';
 
-            // Increase stock count
             const size = await Size.findOne({ product: productItem.product, size: productItem.size });
             if (size) {
                 size.quantity += productItem.quantity;
                 await size.save();
             }
 
-            // Update wallet balance
             wallet.balance += refundAmount;
 
-            // Add transaction to history
             wallet.transactionHistory.push({
                 transactionType: 'refund',
                 transactionAmount: Math.round(refundAmount * 100) / 100,
@@ -130,17 +125,14 @@ const handleReturn = async (req, res) => {
                 description: `Refund for returned item from order ${orderId}`
             });
 
-            // Update order fields
             order.totalPrice -= itemTotal;
             order.discount -= proportionalDiscount;
             order.finalAmount -= refundAmount;
 
-            // Safety clamps
             if (order.totalPrice < 0) order.totalPrice = 0;
             if (order.discount < 0) order.discount = 0;
             if (order.finalAmount < 0) order.finalAmount = 0;
 
-            // Save both wallet and order
             await Promise.all([
                 wallet.save(),
                 order.save()
@@ -150,10 +142,10 @@ const handleReturn = async (req, res) => {
             productItem.returnStatus = 'Rejected';
             await order.save();
         } else {
-            return res.status(400).json({ error: 'Invalid action provided' });
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: Messages.INVALID_ACTION });
         }
 
-        return res.status(200).json({
+        return res.status(StatusCodes.OK).json({
             success: true,
             message: `Return ${action}d successfully`,
             order,
@@ -162,8 +154,8 @@ const handleReturn = async (req, res) => {
 
     } catch (error) {
         console.error("Error in handleReturn:", error);
-        return res.status(500).json({
-            error: 'Something went wrong',
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            error: Messages.SOMETHING_WENT_WRONG,
             details: error.message
         });
     }
@@ -174,19 +166,16 @@ const orderCancelled = async (req, res) => {
 
         const orderedProducts = await Order.findOne({ orderId })
 
-        // Find the specific item using its _id
         const itemIndex = orderedProducts.orderedItems.findIndex(
             item => item._id.toString() === productId
         );
 
         if (itemIndex === -1) {
-            return res.status(404).json({ message: "Item not found" });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ITEM_NOT_FOUND });
         }
 
-        //items that want to be removed stored here .it has size and quantity so compare it with our size schema
         const items = orderedProducts.orderedItems[itemIndex];
 
-        //so now we want to increase the stock count for specific product
         items.cancelStatus = 'canceled'
         if (items.cancelStatus == 'canceled') {
             const size = await Size.findOne({ product: items.product, size: items.size })
@@ -197,16 +186,13 @@ const orderCancelled = async (req, res) => {
             item => item.cancelStatus === 'canceled'
         );
 
-        // If all items are cancelled, update the main order status
         if (allItemsCancelled) {
             orderedProducts.status = 'Canceled';
         }
-        // Calculate refund/deduction with discount consideration
         const itemTotal = items.price * items.quantity;
         const currentTotalPrice = orderedProducts.totalPrice;
         const currentDiscount = orderedProducts.discount || 0;
 
-        // Proportional discount for this item
         let proportionalDiscount = 0;
         if (currentTotalPrice > 0 && currentDiscount > 0) {
             proportionalDiscount = (itemTotal / currentTotalPrice) * currentDiscount;
@@ -214,12 +200,10 @@ const orderCancelled = async (req, res) => {
 
         const refundAmount = itemTotal - proportionalDiscount;
 
-        // Update Order Fields
         orderedProducts.totalPrice -= itemTotal;
         orderedProducts.discount -= proportionalDiscount;
         orderedProducts.finalAmount -= refundAmount;
 
-        // Safety clamps
         if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;
         if (orderedProducts.discount < 0) orderedProducts.discount = 0;
         if (orderedProducts.finalAmount < 0) orderedProducts.finalAmount = 0;
@@ -249,11 +233,11 @@ const orderCancelled = async (req, res) => {
 
         await orderedProducts.save();
 
-        return res.status(200).json({ message: "Item canceled successfully" });
+        return res.status(StatusCodes.OK).json({ message: Messages.ITEM_CANCELED });
 
     } catch (error) {
         console.log("Error in productCancel:", error);
-        return res.status(500).json({ message: "Something went wrong" });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SOMETHING_WENT_WRONG });
     }
 }
 

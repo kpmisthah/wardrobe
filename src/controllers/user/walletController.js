@@ -5,13 +5,15 @@ import { Order } from "../../models/orderIdSchema.js";
 import { Product } from "../../models/productSchema.js";
 import { Address } from "../../models/addressSchema.js";
 import { Size } from "../../models/sizeSchema.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 const loadWallet = async (req, res) => {
   try {
     const user = req.session.user;
     const wallet = await Wallet.findOne({ userId: user });
     if (user) {
       let userData = await User.findOne({ _id: user });
-      return res.render("user/wallet", {wallet: wallet || { balance: 0, transactionHistory: [] }, user: userData });
+      return res.render("user/wallet", { wallet: wallet || { balance: 0, transactionHistory: [] }, user: userData });
     }
   } catch (error) {
     console.log("The error is" + error);
@@ -26,7 +28,7 @@ const wallet = async (req, res) => {
     const order = await Order.findOne({ userId });
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.CART_EMPTY });
     }
 
     for (let item of cart.items) {
@@ -36,8 +38,8 @@ const wallet = async (req, res) => {
       });
 
       if (size.quantity < item.quantity) {
-        return res.status(400).json({
-          message: `Insufficient stock for ${item.name} in size ${item.size}.only ${size.quantity}left`,
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: Messages.INSUFFICIENT_STOCK_PARAM,
         });
       }
     }
@@ -63,7 +65,7 @@ const wallet = async (req, res) => {
     const amountToDeduct = final_amount || cart.bill;
 
     if (wallet.balance < amountToDeduct) {
-      return res.status(400).json({ message: "Balance is insufficient" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.INSUFFICIENT_BALANCE });
     } else {
       let orderedItems = [];
       for (let item of cart.items) {
@@ -102,9 +104,9 @@ const wallet = async (req, res) => {
       await newOrder.save();
       wallet.balance -= amountToDeduct;
       wallet.transactionHistory.push({
-        transactionType:'purchase',
-        transactionAmount:amountToDeduct,
-        transactionDate:new Date(),
+        transactionType: 'purchase',
+        transactionAmount: amountToDeduct,
+        transactionDate: new Date(),
         description: `purchase from order ${order._id}`
       })
       await wallet.save();
@@ -113,9 +115,9 @@ const wallet = async (req, res) => {
       cart.bill = 0;
       await cart.save();
       return res
-        .status(200)
+        .status(StatusCodes.OK)
         .json({
-          message: "order placed successfully",
+          message: Messages.ORDER_PLACED,
           redirectUrl: "/order-confirmation",
         });
     }

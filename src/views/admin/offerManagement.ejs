@@ -1,0 +1,470 @@
+<%- include("../../views/partials/adminPartials/headers") %>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .content-wrapper {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a1a;
+            padding: 2rem;
+            background-color: #f5f7fa;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-title h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .page-title p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            outline: none;
+            color: #1a1a1a;
+            background: #f9fafb;
+        }
+
+        .search-input:focus {
+            border-color: #1a1a1a;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.05);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid #f3f4f6;
+            animation: fadeInUp 0.5s ease-out 0.2s backwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            color: #1a1a1a;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f3f4f6;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .offer-tag {
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .no-offer {
+            color: #9ca3af;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-sm:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-add-offer {
+            background: white;
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .btn-add-offer:hover {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .btn-remove-offer {
+            color: #dc2626;
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .btn-remove-offer:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.5rem;
+            list-style: none;
+            padding: 0;
+        }
+
+        .page-link {
+            min-width: 36px;
+            padding: 0 12px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .page-item.active .page-link {
+            background: #1a1a1a;
+            border-color: #1a1a1a;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+
+    <div class="content-wrapper">
+        <div class="page-header">
+            <div class="page-title">
+                <h2>Offer Management</h2>
+                <p>Manage category offers and discounts</p>
+            </div>
+            <div class="search-container">
+                <form action="/admin/offerManagement" method="get">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search categories..." name="search"
+                        value="<%= typeof search !== 'undefined' ? search : '' %>"
+                        oninput="if(this.value==='') this.form.submit()">
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Offer</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (categories && categories.length> 0) { %>
+                            <% categories.forEach(category=> { %>
+                                <tr id="row-<%= category._id %>">
+                                    <td style="font-weight: 500;">
+                                        <%= category.name %>
+                                    </td>
+                                    <td style="color: #6b7280; max-width: 250px;">
+                                        <%= category.description %>
+                                    </td>
+                                    <td id="offer-<%= category._id %>">
+                                        <% if (category.categoryOffer && category.categoryOffer> 0) { %>
+                                            <span class="offer-tag">
+                                                <%= category.categoryOffer %>% OFF
+                                            </span>
+                                            <% } else { %>
+                                                <span class="no-offer">No offer</span>
+                                                <% } %>
+                                    </td>
+                                    <td id="action-<%= category._id %>" style="text-align: right;">
+                                        <% if (category.categoryOffer && category.categoryOffer> 0) { %>
+                                            <button type="button" class="btn-sm btn-remove-offer"
+                                                onclick="removeOffer('<%= category._id %>')">
+                                                <i class="fas fa-times"></i> Remove
+                                            </button>
+                                            <% } else { %>
+                                                <button type="button" class="btn-sm btn-add-offer"
+                                                    onclick="addOffer('<%= category._id %>')">
+                                                    <i class="fas fa-tag"></i> Add Offer
+                                                </button>
+                                                <% } %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="4" style="text-align: center; padding: 3rem; color: #6b7280;">
+                                                No categories found.
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalpages> 1) { %>
+            <div class="pagination-container">
+                <ul class="pagination">
+                    <% if (currentPage> 1) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        <% } %>
+
+                            <% for(let i=1; i <=totalpages; i++) { %>
+                                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                                <% } %>
+
+                                    <% if (currentPage < totalpages) { %>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                        <% } %>
+                </ul>
+            </div>
+            <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function addOffer(categoryId) {
+            Swal.fire({
+                title: 'Add Category Offer',
+                input: 'number',
+                inputLabel: 'Enter discount percentage (0-100)',
+                inputAttributes: { min: 0, max: 100, step: 1 },
+                showCancelButton: true,
+                confirmButtonText: 'Add Offer',
+                confirmButtonColor: '#1a1a1a',
+                inputValidator: (value) => {
+                    if (!value || value < 0 || value > 100) {
+                        return 'Please enter a valid percentage between 0 and 100';
+                    }
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        Swal.fire({
+                            title: 'Updating...',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+
+                        const response = await fetch('/admin/addOffer', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ categoryId, percentage: result.value })
+                        });
+                        const data = await response.json();
+
+                        if (data.status) {
+                            // Update UI dynamically
+                            const offerCell = document.getElementById(`offer-${categoryId}`);
+                            const actionCell = document.getElementById(`action-${categoryId}`);
+
+                            if (offerCell) {
+                                offerCell.innerHTML = `<span class="offer-tag">${result.value}% OFF</span>`;
+                            }
+                            if (actionCell) {
+                                actionCell.innerHTML = `
+                                    <button type="button" class="btn-sm btn-remove-offer"
+                                        onclick="removeOffer('${categoryId}')">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>`;
+                            }
+
+                            Swal.fire({ title: 'Success!', text: 'Offer added successfully', icon: 'success', confirmButtonColor: '#1a1a1a' });
+                        } else {
+                            Swal.fire({ title: 'Error', text: data.message || 'Failed to add offer', icon: 'error' });
+                        }
+                    } catch (error) {
+                        Swal.fire({ title: 'Error', text: 'Something went wrong', icon: 'error' });
+                    }
+                }
+            });
+        }
+
+        function removeOffer(categoryId) {
+            Swal.fire({
+                title: 'Remove Offer?',
+                text: 'This will remove the discount from all products in this category',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove',
+                confirmButtonColor: '#dc2626',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        Swal.fire({
+                            title: 'Removing...',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+
+                        const response = await fetch('/admin/removeOffer', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ categoryId })
+                        });
+                        const data = await response.json();
+
+                        if (data.status) {
+                            // Update UI dynamically
+                            const offerCell = document.getElementById(`offer-${categoryId}`);
+                            const actionCell = document.getElementById(`action-${categoryId}`);
+
+                            if (offerCell) {
+                                offerCell.innerHTML = `<span class="no-offer">No offer</span>`;
+                            }
+                            if (actionCell) {
+                                actionCell.innerHTML = `
+                                    <button type="button" class="btn-sm btn-add-offer"
+                                        onclick="addOffer('${categoryId}')">
+                                        <i class="fas fa-tag"></i> Add Offer
+                                    </button>`;
+                            }
+
+                            Swal.fire({ title: 'Removed!', text: 'Offer removed successfully', icon: 'success', confirmButtonColor: '#1a1a1a' });
+                        } else {
+                            Swal.fire({ title: 'Error', text: data.message || 'Failed to remove offer', icon: 'error' });
+                        }
+                    } catch (error) {
+                        Swal.fire({ title: 'Error', text: 'Something went wrong', icon: 'error' });
+                    }
+                }
+            });
+        }
+    </script>

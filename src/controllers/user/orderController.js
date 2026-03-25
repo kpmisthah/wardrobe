@@ -3,6 +3,8 @@ import { Size } from "../../models/sizeSchema.js"
 import { User } from '../../models/userSchema.js';
 import { Wallet } from '../../models/walletSchema.js';
 import PDFDocument from 'pdfkit';
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 //load Orders page
 const orders = async (req, res) => {
@@ -19,7 +21,7 @@ const orders = async (req, res) => {
 
     return res.render('user/orders', { orders, page, totalpages, user: userData })
   } catch (error) {
-    console.log("The error is" + error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 }
 
@@ -36,7 +38,7 @@ const viewOrder = async (req, res) => {
 
   } catch (error) {
     console.log(error)
-    return res.status(500).render('user/pageNotFound')
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound')
   }
 }
 
@@ -45,12 +47,11 @@ const orderCancel = async (req, res) => {
     const { orderId, productId } = req.body;
     const userId = req.session.user;
 
-    // Find the order containing this specific item._id and belonging to the user
     const orderedProducts = await Order.findOne({ orderId, userId })
 
     if (!orderedProducts) {
       console.error(`Order with ID ${orderId} not found or unauthorized`);
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ORDER_NOT_FOUND });
     }
 
     const itemIndex = orderedProducts.orderedItems.findIndex(
@@ -59,13 +60,13 @@ const orderCancel = async (req, res) => {
 
     if (itemIndex === -1) {
       console.error(`Product with ID ${productId} not found in order ${orderId}`);
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ITEM_NOT_FOUND });
     }
 
     const items = orderedProducts.orderedItems[itemIndex];
 
     if (items.cancelStatus === 'canceled') {
-      return res.status(400).json({ message: "Item already canceled" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.ITEM_ALREADY_CANCELED });
     }
 
     // Update stock logic
@@ -132,11 +133,11 @@ const orderCancel = async (req, res) => {
       orderedProducts.status = 'Canceled'
       await orderedProducts.save()
     }
-    return res.status(200).json({ message: "Item canceled successfully" });
+    return res.status(StatusCodes.OK).json({ message: Messages.ITEM_CANCELED });
 
   } catch (error) {
     console.log("Error in orderCancel:", error);
-    return res.status(500).json({ message: "Something went wrong" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SOMETHING_WENT_WRONG });
   }
 };
 
@@ -147,7 +148,7 @@ const cancelOrder = async (req, res) => {
     const cancelledOrder = await Order.findOneAndUpdate({ _id: orderId, userId }, { status: "Canceled" }, { new: true });
 
     if (!cancelledOrder) {
-      return res.status(403).json({ success: false, message: "Unauthorized action" });
+      return res.status(StatusCodes.FORBIDDEN).json({ success: false, message: Messages.UNAUTHORIZED_ACTION });
     }
 
     for (let item of cancelledOrder.orderedItems) {
@@ -185,14 +186,14 @@ const cancelOrder = async (req, res) => {
     }
 
     await cancelledOrder.save();
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "Order canceled successfully"
+      message: Messages.ORDER_CANCELED
     });
 
   } catch (error) {
     console.log("error in " + error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -203,19 +204,20 @@ const returnOrder = async (req, res) => {
     const orders = await Order.findOne({ 'orderedItems._id': productId, userId })
     const orderedIndex = orders.orderedItems.findIndex((item) => item._id.toString() == productId)
     if (orderedIndex == -1) {
-      return res.status(401).json({ message: "Item not found" })
+      return res.status(StatusCodes.UNAUTHORIZED).json({ message: Messages.ITEM_NOT_FOUND })
     }
     const returnOrder = orders.orderedItems[orderedIndex]
     if (returnOrder.returnStatus !== 'Not Requested' || returnOrder.cancelStatus == 'canceled') {
-      return res.status(400).json({ message: 'Return already requested for this product' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.RETURN_ALREADY_REQUESTED });
     }
 
     returnOrder.returnStatus = 'Requested'
 
     await orders.save()
-    res.status(200).json({ message: 'Return request submitted successfully' });
+    res.status(StatusCodes.OK).json({ message: Messages.RETURN_SUBMITTED });
   } catch (error) {
-    console.log("the error is" + error)
+    console.log("the error is" + error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 }
 
@@ -228,16 +230,16 @@ const updateOrderStatus = async (req, res) => {
 
     const order = await Order.findOne({ _id: orderId });
     if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ORDER_NOT_FOUND });
     }
 
     order.paymentStatus = status;
     await order.save();
 
-    res.json({ message: "Order status updated successfully" });
+    res.json({ message: Messages.ORDER_STATUS_UPDATED });
   } catch (error) {
     console.error("Error updating order status:", error);
-    res.status(500).json({ message: "Failed to update order status" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.FAILED_UPDATE_STATUS });
   }
 };
 
@@ -247,7 +249,7 @@ const createPdf = async (req, res) => {
     const userId = req.session.user;
     const order = await Order.findOne({ orderId: orderId, userId });
     if (!order) {
-      return res.status(404).send("Order not found or unauthorized");
+      return res.status(StatusCodes.NOT_FOUND).send(Messages.ORDER_NOT_FOUND_AUTH);
     }
     const doc = new PDFDocument({
       size: "A4",
@@ -333,7 +335,7 @@ const createPdf = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error("Error generating invoice:", error);
-    res.status(500).send("Error generating invoice");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.INVOICE_ERROR);
   }
 }
 

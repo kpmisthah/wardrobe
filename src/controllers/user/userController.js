@@ -9,6 +9,8 @@ import { Otp } from "../../models/otpModels.js";
 import randomString from "randomstring";
 import { Wishlist } from "../../models/wishlistSchema.js";
 import { Wallet } from "../../models/walletSchema.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 // import { sendEmail } from "../../utils/sendEmail.js";
 
 //load Home page
@@ -66,7 +68,7 @@ const loadHome = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).send("Server error");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 };
 
@@ -76,7 +78,7 @@ const loadError = async (req, res) => {
     return res.render("user/pageNotFound");
   } catch (error) {
     console.log(error);
-    return res.status(500).send("Server error");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 };
 
@@ -203,7 +205,7 @@ const loadShoppingPage = async (req, res) => {
       req.query.ajax === 'true';
 
     if (isAjax) {
-      return res.status(200).json({
+      return res.status(StatusCodes.OK).json({
         products,
         totalPages, // Sent as 'totalPages' to match frontend expects
         currentPage: page,
@@ -235,9 +237,9 @@ const loadShoppingPage = async (req, res) => {
     const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1) || req.query.ajax === 'true';
 
     if (isAjax) {
-      return res.status(500).json({ error: "Failed to load products" });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.FAILED_LOAD_PRODUCTS });
     }
-    return res.status(500).send("Internal Server Error");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 };
 
@@ -269,7 +271,7 @@ const loadProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Error loading profile:", error);
-    return res.status(500).send("An error occurred");
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.GENERAL_ERROR);
   }
 };
 
@@ -306,19 +308,19 @@ const address = async (req, res) => {
       userAddress.address.push(newAddressData);
       await userAddress.save();
       return res
-        .status(200)
-        .json({ message: "Address is addedd successfully" });
+        .status(StatusCodes.OK)
+        .json({ message: Messages.ADDRESS_ADDED });
     } else {
       const newAddress = new Address({
         userId: user,
         address: [newAddressData],
       });
       await newAddress.save();
-      return res.status(200).json({ message: "Address added successfully" });
+      return res.status(StatusCodes.OK).json({ message: Messages.ADDRESS_ADDED });
     }
   } catch (error) {
     console.error("Error saving address:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
   }
 };
 
@@ -377,7 +379,7 @@ const edit = async (req, res) => {
         },
       }
     );
-    res.status(200).json({ message: "data updated successfully" });
+    res.status(StatusCodes.OK).json({ message: Messages.DATA_UPDATED });
   } catch (error) {
     console.log("somethig went wrong", error);
   }
@@ -393,12 +395,12 @@ const deleteAddress = async (req, res) => {
       { new: true }
     );
     if (!address) {
-      return res.status(404).json({ message: "Address not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ADDRESS_NOT_FOUND });
     }
-    return res.status(200).json({ message: "address deleted successfully" });
+    return res.status(StatusCodes.OK).json({ message: Messages.ADDRESS_DELETED });
   } catch (error) {
     console.log("The error is" + error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -414,7 +416,7 @@ const updateProfile = async (req, res) => {
     return res.render("user/updateProfile", { user, userData: user });
   } catch (error) {
     console.log("The error is" + error);
-    res.status(500).send("Internal Error");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
   }
 };
 
@@ -425,23 +427,23 @@ const profileUpdate = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.USER_NOT_FOUND });
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Incorrect old password" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.INCORRECT_PASSWORD });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
 
-    return res.status(200).json({ message: "Password updated successfully" });
+    return res.status(StatusCodes.OK).json({ message: Messages.PASSWORD_UPDATED });
 
   } catch (error) {
     console.log("The error is" + error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -462,14 +464,14 @@ const verifyOtps = async (req, res) => {
     const otpRecord = await Otp.findOne({ email: oldEmail });
     if (!otpRecord) {
       return res
-        .status(400)
-        .json({ success: false, message: "OTP has expired or is invalid." });
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ success: false, message: Messages.OTP_EXPIRED });
     }
     if (otpRecord.otp != otps) {
-      return res.status(400).json({ success: false, message: "Invalid OTP." });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.INVALID_OTP });
     }
     if (!req.session.updateProfile) {
-      return res.status(400).json({ success: false, message: "Session expired. Please try again." });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.SESSION_EXPIRED });
     }
     const { email, password } = req.session.updateProfile;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -484,17 +486,17 @@ const verifyOtps = async (req, res) => {
     delete req.session.updateProfile;
 
     return res
-      .status(200)
+      .status(StatusCodes.OK)
       .json({
         success: true,
-        message: "Password updated successfully.",
+        message: Messages.PASSWORD_UPDATED,
         redirectUrl: "/updateProfile",
       });
   } catch (error) {
     console.error("Verify OTP Error:", error);
     return res
-      .status(500)
-      .json({ success: false, message: "An error occurred during verification" });
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: Messages.VERIFICATION_ERROR });
   }
 };
 

@@ -5,6 +5,8 @@ import { Category } from "../../models/categoriesSchema.js";
 import moment from "moment";
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 
 const loadDashboard = async (req, res) => {
@@ -12,123 +14,149 @@ const loadDashboard = async (req, res) => {
         let totalUsers = await User.countDocuments();
         let totalProducts = await Product.countDocuments();
         let totalOrders = await Order.countDocuments();
-        
+
         const Sales = await Order.aggregate([
             { $match: { status: 'Delivered' } },
-            { $group: {
-                _id: null,
-                totalSales: {
-                    $sum: {
-                        $cond: [
-                            { $eq: ['$discount', 0] },
-                            '$totalPrice',
-                            '$finalAmount'
-                        ]
+            {
+                $group: {
+                    _id: null,
+                    totalSales: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ['$discount', 0] },
+                                '$totalPrice',
+                                '$finalAmount'
+                            ]
+                        }
                     }
                 }
-            }}
+            }
         ]);
         const totalSales = Sales.length > 0 ? Sales[0].totalSales : 0;
 
         const discount = await Order.aggregate([
             { $match: { status: 'Delivered' } },
-            { $group: {
-                _id: null,
-                discount: { $sum: '$discount' }
-            }}
+            {
+                $group: {
+                    _id: null,
+                    discount: { $sum: '$discount' }
+                }
+            }
         ]);
         const totalDiscount = discount.length > 0 ? discount[0].discount : 0;
 
         const bestSellingProducts = await Order.aggregate([
             { $match: { status: 'Delivered' } },
             { $unwind: '$orderedItems' },
-            { $group: {
-                _id: '$orderedItems.product',
-                totalQuantity: { $sum: '$orderedItems.quantity' },
-                totalRevenue: { $sum: { $multiply: ['$orderedItems.quantity', { $toDouble: '$orderedItems.price' }] } },
-                productName: { $first: '$orderedItems.name' }
-            }},
+            {
+                $group: {
+                    _id: '$orderedItems.product',
+                    totalQuantity: { $sum: '$orderedItems.quantity' },
+                    totalRevenue: { $sum: { $multiply: ['$orderedItems.quantity', { $toDouble: '$orderedItems.price' }] } },
+                    productName: { $first: '$orderedItems.name' }
+                }
+            },
             { $sort: { totalQuantity: -1 } },
             { $limit: 10 },
-            { $project: {
-                productName: 1,
-                totalQuantity: 1,
-                totalRevenue: 1
-            }}
+            {
+                $project: {
+                    productName: 1,
+                    totalQuantity: 1,
+                    totalRevenue: 1
+                }
+            }
         ]);
 
         const bestSellingMainCategory = await Order.aggregate([
             { $match: { status: 'Delivered' } },
             { $unwind: '$orderedItems' },
-            { $lookup: {
-                from: 'products',
-                localField: 'orderedItems.product',
-                foreignField: '_id',
-                as: 'product'
-            }},
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
             { $unwind: '$product' },
-            { $lookup: {
-                from: 'categories',
-                localField: 'product.category',
-                foreignField: '_id',
-                as: 'category'
-            }},
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'product.category',
+                    foreignField: '_id',
+                    as: 'category'
+                }
+            },
             { $unwind: '$category' },
             { $match: { 'category.isListed': true } },
-            { $group: {
-                _id: '$category._id',
-                categoryName: { $first: '$category.name' },
-                totalQuantity: { $sum: '$orderedItems.quantity' },
-                totalRevenue: { $sum: { $multiply: [{ $toDouble: '$orderedItems.price' }, '$orderedItems.quantity'] } }
-            }},
+            {
+                $group: {
+                    _id: '$category._id',
+                    categoryName: { $first: '$category.name' },
+                    totalQuantity: { $sum: '$orderedItems.quantity' },
+                    totalRevenue: { $sum: { $multiply: [{ $toDouble: '$orderedItems.price' }, '$orderedItems.quantity'] } }
+                }
+            },
             { $sort: { totalQuantity: -1 } },
-            { $project: {
-                categoryName: 1,
-                totalQuantity: 1,
-                totalRevenue: 1
-            }}
+            {
+                $project: {
+                    categoryName: 1,
+                    totalQuantity: 1,
+                    totalRevenue: 1
+                }
+            }
         ]);
 
         const bestSellingSubcategories = await Order.aggregate([
             { $match: { status: 'Delivered' } },
             { $unwind: '$orderedItems' },
-            { $lookup: {
-                from: 'products',
-                localField: 'orderedItems.product',
-                foreignField: '_id',
-                as: 'product'
-            }},
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
             { $unwind: '$product' },
-            { $lookup: {
-                from: 'subcategories',
-                localField: 'product.subcategory',
-                foreignField: '_id',
-                as: 'subcategory'
-            }},
+            {
+                $lookup: {
+                    from: 'subcategories',
+                    localField: 'product.subcategory',
+                    foreignField: '_id',
+                    as: 'subcategory'
+                }
+            },
             { $unwind: '$subcategory' },
             { $match: { 'subcategory.isListed': true } },
-            { $lookup: {
-                from: 'categories',
-                localField: 'product.category',
-                foreignField: '_id',
-                as: 'mainCategory'
-            }},
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'product.category',
+                    foreignField: '_id',
+                    as: 'mainCategory'
+                }
+            },
             { $unwind: '$mainCategory' },
-            { $group: {
-                _id: '$subcategory._id',
-                subcategoryName: { $first: '$subcategory.name' },
-                mainCategoryName: { $first: '$mainCategory.name' },
-                totalQuantity: { $sum: '$orderedItems.quantity' },
-                totalRevenue: { $sum: { $multiply: [{ $toDouble: '$orderedItems.price' }, '$orderedItems.quantity'] } }
-            }},
+            {
+                $group: {
+                    _id: '$subcategory._id',
+                    subcategoryName: { $first: '$subcategory.name' },
+                    mainCategoryName: { $first: '$mainCategory.name' },
+                    totalQuantity: { $sum: '$orderedItems.quantity' },
+                    totalRevenue: { $sum: { $multiply: [{ $toDouble: '$orderedItems.price' }, '$orderedItems.quantity'] } }
+                }
+            },
             { $sort: { totalQuantity: -1 } },
             { $limit: 10 },
-            { $project: {
-                subcategoryName: 1,
-                mainCategoryName: 1,
-                totalQuantity: 1,
-                totalRevenue: 1
-            }}
+            {
+                $project: {
+                    subcategoryName: 1,
+                    mainCategoryName: 1,
+                    totalQuantity: 1,
+                    totalRevenue: 1
+                }
+            }
         ]);
 
         const orders = await Order.find({});
@@ -137,85 +165,92 @@ const loadDashboard = async (req, res) => {
         console.log("The error is " + error);
     }
 };
-const dashboard = async(req,res)=>{
+const dashboard = async (req, res) => {
     try {
-       const{quickFilter,startDate,endDate} = req.body
-       console.log("start"+startDate+" "+'end'+endDate);
-       
-       let matchCondition = {status:"Delivered"}
-       if(quickFilter){
-        const now = new Date()
-        switch(quickFilter){
-            case 'today':
-                matchCondition.invoiceDate = {
-                    $gte:moment(now).startOf('day').toDate(),
-                    $lte:moment(now).endOf('day').toDate()
-                }
-                break;
-                case 'week':
+        const { quickFilter, startDate, endDate } = req.body
+        console.log("start" + startDate + " " + 'end' + endDate);
+
+        let matchCondition = { status: "Delivered" }
+        if (quickFilter) {
+            const now = new Date()
+            switch (quickFilter) {
+                case 'today':
                     matchCondition.invoiceDate = {
-                        $gte:moment(now).startOf('isoWeek').toDate(),
-                        $lte:moment(now).endOf('isoWeek').toDate()
+                        $gte: moment(now).startOf('day').toDate(),
+                        $lte: moment(now).endOf('day').toDate()
                     }
                     break;
-                    case 'month':
-                        matchCondition.invoiceDate = {
-                            $gte:moment(now).startOf('month').toDate(),
-                            $lte:moment(now).endOf('month').toDate()
-                        }
-                        break;
-                        case 'year':
-                            matchCondition.invoiceDate = {
-                                $gte: moment(now).startOf('year').toDate(),
-                                $lt: moment(now).endOf('year').toDate()
-                            };
-                            break;
+                case 'week':
+                    matchCondition.invoiceDate = {
+                        $gte: moment(now).startOf('isoWeek').toDate(),
+                        $lte: moment(now).endOf('isoWeek').toDate()
+                    }
+                    break;
+                case 'month':
+                    matchCondition.invoiceDate = {
+                        $gte: moment(now).startOf('month').toDate(),
+                        $lte: moment(now).endOf('month').toDate()
+                    }
+                    break;
+                case 'year':
+                    matchCondition.invoiceDate = {
+                        $gte: moment(now).startOf('year').toDate(),
+                        $lt: moment(now).endOf('year').toDate()
+                    };
+                    break;
 
-                            case 'custom':
-                                matchCondition.invoiceDate = {
-                                    $gte: new Date(startDate),
-                                    $lt: new Date(endDate)
-                                };
-                                break
-                            default:
-                                break;
+                case 'custom':
+                    matchCondition.invoiceDate = {
+                        $gte: new Date(startDate),
+                        $lt: new Date(endDate)
+                    };
+                    break
+                default:
+                    break;
+            }
         }
-    }
 
         let totalUsers = await User.countDocuments()
         let totalProducts = await Product.countDocuments()
         let totalOrders = await Order.countDocuments()
         const Sales = await Order.aggregate([
-            {$match:{status:'Delivered'}},
-            {$group:
-                {_id:null,totalSales:
-                    {$sum:{$cond:
-                        [{$eq:['$discount',0]},"$totalPrice","$finalAmount"]}
-            }}}
+            { $match: { status: 'Delivered' } },
+            {
+                $group:
+                {
+                    _id: null, totalSales:
+                    {
+                        $sum: {
+                            $cond:
+                                [{ $eq: ['$discount', 0] }, "$totalPrice", "$finalAmount"]
+                        }
+                    }
+                }
+            }
         ])
-        const totalSales = Sales.length>0?Sales[0].totalSales:0
-        console.log("The total sales"+totalSales);
-        
+        const totalSales = Sales.length > 0 ? Sales[0].totalSales : 0
+        console.log("The total sales" + totalSales);
+
         const orders = await Order.find(matchCondition)
-        res.json({ totalOrders, totalUsers, totalProducts, totalSales, orders });
+        res.status(StatusCodes.OK).json({ totalOrders, totalUsers, totalProducts, totalSales, orders });
 
     } catch (error) {
-        console.log("The eror is"+error);
-        
+        console.log("The eror is" + error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
     }
-    
+
 }
 
-const generatePdfReport = async (req,res)=>{
+const generatePdfReport = async (req, res) => {
     try {
-        const orders = await Order.find({status:"Delivered"})
+        const orders = await Order.find({ status: "Delivered" })
         const doc = new PDFDocument();
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
         doc.pipe(res);
-        doc.fontSize(25).text('Sales Report',{align:'center'})
+        doc.fontSize(25).text('Sales Report', { align: 'center' })
         doc.moveDown()
-        orders.forEach(order=>{
+        orders.forEach(order => {
             doc.fontSize(12).text(`Order ID: ${order._id}`);
             doc.text(`Date: ${new Date(order.invoiceDate).toLocaleDateString('en-US')}`);
             doc.text(`Amount: ₹${order.totalPrice}`);
@@ -227,8 +262,8 @@ const generatePdfReport = async (req,res)=>{
         })
         doc.end()
     } catch (error) {
-        console.log("The error is"+error);
-        
+        console.log("The error is" + error);
+
     }
 }
 
@@ -272,4 +307,4 @@ const generateExcelReport = async (req, res) => {
     await workbook.xlsx.write(res);
     res.end();
 };
-export{dashboard,loadDashboard,generatePdfReport,generateExcelReport}
+export { dashboard, loadDashboard, generatePdfReport, generateExcelReport }

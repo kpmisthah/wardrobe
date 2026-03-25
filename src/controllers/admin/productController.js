@@ -5,11 +5,12 @@ import path from "path";
 import sharp from "sharp";
 import { Size } from "../../models/sizeSchema.js";
 import fs from 'fs';
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 
 const getProductAddPage = async (req, res) => {
   try {
-    //extract category  from dbs
     const category = await Category.find({ isListed: true });
     const subcategory = await Subcategory.find({ isListed: true });
     const size = await Size.find();
@@ -27,10 +28,9 @@ const addProducts = async (req, res) => {
   try {
     const products = req.body;
     const productExist = await Product.findOne({
-      name: products.productName, //ivide error adikkan chance ind
+      name: products.productName,
     });
     if (!productExist) {
-      //images handle cheyyan empty array initialise cheyya
       const images = [];
       if (req.files && req.files.length > 0) {
         for (let i = 0; i < req.files.length; i++) {
@@ -48,12 +48,11 @@ const addProducts = async (req, res) => {
           images.push(resizedFileName);
         }
       }
-      //ividathe products form nn varunne aan req.body nn.
       const category = await Category.findById(products.category);
       const subcategory = await Subcategory.findById(products.subcategory);
 
       if (!category || !subcategory) {
-        return res.status(400).json("Invalid category name");
+        return res.status(StatusCodes.BAD_REQUEST).json(Messages.INVALID_CATEGORY);
       }
       const newProduct = new Product({
         name: products.productName,
@@ -73,8 +72,8 @@ const addProducts = async (req, res) => {
       return res.redirect("/admin/addProducts");
     } else {
       return res
-        .status(400)
-        .json("product already exist ,please try with another name");
+        .status(StatusCodes.BAD_REQUEST)
+        .json(Messages.PRODUCT_EXISTS);
     }
   } catch (error) {
     console.error("Error saving product", error);
@@ -159,8 +158,8 @@ const editProduct = async (req, res) => {
     });
 
     if (existingProduct) {
-      return res.status(400).json({
-        error: "Product with this name already exists. please try with another name",
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        error: Messages.PRODUCT_EDIT_EXISTS,
       });
     }
 
@@ -229,7 +228,7 @@ const deleteSingleImage = async (req, res) => {
     } else {
       console.log(`Image ${imageNameToServer} not found`);
     }
-    res.send({ status: true });
+    res.status(StatusCodes.OK).send({ status: true });
 
   } catch (error) {
     console.log("The delete error is" + error);
@@ -247,39 +246,34 @@ const sizeManagement = async (req, res) => {
 const addSize = async (req, res) => {
   try {
     const { product, size, quantity } = req.body;
-    //existing size
     const normalSize = size.toLowerCase();
     const existingSize = await Size.findOne({ size: normalSize, product });
     if (existingSize) {
       existingSize.quantity += parseInt(quantity);
       await existingSize.save();
       return res
-        .status(200)
-        .json({ message: "quantity is update successfully" });
+        .status(StatusCodes.OK)
+        .json({ message: Messages.QUANTITY_UPDATED });
     }
 
-    //new size
     const newSize = new Size({
       product,
       size: normalSize,
       quantity,
     });
     await newSize.save();
-    //update the size option push the new sizes into array of sizeOptions in Product schema
     await Product.findByIdAndUpdate(product, {
       $push: { sizeOptions: newSize._id },
     });
-    res.status(200).json({ message: "success" });
+    res.status(StatusCodes.OK).json({ message: Messages.SIZE_ADDED });
   } catch (error) {
     console.log("The error is error" + error);
-    // res.status(500).json({message:"Internal server error"})
   }
 };
 export {
   getProductAddPage,
   addProducts,
   getProductPage,
-  // addProductOffer,removeProductOffer,
   blockProduct,
   unblockProduct,
   getEditProduct,

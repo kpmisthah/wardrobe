@@ -5,6 +5,8 @@ import { Product } from "../../models/productSchema.js";
 import { Wishlist } from "../../models/wishlistSchema.js";
 import { removeWishlist } from "./wishlistController.js";
 import mongoose from "mongoose";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 const loadCart = async (req, res) => {
   try {
@@ -46,16 +48,16 @@ const cart = async (req, res) => {
     }
 
     if (!productSize) {
-      return res.status(404).json({ message: `Size '${size}' not found for this product.` });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.SIZE_NOT_FOUND_PARAM });
     }
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.PRODUCT_NOT_FOUND });
     }
 
     if (product.isBlocked) {
-      return res.status(403).json({ message: "This product is currently unavailable" });
+      return res.status(StatusCodes.FORBIDDEN).json({ message: Messages.PRODUCT_UNAVAILABLE });
     }
     const realPrice = product.salePrice > 0 ? product.salePrice : product.regularPrice;
 
@@ -75,23 +77,22 @@ const cart = async (req, res) => {
     const totalQuantity = requestedQuantity + existingQuantity;
 
     if (totalQuantity > maxQtyPerPerson) {
-      return res.status(400).json({
-        message: `Cannot add more than 10 units per person.`,
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: Messages.MAX_QTY_EXCEEDED,
       });
     }
 
     // Check available stock
     if (requestedQuantity > productSize.quantity) {
-      return res.status(400).json({
-        message: `Not enough stock. Only ${productSize.quantity} left.`,
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: Messages.INSUFFICIENT_STOCK_PARAM,
         stockLeft: productSize.quantity,
       });
     }
 
     if (itemIndex != -1) {
       cart.items[itemIndex].quantity = totalQuantity;
-      // Use realPrice here
-      cart.items[itemIndex].price = realPrice; // Ensure unit price is corrected if it was wrong
+      cart.items[itemIndex].price = realPrice;
       cart.items[itemIndex].totalPrice = realPrice * totalQuantity;
     } else {
       cart.items.push({
@@ -99,16 +100,15 @@ const cart = async (req, res) => {
         name,
         quantity: requestedQuantity,
         size: size,
-        price: realPrice, // Use realPrice here
+        price: realPrice,
         totalPrice: realPrice * requestedQuantity,
       });
     }
 
     if (productSize.quantity < 0) {
-      return res.status(400).json({ message: `Not enough stock` });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.NOT_ENOUGH_STOCK });
     }
 
-    // Update the cart count based on total items
     cart.cartCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
 
     cart.bill = cart.items.reduce((acc, curr) => acc + curr.quantity * curr.price, 0);
@@ -138,10 +138,10 @@ const cart = async (req, res) => {
       console.error("Error removing from wishlist:", wsErr);
     }
 
-    res.status(200).json({ message: "Item added to the cart successfully", cartCount: cart.cartCount });
+    res.status(StatusCodes.OK).json({ message: Messages.ITEM_ADDED_CART, cartCount: cart.cartCount });
   } catch (error) {
     console.log("Error in addToCart:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -167,20 +167,20 @@ const validateCartStock = async (req, res) => {
     }
 
     if (invalidItems.length > 0) {
-      return res.status(200).json({
+      return res.status(StatusCodes.OK).json({
         valid: false,
         invalidItems
       });
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       valid: true
     });
 
   } catch (error) {
     console.error('Error in validateCartStock:', error);
-    return res.status(500).json({
-      message: 'Internal server error'
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: Messages.SERVER_ERROR
     });
   }
 };
@@ -190,36 +190,32 @@ const deleteItem = async (req, res) => {
     const user = req.session.user;
     const productId = req.params.productId;
 
-    // Find the cart
     const cart = await Cart.findOne({ userId: user });
 
     if (!cart) {
-      return res.status(404).json({ success: false, error: "Cart not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ success: false, error: Messages.CART_NOT_FOUND });
     }
 
-    // Find the index of the item to be deleted
     const itemIndex = cart.items.findIndex(
       (item) => item._id.toString() === productId
     );
 
     if (itemIndex === -1) {
       return res
-        .status(404)
-        .json({ success: false, error: "Item not found in cart" });
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, error: Messages.ITEM_NOT_IN_CART });
     }
 
-    // Remove the item
     cart.items.splice(itemIndex, 1);
     const cartCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
 
-    // cart bill veendum calculate cheyya
     cart.bill = cart.items.reduce((total, item) => total + item.totalPrice, 0);
     await cart.save();
 
     return res.json({ success: true, cartCount });
   } catch (error) {
     console.error("Error removing item from cart:", error);
-    return res.status(500).json({ success: false, error: "Failed to remove item" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, error: Messages.FAILED_REMOVE_ITEM });
   }
 };
 
@@ -230,7 +226,7 @@ const inc = async (req, res) => {
     const cart = await Cart.findOne({ userId });
 
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.CART_NOT_FOUND });
     }
 
     const productSize = await Size.findOne({ product: productId, size });
@@ -240,7 +236,7 @@ const inc = async (req, res) => {
     );
 
     if (cartIndex === -1) {
-      return res.status(404).json({ message: "Item not found in cart" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ITEM_NOT_IN_CART });
     }
 
     const cartItem = cart.items[cartIndex];
@@ -250,14 +246,14 @@ const inc = async (req, res) => {
     let newQuantity = currrentQuantity + 1;
 
     if (newQuantity > maxQuantityPerPerson) {
-      return res.status(400).json({
-        message: `Cannot add more than 10 units per person.`,
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: Messages.MAX_QTY_EXCEEDED,
       });
     }
 
     if (newQuantity > productSize.quantity) {
-      return res.status(400).json({
-        message: `Not enough stock.`,
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: Messages.NOT_ENOUGH_STOCK,
         stockLeft: productSize.quantity,
       });
     }
@@ -267,7 +263,7 @@ const inc = async (req, res) => {
     cart.items[cartIndex].totalPrice = cartItem.price * newQuantity;
 
     if (productSize.quantity < 0) {
-      return res.status(400).json({ message: `Not enough stock` });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.NOT_ENOUGH_STOCK });
     }
 
     // Update Bill
@@ -281,9 +277,9 @@ const inc = async (req, res) => {
     // Calculate Total Count
     const cartCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "Item quantity incremented",
+      message: Messages.ITEM_QTY_INCREMENTED,
       newQuantity: newQuantity,
       newTotalPrice: cart.items[cartIndex].totalPrice,
       newCartTotal: cart.bill,
@@ -292,7 +288,7 @@ const inc = async (req, res) => {
 
   } catch (error) {
     console.log("The error is " + error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -303,7 +299,7 @@ const dec = async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.CART_NOT_FOUND });
     }
 
     const cartIndex = cart.items.findIndex(
@@ -311,7 +307,7 @@ const dec = async (req, res) => {
     );
 
     if (cartIndex === -1) {
-      return res.status(404).json({ message: "Item not found in cart" });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ITEM_NOT_IN_CART });
     }
 
     const cartItem = cart.items[cartIndex];
@@ -319,7 +315,7 @@ const dec = async (req, res) => {
 
     // Prevent decrementing below 1
     if (currrentQuantity <= 1) {
-      return res.status(400).json({ message: "Quantity cannot be less than 1" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.QTY_MIN_REACHED });
     }
 
     let newQuantity = currrentQuantity - 1;
@@ -338,9 +334,9 @@ const dec = async (req, res) => {
 
     const cartCount = cart.items.reduce((acc, item) => acc + item.quantity, 0);
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "Item quantity decremented",
+      message: Messages.ITEM_QTY_DECREMENTED,
       newQuantity: newQuantity,
       newTotalPrice: cart.items[cartIndex].totalPrice,
       newCartTotal: cart.bill,
@@ -349,7 +345,7 @@ const dec = async (req, res) => {
 
   } catch (error) {
     console.error("Error in decrement:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -364,7 +360,7 @@ const cartcount = async (req, res) => {
     console.log("The count", count);
     res.json({ count });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching cart count" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.CART_COUNT_ERROR });
   }
 }
 

@@ -8,6 +8,8 @@ import { Size } from "../../models/sizeSchema.js";
 import { Product } from "../../models/productSchema.js";
 import { orders } from "./orderController.js";
 import { rzp } from "../../db/razorpay.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 const loadCheckout = async (req, res) => {
   try {
@@ -80,9 +82,10 @@ const editAddress = async (req, res) => {
         },
       }
     );
-    res.status(200).json({ message: "data updated successfully" });
+    res.status(StatusCodes.OK).json({ message: Messages.DATA_UPDATED });
   } catch (error) {
     console.log("somethig went wrong", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 
@@ -115,8 +118,8 @@ const addcheckoutAddress = async (req, res) => {
       });
       await userAddress.save();
       return res
-        .status(200)
-        .json({ message: "Address is addedd successfully" });
+        .status(StatusCodes.OK)
+        .json({ message: Messages.ADDRESS_ADDED });
     } else {
       const newAddress = new Address({
         userId: user,
@@ -134,10 +137,10 @@ const addcheckoutAddress = async (req, res) => {
         ],
       });
       await newAddress.save();
-      return res.status(200).json({ message: "Address added successfully" });
+      return res.status(StatusCodes.OK).json({ message: Messages.ADDRESS_ADDED });
     }
   } catch (error) {
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
   }
 };
 
@@ -150,20 +153,20 @@ const placeOrder = async (req, res) => {
     const discount_amount = req.session.discount || 0;
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.CART_EMPTY });
     }
 
     for (let item of cart.items) {
       const product = await Product.findById(item.product);
       if (product.isBlocked) {
-        return res.status(400).json({
-          message: `Product ${item.name} is currently unavailable. Please remove it from your cart.`,
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          message: Messages.PRODUCT_UNAVAILABLE_REMOVE,
         });
       }
 
       const size = await Size.findOne({ product: item.product, size: item.size });
       if (!size || size.quantity < item.quantity) {
-        return res.status(400).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
           message: `Insufficient stock for ${item.name} in size ${item.size}. Only ${size ? size.quantity : 0} available.`,
         });
       }
@@ -176,7 +179,7 @@ const placeOrder = async (req, res) => {
     }
     const address = await Address.findOne({ userId, "address._id": addressId });
     if (!address) {
-      return res.status(404).json({ message: "Address not found." });
+      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ADDRESS_NOT_FOUND });
     }
     const addressIndex = address.address.findIndex(
       (addr) => addr._id.toString() == addressId
@@ -205,9 +208,9 @@ const placeOrder = async (req, res) => {
     let totalPrice = cart.bill;
     if (payment == "COD" && (final_amount || totalPrice) > 1000) {
       return res
-        .status(400)
+        .status(StatusCodes.BAD_REQUEST)
         .json({
-          message: "Cash on Delivery is not allowed for orders above Rs 1000.",
+          message: Messages.COD_LIMIT,
         });
     }
     const newOrder = new Order({
@@ -236,13 +239,14 @@ const placeOrder = async (req, res) => {
     cart.bill = 0;
     await cart.save();
     return res
-      .status(200)
+      .status(StatusCodes.OK)
       .json({
-        message: "Order placed successfully",
+        message: Messages.ORDER_PLACED,
         redirectUrl: "/order-confirmation",
       });
   } catch (error) {
     console.log("The error is" + error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
   }
 };
 const createPendingOrder = async (req, res) => {
@@ -252,17 +256,17 @@ const createPendingOrder = async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
     if (!cart || cart.items.length == 0) {
-      return res.status(400).json({ success: false, message: 'cart is empty' })
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.CART_EMPTY })
     }
     for (let item of cart.items) {
       const product = await Product.findById(item.product);
       if (product.isBlocked) {
-        return res.status(400).json({ success: false, message: `Product ${item.name} is currently unavailable.` });
+        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.PRODUCT_UNAVAILABLE });
       }
 
       const size = await Size.findOne({ product: item.product, size: item.size })
       if (!size || size.quantity < item.quantity) {
-        return res.status(400).json({ success: false, message: `Insufficient stock for ${item.name} in size ${item.size}. Only ${size ? size.quantity : 0} available.` })
+        return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.INSUFFICIENT_STOCK_PARAM })
       }
     }
     const address = await Address.findOne({ userId });
@@ -310,13 +314,13 @@ const createPendingOrder = async (req, res) => {
 
     res.json({
       success: true,
-      status: 200,
-      message: "Pending order created",
+      status: StatusCodes.OK,
+      message: Messages.PENDING_ORDER_CREATED,
       mongoOrderId: newOrder._id
     });
   } catch (error) {
     console.error("Error creating pending order:", error);
-    res.status(500).json({ message: "Failed to create pending order" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.FAILED_PENDING_ORDER });
   }
 };
 
@@ -326,11 +330,12 @@ const orderConfirm = async (req, res) => {
     const user = await User.findById(userId);
     const lastOrder = await Order.findOne({ userId: userId }).sort({ createdAt: -1 })
     if (!lastOrder) {
-      return res.status(404).render('user/pageNotFound');
+      return res.status(StatusCodes.NOT_FOUND).render('user/pageNotFound');
     }
     return res.render("user/orderconfirmed", { orderId: lastOrder.orderId, user: user });
   } catch (error) {
     console.log("the error for orders is" + error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound');
   }
 };
 const saveOrder = async (req, res) => {
@@ -344,20 +349,20 @@ const saveOrder = async (req, res) => {
     }
     const cart = await Cart.findOne({ userId: order.userId });
     if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.CART_EMPTY });
     }
 
 
     for (let item of cart.items) {
       const product = await Product.findById(item.product);
       if (product.isBlocked) {
-        return res.status(400).json({ message: `Product ${item.name} is currently unavailable.` });
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.PRODUCT_UNAVAILABLE });
       }
 
       const size = await Size.findOne({ product: item.product, size: item.size });
 
       if (!size || size.quantity < item.quantity) {
-        return res.status(400).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
           message: `Insufficient stock for ${item.name} in size ${item.size}. Only ${size ? size.quantity : 0} available.`,
         });
       }
@@ -379,13 +384,13 @@ const saveOrder = async (req, res) => {
     delete req.session.finalAmount;
 
     res.json({
-      status: 200,
-      message: "Order saved successfully",
+      status: StatusCodes.OK,
+      message: Messages.ORDER_SAVED,
       redirectUrl: "/order-confirmation",
     });
   } catch (error) {
     console.error("Error saving order:", error);
-    res.status(500).json({ message: "Failed to save order" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.FAILED_SAVE_ORDER });
   }
 };
 
@@ -399,7 +404,7 @@ const retryPayment = async (req, res) => {
     const orders = await Order.findOne({ _id: originalOrderId, userId })
 
     if (!orders || orders.status !== 'Pending' || orders.paymentMethod !== 'razorpay') {
-      return res.status(400).json({ success: false, message: 'Invalid order for retry payment.' });
+      return res.status(StatusCodes.BAD_REQUEST).json({ success: false, message: Messages.INVALID_RETRY_ORDER });
     }
 
     const rzpOrder = await rzp.orders.create({
@@ -416,7 +421,7 @@ const retryPayment = async (req, res) => {
     res.json({ razorpayOrderId: rzpOrder.id, razorpayKey: process.env.RAZORPAY_KEY_ID, amount: orders.finalAmount });
   } catch (error) {
     console.error("Error creating retry payment:", error);
-    res.status(500).json({ message: "Failed to create retry payment" });
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.FAILED_RETRY_PAYMENT });
   }
 };
 
@@ -439,12 +444,12 @@ const completeRetryPayment = async (req, res) => {
     cart.items = [];
     cart.bill = 0;
     await cart.save()
-    res.json({ success: true, message: "Payment completed successfully", redirectUrl: `/order-confirmation` });
+    res.json({ success: true, message: Messages.PAYMENT_COMPLETED, redirectUrl: `/order-confirmation` });
   } catch (error) {
     console.error("Error completing retry payment:", error);
-    res.status(500).json({
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Failed to complete payment",
+      message: Messages.FAILED_COMPLETE_PAYMENT,
       error: error.message
     });
   }
@@ -461,7 +466,7 @@ const applyCoupon = async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(400).json({ message: "Cart not found" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.CART_NOT_FOUND });
     }
 
 
@@ -469,20 +474,20 @@ const applyCoupon = async (req, res) => {
     console.log("The coupondvsjcknvbdjfslj" + coupon);
 
     if (!coupon) {
-      return res.status(400).json({ message: "Invalid or expired coupon" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.INVALID_COUPON });
     }
 
     //minpurchase
     if (coupon.minPurchase > cart.bill) {
-      return res.status(400).json({
-        message: `Minimum purchase amount of ₹${coupon.minPurchase} required`,
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message: Messages.MIN_PURCHASE_REQUIRED,
       });
     }
 
     if (coupon.startDate > Date.now() || coupon.endDate < Date.now()) {
       return res
-        .status(400)
-        .json({ message: "Coupon is not valid at this time" });
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: Messages.COUPON_NOT_VALID_TIME });
     }
 
     //oru coupon oru user ..oru user n same coupon 2 thavana add aakan patoola
@@ -493,8 +498,8 @@ const applyCoupon = async (req, res) => {
 
     if (existingOrder) {
       return res
-        .status(400)
-        .json({ message: "You have already used this coupon" });
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: Messages.COUPON_ALREADY_USED });
     }
 
     // Calculate discount
@@ -513,16 +518,16 @@ const applyCoupon = async (req, res) => {
     req.session.coupon = coupon.code;
     req.session.finalAmount = finalAmount;
     req.session.discount = discount;
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       discount,
       finalAmount,
-      message: "Coupon applied successfully",
+      message: Messages.COUPON_APPLIED,
     });
   } catch (error) {
     console.error("Error applying coupon:", error);
-    return res.status(500).json({
-      message: "Failed to apply coupon",
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: Messages.FAILED_APPLY_COUPON,
       error: error.message,
     });
   }
@@ -534,23 +539,23 @@ const removeCoupon = async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
     if (!cart) {
-      return res.status(400).json({ message: "Cart not found" });
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.CART_NOT_FOUND });
     }
     req.session.coupon = null
     req.session.finalAmount = cart.bill
     req.session.discount = 0
 
     // Return the response
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       originalPrice: cart.bill,
-      message: "Coupon removed successfully, price reverted to original",
+      message: Messages.COUPON_REMOVED,
     });
 
   } catch (error) {
     console.error("Error removing coupon:", error);
-    return res.status(500).json({
-      message: "Coupon removed successfully",
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: Messages.COUPON_REMOVED,
       error: error.message,
     });
   }
@@ -563,11 +568,11 @@ const generatePdf = async (req, res) => {
     const userId = req.session.user;
     const order = await Order.findOne({ orderId: orderId, userId });
     if (!order) {
-      return res.status(404).send("Order not found or unauthorized");
+      return res.status(StatusCodes.NOT_FOUND).send(Messages.ORDER_NOT_FOUND_AUTH);
     }
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(StatusCodes.NOT_FOUND).send(Messages.ORDER_NOT_FOUND);
     }
     const doc = new PDFDocument({
       size: "A4",
@@ -653,7 +658,7 @@ const generatePdf = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error("Error generating invoice:", error);
-    res.status(500).send("Error generating invoice");
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.INVOICE_ERROR);
   }
 };
 

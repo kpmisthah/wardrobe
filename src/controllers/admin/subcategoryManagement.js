@@ -1,5 +1,8 @@
 import { Category } from "../../models/categoriesSchema.js"
 import { Subcategory } from "../../models/subcategorySchema.js"
+import { StatusCodes } from "../../utils/enums.js"
+import { Messages } from "../../utils/messages.js"
+
 const subcategoryManagement = async (req, res) => {
     try {
         let search = req.query.search || "";
@@ -10,8 +13,23 @@ const subcategoryManagement = async (req, res) => {
             ]
         } : {};
 
-        let subcategory = await Subcategory.find(query).sort({ createdAt: -1 });
-        return res.render('admin/subcategory', { subcategory, search })
+        //pagination
+        let page = parseInt(req.query.page) || 1
+        let limit = 4
+        let subcategory = await Subcategory.find(query)
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip((page - 1) * limit);
+
+        let count = await Subcategory.find(query).countDocuments();
+        let totalpages = Math.ceil(count / limit);
+
+        return res.render('admin/subcategory', {
+            subcategory,
+            search,
+            currentPage: page,
+            totalpages
+        })
     } catch (error) {
         return res.render('admin/pageNotFound')
     }
@@ -21,19 +39,19 @@ const subcategoryManagement = async (req, res) => {
 const subcategory = async (req, res) => {
     try {
         console.log('hello')
-        console.log('Request body:', req.body); // Log the request body
+        console.log('Request body:', req.body);
         const { name, description } = req.body
         const existingSub = await Subcategory.findOne({ name })
         if (existingSub) {
-            return res.status(400).json({ error: "subcategory is already exist" })
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: Messages.SUBCATEGORY_EXISTS })
         }
 
         const newSub = new Subcategory({ name, description })
         await newSub.save()
-        return res.status(200).json({ message: "successfully subcategory addedd" })
+        return res.status(StatusCodes.OK).json({ message: Messages.SUBCATEGORY_ADDED })
     } catch (error) {
         console.log(error)
-        return res.status(500).json({ error: "internal server error" });
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR });
 
     }
 }
@@ -63,7 +81,7 @@ const subedit = async (req, res) => {
         const { id } = req.query
         const subcategory = await Subcategory.findById(id)
         if (!subcategory) {
-            return res.status(404).send("Subcategory not found")
+            return res.status(StatusCodes.NOT_FOUND).send(Messages.SUBCATEGORY_NOT_FOUND)
         }
         res.render('admin/edit-subcategory', { subcategory })
     } catch (error) {
@@ -77,7 +95,7 @@ const editSubcategory = async (req, res) => {
         const { categoryName, description } = req.body
         const existingCategory = await Subcategory.findOne({ name: categoryName })
         if (existingCategory) {
-            return res.status(400).json({ error: "Subcategory exist pls choose another name" })
+            return res.status(StatusCodes.BAD_REQUEST).json({ error: Messages.SUBCATEGORY_EDIT_EXISTS })
         }
         const updatesubCategory = await Subcategory.findByIdAndUpdate(id, {
             name: categoryName,
@@ -86,11 +104,10 @@ const editSubcategory = async (req, res) => {
         if (updatesubCategory) {
             res.redirect('/admin/subcategory')
         } else {
-            res.status(404).json({ error: "Category not found" })
+            res.status(StatusCodes.NOT_FOUND).json({ error: Messages.CATEGORY_NOT_FOUND })
         }
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" })
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: Messages.SERVER_ERROR })
     }
 }
 export { subcategoryManagement, subcategory, isList, unList, subedit, editSubcategory }
-

@@ -3,18 +3,18 @@ import { Product } from "../../models/productSchema.js";
 import { User } from "../../models/userSchema.js";
 import { Wishlist } from "../../models/wishlistSchema.js";
 import { Size } from "../../models/sizeSchema.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 
 const loadWishlist = async (req, res) => {
     try {
         const user = req.session.user
-        // Use lean() to get a plain JavaScript object that we can modify
         const wishlist = await Wishlist.findOne({ userId: user }).populate('items.product').lean();
 
         if (user) {
             let userData = await User.findOne({ _id: user });
 
-            // Enrich wishlist items with stock information
             if (wishlist && wishlist.items && wishlist.items.length > 0) {
                 for (const item of wishlist.items) {
                     if (item.product && item.size) {
@@ -22,7 +22,6 @@ const loadWishlist = async (req, res) => {
                             product: item.product._id,
                             size: item.size
                         });
-                        // Attach stock quantity to the item for the view to use
                         item.stockQuantity = sizeDoc ? sizeDoc.quantity : 0;
                     } else {
                         item.stockQuantity = 0;
@@ -38,7 +37,7 @@ const loadWishlist = async (req, res) => {
 
     } catch (error) {
         console.log("Error in loadWishlist:", error);
-        res.status(500).send("Internal Server Error");
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(Messages.SERVER_ERROR);
     }
 }
 
@@ -52,8 +51,8 @@ const addToWishlist = async (req, res) => {
         }
         const items = wishlist.items.some((item) => item.product == productId && item.size == size && item.quantity == 1)
         if (quantity > 1) {
-            return res.status(400).json({
-                message: "Only one quantity of a product can be added to the wishlist"
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: Messages.WISHLIST_ONLY_ONE
             });
         }
         if (!items) {
@@ -63,12 +62,13 @@ const addToWishlist = async (req, res) => {
                 quantity
             })
         } else {
-            return res.status(400).json({ message: "product is already exist" })
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.WISHLIST_PRODUCT_EXISTS })
         }
         await wishlist.save()
-        return res.status(200).json({ message: "product addedd to wishlist" })
+        return res.status(StatusCodes.OK).json({ message: Messages.WISHLIST_ADDED })
     } catch (error) {
-        console.log("The error is " + error)
+        console.log("The error is " + error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
     }
 }
 
@@ -80,7 +80,7 @@ const wishlistToCart = async (req, res) => {
         // Check stock availability first
         const sizeDoc = await Size.findOne({ product: productId, size: productSize });
         if (!sizeDoc || sizeDoc.quantity < 1) {
-            return res.status(400).json({ message: "Product is out of stock" });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.PRODUCT_OUT_OF_STOCK });
         }
 
         let cart = await Cart.findOne({ userId })
@@ -92,7 +92,7 @@ const wishlistToCart = async (req, res) => {
         const cartIndex = cart.items.findIndex((item) => item.product.toString() == productId && item.size == productSize)
 
         if (cartIndex != -1) {
-            return res.status(400).json({ message: "product is already in cart" })
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.PRODUCT_ALREADY_IN_CART })
         } else {
             const newItem = {
                 product: productId,
@@ -107,10 +107,10 @@ const wishlistToCart = async (req, res) => {
 
         cart.bill += Number(productPrice);
         await cart.save()
-        return res.status(200).json({ message: "Product is added to cart successfully" })
+        return res.status(StatusCodes.OK).json({ message: Messages.PRODUCT_ADDED_CART })
     } catch (error) {
         console.log("error is " + error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
     }
 }
 
@@ -123,12 +123,13 @@ const removeWishlist = async (req, res) => {
         console.log("The wishlsit is" + wishlist);
 
         if (!wishlist) {
-            return res.status(404).json({ message: "wishlist not found" })
+            return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.WISHLIST_NOT_FOUND })
         }
-        return res.status(200).json({ message: "wishlist deleted successfully" })
+        return res.status(StatusCodes.OK).json({ message: Messages.WISHLIST_DELETED })
 
     } catch (error) {
-
+        console.log("Error in removeWishlist:", error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
     }
 }
 export { loadWishlist, addToWishlist, wishlistToCart, removeWishlist }

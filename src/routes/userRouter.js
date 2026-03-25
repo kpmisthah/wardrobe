@@ -1,7 +1,7 @@
 import express from "express"
 import { loadHome, loadError, loadShoppingPage, loadProfile, updateProfile, getAddress, addAddress, address, getEditPage, edit, deleteAddress, profileUpdate, otpVerification, verifyOtps } from "../controllers/user/userController.js"
 import { loadCart, cart, deleteItem, inc, dec, validateCartStock, cartcount } from "../controllers/user/cartController.js"
-import { productDetails } from "../controllers/user/productController.js"
+import { loadProductDetails } from "../controllers/user/productController.js"
 import { loadCheckout, getEditAddressPage, editAddress, loadAddcheckoutaddress, addcheckoutAddress, placeOrder, orderConfirm, applyCoupon, saveOrder, removeCoupon, generatePdf, retryPayment, completeRetryPayment, createPendingOrder } from '../controllers/user/checkoutController.js'
 import { userAuth, block } from "../middlewares/userAuth.js"
 import { viewOrder, orders, orderCancel, returnOrder, cancelOrder, updateOrderStatus, createPdf } from "../controllers/user/orderController.js"
@@ -19,7 +19,7 @@ router.get('/notfound', loadError)
 router.get('/shop', userAuth, block, loadShoppingPage)
 
 //product detail page
-router.get('/productDetails', userAuth, block, productDetails)
+router.get('/productDetails', userAuth, block, loadProductDetails)
 //profile page
 router.get('/myaccount', block, userAuth, loadProfile)
 router.get('/updateProfile', block, userAuth, updateProfile)

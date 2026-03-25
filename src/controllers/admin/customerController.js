@@ -1,4 +1,6 @@
 import { User } from "../../models/userSchema.js"
+import { StatusCodes } from "../../utils/enums.js"
+import { Messages } from "../../utils/messages.js"
 
 const customer = async (req, res) => {
     try {
@@ -25,12 +27,12 @@ const blockUser = async (req, res) => {
 
         const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1);
         if (isAjax) {
-            return res.status(200).json({ success: true, message: "User blocked successfully" });
+            return res.status(StatusCodes.OK).json({ success: true, message: Messages.USER_BLOCKED });
         }
         res.redirect('/admin/customer')
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.SERVER_ERROR });
     }
 
 }
@@ -42,12 +44,12 @@ const unblockUser = async (req, res) => {
 
         const isAjax = req.xhr || (req.headers.accept && req.headers.accept.indexOf('json') > -1);
         if (isAjax) {
-            return res.status(200).json({ success: true, message: "User unblocked successfully" });
+            return res.status(StatusCodes.OK).json({ success: true, message: Messages.USER_UNBLOCKED });
         }
         res.redirect('/admin/customer')
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: "Internal server error" });
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.SERVER_ERROR });
     }
 
 }
