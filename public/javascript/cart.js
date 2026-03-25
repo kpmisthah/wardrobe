@@ -16,7 +16,8 @@ async function addToCart(productId, name, price, stock, size) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(cartItems)
         })
-        const responseData = await response.json()
+        const responseData = await response.json();
+        console.log("Add to cart response:", responseData);
         if (response.ok) {
             const updatedCart = await fetch('/cart/count');
             const { count } = await updatedCart.json();
@@ -38,23 +39,12 @@ async function addToCart(productId, name, price, stock, size) {
                     window.location.href = '/cart';
                 }
             });
-        } else if (responseData.message == `Not enough stock.`) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Insufficient Stock',
-                text: `Not enough stock left. Only ${responseData.stockLeft} items available.`,
-            });
-        } else if (responseData.message == `Cannot add more than 10 units per person.`) {
-            Swal.fire({
-                icon: 'error',
-                title: `Not Permitted`,
-                text: `Only add 10 units for a product`
-            })
         } else {
+            // Handle error responses (400, 403, 404, 500, etc.)
             Swal.fire({
                 icon: 'error',
-                title: 'Failed to Add',
-                text: 'Failed to add the item to your cart. Please try again.',
+                title: responseData.message && (responseData.message.toLowerCase().includes('stock') || responseData.message.toLowerCase().includes('unavailable')) ? 'Stock Issue' : 'Failed to Add',
+                text: responseData.message || 'Failed to add the item to your cart. Please try again.',
             });
         }
     } catch (error) {
