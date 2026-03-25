@@ -5,6 +5,10 @@ import path from "path";
 import sharp from "sharp";
 import { Size } from "../../models/sizeSchema.js";
 import fs from 'fs';
+import { productRepository } from "../../repositories/productRepository.js";
+import { categoryRepository } from "../../repositories/categoryRepository.js";
+import { StatusCodes } from "../../utils/enums.js";
+import { Messages } from "../../utils/messages.js";
 
 
 const getProductAddPage = async (req, res) => {

@@ -13,6 +13,7 @@ import { isAuthenticated, isLogin } from "../middlewares/adminAuth.js"
 import { loadDashboard, dashboard, generatePdfReport, generateExcelReport } from "../controllers/admin/dashboardController.js"
 const uploads = uploadMulter(storage)
 
+router.get('/', isAuthenticated, (req, res) => res.redirect('/admin/dashboard'))
 router.get('/login', isLogin, loginPage)
 router.post('/login', login)
 router.get('/pageNotFound', pageNotFound)
