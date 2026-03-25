@@ -2,6 +2,7 @@ import { Category } from "../../models/categoriesSchema.js";
 import { Product } from "../../models/productSchema.js";
 import { HTTP_STATUS, MESSAGES } from "../../constants.js";
 import { categoryRepository } from "../../repositories/categoryRepository.js";
+import { StatusCodes } from "../../utils/enums.js";
 
 const categoryManagement = async (req, res) => {
   try {
