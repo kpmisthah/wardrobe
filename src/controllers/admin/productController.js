@@ -5,24 +5,12 @@ import path from "path";
 import sharp from "sharp";
 import { Size } from "../../models/sizeSchema.js";
 import fs from 'fs';
-<<<<<<< HEAD
-import { StatusCodes } from "../../utils/enums.js";
-import { Messages } from "../../utils/messages.js";
-=======
-import { HTTP_STATUS, MESSAGES, ORDER_STATUS } from "../../constants.js";
-import { productRepository } from "../../repositories/productRepository.js";
-import { categoryRepository } from "../../repositories/categoryRepository.js";
->>>>>>> 59c24a1dd5608bbd67f5c4ab49d51a090e32e32c
 
 
 const getProductAddPage = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const category = await Category.find({ isListed: true });
-=======
     //extract category  from dbs
-    const category = await categoryRepository.findCategories({ isListed: true }, 1, 100);
->>>>>>> 59c24a1dd5608bbd67f5c4ab49d51a090e32e32c
+    const category = await Category.find({ isListed: true });
     const subcategory = await Subcategory.find({ isListed: true });
     const size = await Size.find();
     res.render("admin/product-add", {
@@ -38,13 +26,9 @@ const getProductAddPage = async (req, res) => {
 const addProducts = async (req, res) => {
   try {
     const products = req.body;
-<<<<<<< HEAD
     const productExist = await Product.findOne({
-      name: products.productName,
+      name: products.productName, //ivide error adikkan chance ind
     });
-=======
-    const productExist = await productRepository.findDuplicateProduct(products.productName);
->>>>>>> 59c24a1dd5608bbd67f5c4ab49d51a090e32e32c
     if (!productExist) {
       const images = [];
       if (req.files && req.files.length > 0) {
@@ -63,20 +47,12 @@ const addProducts = async (req, res) => {
           images.push(resizedFileName);
         }
       }
-<<<<<<< HEAD
+      //ividathe products form nn varunne aan req.body nn.
       const category = await Category.findById(products.category);
       const subcategory = await Subcategory.findById(products.subcategory);
 
       if (!category || !subcategory) {
-        return res.status(StatusCodes.BAD_REQUEST).json(Messages.INVALID_CATEGORY);
-=======
-      //ividathe products form nn varunne aan req.body nn.
-      const category = await categoryRepository.findCategoryById(products.category);
-      const subcategory = await Subcategory.findById(products.subcategory);
-
-      if (!category || !subcategory) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json("Invalid category name");
->>>>>>> 59c24a1dd5608bbd67f5c4ab49d51a090e32e32c
+        return res.status(400).json("Invalid category name");
       }
       const newProduct = new Product({
         name: products.productName,
@@ -96,13 +72,8 @@ const addProducts = async (req, res) => {
       return res.redirect("/admin/addProducts");
     } else {
       return res
-<<<<<<< HEAD
-        .status(StatusCodes.BAD_REQUEST)
-        .json(Messages.PRODUCT_EXISTS);
-=======
-        .status(HTTP_STATUS.BAD_REQUEST)
+        .status(400)
         .json("product already exist ,please try with another name");
->>>>>>> 59c24a1dd5608bbd67f5c4ab49d51a090e32e32c
     }
   } catch (error) {
     console.error("Error saving product", error);
@@ -180,13 +151,8 @@ const editProduct = async (req, res) => {
     const existingProduct = await productRepository.findDuplicateProduct(data.productName, id);
 
     if (existingProduct) {
-<<<<<<< HEAD
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        error: Messages.PRODUCT_EDIT_EXISTS,
-=======
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      return res.status(400).json({
         error: "Product with this name already exists. please try with another name",
->>>>>>> 59c24a1dd5608bbd67f5c4ab49d51a090e32e32c
       });
     }
 
