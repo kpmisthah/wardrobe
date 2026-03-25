@@ -385,6 +385,40 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Pagination -->
+        <% if (typeof totalpages !=='undefined' && totalpages> 1) { %>
+          <div class="pagination-container">
+            <ul class="pagination">
+              <% if (currentPage> 1) { %>
+                <li class="page-item">
+                  <a class="page-link"
+                    href="/admin/subcategory?page=<%= currentPage - 1 %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                    <i class="fas fa-chevron-left"></i>
+                  </a>
+                </li>
+                <% } %>
+
+                  <% for (let i=1; i <=totalpages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                      <a class="page-link"
+                        href="/admin/subcategory?page=<%= i %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                        <%= i %>
+                      </a>
+                    </li>
+                    <% } %>
+
+                      <% if (currentPage < totalpages) { %>
+                        <li class="page-item">
+                          <a class="page-link"
+                            href="/admin/subcategory?page=<%= currentPage + 1 %>&search=<%= typeof search !== 'undefined' ? search : '' %>">
+                            <i class="fas fa-chevron-right"></i>
+                          </a>
+                        </li>
+                        <% } %>
+            </ul>
+          </div>
+          <% } %>
       </div>
 
       <!-- Pagination -->

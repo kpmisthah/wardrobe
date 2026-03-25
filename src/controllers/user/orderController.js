@@ -3,8 +3,8 @@ import { Size } from "../../models/sizeSchema.js"
 import { User } from '../../models/userSchema.js';
 import { Wallet } from '../../models/walletSchema.js';
 import PDFDocument from 'pdfkit';
-import { StatusCodes } from "../../utils/enums.js";
-import { Messages } from "../../utils/messages.js";
+import { HTTP_STATUS, ORDER_STATUS, PAYMENT_STATUS, CANCEL_STATUS, MESSAGES } from '../../constants.js';
+import { orderRepository } from '../../repositories/orderRepository.js';
 
 //load Orders page
 const orders = async (req, res) => {
@@ -29,7 +29,7 @@ const viewOrder = async (req, res) => {
   try {
     const user = req.session.user
     const { orderid } = req.params
-    const order = await Order.findOne({ _id: orderid, userId: user }).populate('orderedItems.product')
+    const order = await orderRepository.findOrderById(orderid, user);
     if (!order) {
       return res.redirect('/orders')
     }
@@ -38,7 +38,7 @@ const viewOrder = async (req, res) => {
 
   } catch (error) {
     console.log(error)
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).render('user/pageNotFound')
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render('user/pageNotFound')
   }
 }
 
@@ -51,7 +51,12 @@ const orderCancel = async (req, res) => {
 
     if (!orderedProducts) {
       console.error(`Order with ID ${orderId} not found or unauthorized`);
-      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.ORDER_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ message: MESSAGES.ORDER_NOT_FOUND });
+    }
+
+    // Guard: do not allow cancel on failed-payment orders
+    if (orderedProducts.paymentStatus === PAYMENT_STATUS.FAILED) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: MESSAGES.CANCEL_FAILED_PAYMENT });
     }
 
     const itemIndex = orderedProducts.orderedItems.findIndex(
@@ -65,12 +70,12 @@ const orderCancel = async (req, res) => {
 
     const items = orderedProducts.orderedItems[itemIndex];
 
-    if (items.cancelStatus === 'canceled') {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.ITEM_ALREADY_CANCELED });
+    if (items.cancelStatus === CANCEL_STATUS.CANCELED) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: MESSAGES.ITEM_ALREADY_CANCELED });
     }
 
     // Update stock logic
-    items.cancelStatus = 'canceled'
+    items.cancelStatus = CANCEL_STATUS.CANCELED
     const size = await Size.findOne({ product: items.product, size: items.size })
     if (size) {
       size.quantity += items.quantity
@@ -94,7 +99,7 @@ const orderCancel = async (req, res) => {
     // Update Order Fields
     orderedProducts.totalPrice -= itemTotal;
     orderedProducts.discount -= proportionalDiscount;
-    orderedProducts.finalAmount -= refundAmount;
+    orderedProducts.finalAmount = (orderedProducts.finalAmount || orderedProducts.totalPrice + itemTotal) - refundAmount;
 
     // Safety clamps
     if (orderedProducts.totalPrice < 0) orderedProducts.totalPrice = 0;
@@ -130,14 +135,14 @@ const orderCancel = async (req, res) => {
     // Check if all items are now canceled
     const allProductsCancelled = orderedProducts.orderedItems.every((p => p.cancelStatus == 'canceled'))
     if (allProductsCancelled) {
-      orderedProducts.status = 'Canceled'
+      orderedProducts.status = ORDER_STATUS.CANCELED
       await orderedProducts.save()
     }
-    return res.status(StatusCodes.OK).json({ message: Messages.ITEM_CANCELED });
+    return res.status(HTTP_STATUS.OK).json({ message: MESSAGES.ITEM_CANCELED });
 
   } catch (error) {
     console.log("Error in orderCancel:", error);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SOMETHING_WENT_WRONG });
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
   }
 };
 

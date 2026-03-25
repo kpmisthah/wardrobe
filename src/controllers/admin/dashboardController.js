@@ -5,18 +5,21 @@ import { Category } from "../../models/categoriesSchema.js";
 import moment from "moment";
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
-import { StatusCodes } from "../../utils/enums.js";
-import { Messages } from "../../utils/messages.js";
+import { HTTP_STATUS, MESSAGES, ORDER_STATUS } from "../../constants.js";
+import { orderRepository } from "../../repositories/orderRepository.js";
+import { productRepository } from "../../repositories/productRepository.js";
+import { categoryRepository } from "../../repositories/categoryRepository.js";
+import userRepository from "../../repositories/userRepository.js";
 
 
 const loadDashboard = async (req, res) => {
     try {
-        let totalUsers = await User.countDocuments();
-        let totalProducts = await Product.countDocuments();
-        let totalOrders = await Order.countDocuments();
+        let totalUsers = await userRepository.count();
+        let totalProducts = await productRepository.countProducts();
+        let totalOrders = await orderRepository.countOrders();
 
         const Sales = await Order.aggregate([
-            { $match: { status: 'Delivered' } },
+            { $match: { status: ORDER_STATUS.DELIVERED } },
             {
                 $group: {
                     _id: null,
@@ -35,7 +38,7 @@ const loadDashboard = async (req, res) => {
         const totalSales = Sales.length > 0 ? Sales[0].totalSales : 0;
 
         const discount = await Order.aggregate([
-            { $match: { status: 'Delivered' } },
+            { $match: { status: ORDER_STATUS.DELIVERED } },
             {
                 $group: {
                     _id: null,
@@ -46,7 +49,7 @@ const loadDashboard = async (req, res) => {
         const totalDiscount = discount.length > 0 ? discount[0].discount : 0;
 
         const bestSellingProducts = await Order.aggregate([
-            { $match: { status: 'Delivered' } },
+            { $match: { status: ORDER_STATUS.DELIVERED } },
             { $unwind: '$orderedItems' },
             {
                 $group: {
@@ -68,7 +71,7 @@ const loadDashboard = async (req, res) => {
         ]);
 
         const bestSellingMainCategory = await Order.aggregate([
-            { $match: { status: 'Delivered' } },
+            { $match: { status: ORDER_STATUS.DELIVERED } },
             { $unwind: '$orderedItems' },
             {
                 $lookup: {
@@ -108,7 +111,7 @@ const loadDashboard = async (req, res) => {
         ]);
 
         const bestSellingSubcategories = await Order.aggregate([
-            { $match: { status: 'Delivered' } },
+            { $match: { status: ORDER_STATUS.DELIVERED } },
             { $unwind: '$orderedItems' },
             {
                 $lookup: {
@@ -159,10 +162,11 @@ const loadDashboard = async (req, res) => {
             }
         ]);
 
-        const orders = await Order.find({});
+        const orders = await orderRepository.findOrdersForAdmin({}, 1, 1000);
         res.render('admin/dashboard', { totalOrders, totalUsers, totalProducts, totalSales, totalDiscount, orders, bestSellingProducts, bestSellingMainCategory, bestSellingSubcategories });
     } catch (error) {
         console.log("The error is " + error);
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
     }
 };
 const dashboard = async (req, res) => {
@@ -170,7 +174,7 @@ const dashboard = async (req, res) => {
         const { quickFilter, startDate, endDate } = req.body
         console.log("start" + startDate + " " + 'end' + endDate);
 
-        let matchCondition = { status: "Delivered" }
+        let matchCondition = { status: ORDER_STATUS.DELIVERED }
         if (quickFilter) {
             const now = new Date()
             switch (quickFilter) {
@@ -210,11 +214,11 @@ const dashboard = async (req, res) => {
             }
         }
 
-        let totalUsers = await User.countDocuments()
-        let totalProducts = await Product.countDocuments()
-        let totalOrders = await Order.countDocuments()
+        let totalUsers = await userRepository.count()
+        let totalProducts = await productRepository.countProducts()
+        let totalOrders = await orderRepository.countOrders()
         const Sales = await Order.aggregate([
-            { $match: { status: 'Delivered' } },
+            { $match: { status: ORDER_STATUS.DELIVERED } },
             {
                 $group:
                 {
@@ -236,14 +240,14 @@ const dashboard = async (req, res) => {
 
     } catch (error) {
         console.log("The eror is" + error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
     }
 
 }
 
 const generatePdfReport = async (req, res) => {
     try {
-        const orders = await Order.find({ status: "Delivered" })
+        const orders = await Order.find({ status: ORDER_STATUS.DELIVERED })
         const doc = new PDFDocument();
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
@@ -263,12 +267,12 @@ const generatePdfReport = async (req, res) => {
         doc.end()
     } catch (error) {
         console.log("The error is" + error);
-
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
     }
 }
 
 const generateExcelReport = async (req, res) => {
-    const orders = await Order.find({ status: 'Delivered' });
+    const orders = await Order.find({ status: ORDER_STATUS.DELIVERED });
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');

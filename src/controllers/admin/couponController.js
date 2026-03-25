@@ -1,6 +1,6 @@
 import { Coupon } from "../../models/couponSchema.js";
-import { StatusCodes } from "../../utils/enums.js";
-import { Messages } from "../../utils/messages.js";
+import { HTTP_STATUS, MESSAGES } from "../../constants.js";
+import { couponRepository } from "../../repositories/couponRepository.js";
 
 const laodCoupon = async (req, res) => {
   try {
@@ -8,12 +8,8 @@ const laodCoupon = async (req, res) => {
     let limit = 10;
     const skip = (page - 1) * limit;
 
-    const coupon = await Coupon.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const count = await Coupon.countDocuments();
+    const coupon = await couponRepository.findCoupons(page, limit);
+    const count = await couponRepository.countCoupons();
     const totalpages = Math.ceil(count / limit);
 
     return res.render("admin/coupon", {
@@ -23,6 +19,7 @@ const laodCoupon = async (req, res) => {
     });
   } catch (error) {
     console.log("The error is " + error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
   }
 };
 
@@ -46,9 +43,9 @@ const createCoupon = async (req, res) => {
       discountType,
       maxDiscount
     } = req.body;
-    const couponExist = await Coupon.findOne({ code });
+    const couponExist = await couponRepository.findCouponByCode(code);
     if (couponExist) {
-      return res.status(StatusCodes.BAD_REQUEST).json({ message: Messages.COUPON_EXISTS });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: MESSAGES.COUPON_EXISTS });
     }
     const newCoupon = new Coupon({
       code,
@@ -60,20 +57,21 @@ const createCoupon = async (req, res) => {
       maxDiscount: Number(maxDiscount)
     });
     await newCoupon.save();
-    res.status(StatusCodes.OK).json({ message: Messages.COUPON_ADDED });
+    res.status(HTTP_STATUS.OK).json({ message: MESSAGES.COUPON_ADDED });
   } catch (error) {
-    console.log("The error is " + error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+    console.log("The erro is " + error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
   }
 };
 
 const geteditCoupon = async (req, res) => {
   try {
     const { edit } = req.params;
-    const coupon = await Coupon.findOne({ _id: edit });
+    const coupon = await couponRepository.findCouponById(edit);
     return res.render("admin/edit-coupon", { coupon });
   } catch (error) {
-    console.log("The error is" + error);
+    console.log("Ther error is" + error);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(MESSAGES.INTERNAL_ERROR);
   }
 };
 
@@ -96,26 +94,25 @@ const editCoupon = async (req, res) => {
     );
 
     if (!updateCoupon) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.COUPON_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ message: MESSAGES.COUPON_NOT_FOUND });
     }
-    return res.status(StatusCodes.OK).json({ message: Messages.COUPON_UPDATED });
+    return res.status(HTTP_STATUS.OK).json({ message: MESSAGES.COUPON_UPDATED });
   } catch (error) {
-    console.log("The error is" + error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: Messages.SERVER_ERROR });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_ERROR });
   }
 };
 
 const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
-    const coupon = await Coupon.findByIdAndDelete(id);
+    const coupon = await couponRepository.deleteCoupon(id);
     if (!coupon) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: Messages.COUPON_NOT_FOUND });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ message: MESSAGES.COUPON_NOT_FOUND });
     }
-    res.status(StatusCodes.OK).json({ success: true, message: Messages.COUPON_DELETED });
+    res.status(HTTP_STATUS.OK).json({ success: true, message: MESSAGES.COUPON_DELETED });
   } catch (error) {
     console.error("Error deleting coupon:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: Messages.SERVER_ERROR });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_ERROR });
   }
 };
 

@@ -9,13 +9,13 @@ const loginPage = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
-        const admin = await User.findOne({ email, isAdmin: 1 })
+        const admin = await userRepository.findOne({ email, isAdmin: true })
         if (!admin) {
-            return res.render('admin/login', { message: Messages.INVALID_CREDENTIALS })
+            return res.render('admin/login', { message: MESSAGES.INVALID_CREDENTIALS })
         }
         const matchPassword = await bcrypt.compare(password, admin.password)
         if (!matchPassword) {
-            return res.render('admin/login', { message: Messages.INVALID_CREDENTIALS })
+            return res.render('admin/login', { message: MESSAGES.INVALID_CREDENTIALS })
         }
         req.session.admin = admin._id
         res.redirect('/admin/dashboard')
